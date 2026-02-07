@@ -264,8 +264,10 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
       })
 
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
-      timeoutRef.current = setTimeout(() => setFeedback(null), 3000)
-      router.push('/inicio')
+      timeoutRef.current = setTimeout(() => {
+        setFeedback(null)
+        router.replace('/inicio')
+      }, 800)
     })
   }
 

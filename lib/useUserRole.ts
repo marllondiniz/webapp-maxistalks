@@ -7,6 +7,7 @@ import { getUserRole, type ProfileRecord, type UserRole } from './profile'
 export function useUserRole() {
   const [role, setRole] = useState<UserRole>('FREE')
   const [profile, setProfile] = useState<ProfileRecord | null>(null)
+  const [userId, setUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const supabase = getSupabaseClient()
 
@@ -23,9 +24,12 @@ export function useUserRole() {
       if (!user) {
         setRole('FREE')
         setProfile(null)
+        setUserId(null)
         setLoading(false)
         return
       }
+
+      setUserId(user.id)
 
       const { data, error } = await supabase
         .from('profiles')
@@ -74,6 +78,7 @@ export function useUserRole() {
     profile,
     loading,
     hasActiveSubscription: profile?.hasActiveSubscription ?? false,
+    userId,
   }
 }
 

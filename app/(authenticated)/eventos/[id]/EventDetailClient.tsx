@@ -55,7 +55,8 @@ const parseDescriptionSections = (raw: string | null): DescriptionSection[] => {
 export function EventDetailClient({ event, banner, outrosEventos = [], bannersAtivos = [] }: Props) {
   const router = useRouter()
   const supabase = getSupabaseClient()
-  const { profile } = useUserRole()
+  const { profile, userId } = useUserRole()
+  const effectiveUserId = profile?.id ?? userId
   const [isPending, startTransition] = useTransition()
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
@@ -88,7 +89,7 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
   )
 
   const handleExpressInterest = async () => {
-    if (!profile?.id) {
+    if (!effectiveUserId) {
       setMessage({ type: 'error', text: 'Você precisa estar logado para manifestar interesse.' })
       return
     }
@@ -100,7 +101,7 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
           .from('event_registrations')
           .select('id')
           .eq('event_id', event.id)
-          .eq('user_id', profile.id)
+          .eq('user_id', effectiveUserId)
           .single()
 
         if (existingRegistration) {
@@ -113,7 +114,7 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
           .from('event_registrations')
           .insert({
             event_id: event.id,
-            user_id: profile.id,
+            user_id: effectiveUserId,
           })
 
         if (insertError) throw insertError

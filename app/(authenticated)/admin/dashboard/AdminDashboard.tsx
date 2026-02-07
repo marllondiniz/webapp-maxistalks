@@ -20,6 +20,7 @@ import type {
 type Props = {
   registrations: EventRegistrationWithDetails[]
   stats: DashboardStats
+  configError?: string | null
 }
 
 function formatDate(value: string) {
@@ -46,7 +47,7 @@ function formatEventDate(value: string) {
   })
 }
 
-export function AdminDashboard({ registrations, stats }: Props) {
+export function AdminDashboard({ registrations, stats, configError }: Props) {
   const [filterEvent, setFilterEvent] = useState<string>('all')
   const [sortBy, setSortBy] = useState<'recent' | 'event' | 'name'>('recent')
   const [expanded, setExpanded] = useState(true)
@@ -81,6 +82,16 @@ export function AdminDashboard({ registrations, stats }: Props) {
           Quem manifestou interesse em participar dos eventos. Use os contatos para enviar o convite no WhatsApp.
         </p>
       </div>
+
+      {configError && (
+        <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-5 py-4 text-amber-200">
+          <p className="font-semibold">Configuração necessária</p>
+          <p className="mt-1 text-sm">{configError}</p>
+          <p className="mt-2 text-xs text-amber-300/80">
+            Vercel → Project Settings → Environment Variables
+          </p>
+        </div>
+      )}
 
       {/* Cards de resumo */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

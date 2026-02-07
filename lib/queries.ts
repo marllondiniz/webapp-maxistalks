@@ -203,23 +203,40 @@ export async function getEventRegistrationsWithDetails(): Promise<
 > {
   const supabase = getSupabaseAdmin()
 
-  // Tenta com created_at; se não existir, usa fallback
+  // Tenta created_at; se não existir, tenta registered_at (Supabase pode usar um ou outro)
   let registrations: { event_id: string; user_id: string; ticket_url: string | null; created_at?: string }[] = []
   const { data: dataWithCreated, error: errWithCreated } = await supabase
     .from('event_registrations')
     .select('event_id, user_id, ticket_url, created_at')
     .order('created_at', { ascending: false })
+    .limit(5000)
 
   if (errWithCreated?.code === '42703') {
-    // Coluna created_at não existe - usa query sem ordenação por data
-    const { data: dataFallback, error: errFallback } = await supabase
+    // created_at não existe - tenta registered_at
+    const { data: dataWithRegistered, error: errRegistered } = await supabase
       .from('event_registrations')
-      .select('event_id, user_id, ticket_url')
-    if (errFallback) {
-      console.error('Erro ao buscar inscrições:', errFallback)
+      .select('event_id, user_id, ticket_url, registered_at')
+      .order('registered_at', { ascending: false })
+      .limit(5000)
+
+    if (!errRegistered && dataWithRegistered?.length) {
+      registrations = (dataWithRegistered as { event_id: string; user_id: string; ticket_url: string | null; registered_at?: string }[]).map(
+        (r) => ({ event_id: r.event_id, user_id: r.user_id, ticket_url: r.ticket_url ?? null, created_at: r.registered_at ?? '' })
+      )
+    } else if (errRegistered?.code === '42703') {
+      const { data: dataFallback, error: errFallback } = await supabase
+        .from('event_registrations')
+        .select('event_id, user_id, ticket_url')
+        .limit(5000)
+      if (errFallback) {
+        console.error('Erro ao buscar inscrições:', errFallback)
+        return []
+      }
+      registrations = (dataFallback ?? []).map((r) => ({ ...r, created_at: '' }))
+    } else if (errRegistered) {
+      console.error('Erro ao buscar inscrições:', errRegistered)
       return []
     }
-    registrations = (dataFallback ?? []).map((r) => ({ ...r, created_at: '' }))
   } else if (errWithCreated) {
     console.error('Erro ao buscar inscrições:', errWithCreated)
     return []

@@ -28,13 +28,14 @@ export default function LoginClient() {
     let isMounted = true
     const checkSession = async () => {
       const supabase = getSupabaseClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!isMounted || !session?.user) return
+      // getUser() valida com o servidor; getSession() só lê do cache e pode retornar sessão de conta deletada
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!isMounted || !user) return
 
       const { data: profile } = await supabase
         .from('profiles')
         .select('is_admin, is_complete')
-        .eq('id', session.user.id)
+        .eq('id', user.id)
         .maybeSingle()
 
       if (profile?.is_admin) {
@@ -95,19 +96,45 @@ export default function LoginClient() {
 
         const userId = data.user?.id
         if (userId) {
+          // Valida no servidor se o usuário ainda existe em auth.users
+          const verifyRes = await fetch('/api/auth/verify-user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId }),
+          })
+          const verifyData = await verifyRes.json()
+          if (!verifyData?.valid) {
+            await supabase.auth.signOut()
+            setFeedback({
+              type: 'error',
+              text: 'Sua conta não foi encontrada no sistema. Entre em contato com o suporte.',
+            })
+            return
+          }
+
           const { data: profile } = await supabase
             .from('profiles')
             .select('is_admin, is_complete')
             .eq('id', userId)
             .maybeSingle()
 
-          if (profile?.is_admin) {
+          // Usuário sem perfil = conta deletada ou inexistente no sistema
+          if (!profile) {
+            await supabase.auth.signOut()
+            setFeedback({
+              type: 'error',
+              text: 'Sua conta não está configurada no sistema. Entre em contato com o suporte.',
+            })
+            return
+          }
+
+          if (profile.is_admin) {
             setFeedback({ type: 'success', text: 'Bem-vindo(a), administrador!' })
             router.replace('/admin')
             return
           }
 
-          if (profile?.is_complete === false) {
+          if (profile.is_complete === false) {
             setFeedback({ type: 'success', text: 'Complete seu perfil para continuar.' })
             router.replace('/perfil')
             return
