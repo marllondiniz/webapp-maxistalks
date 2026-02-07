@@ -48,44 +48,44 @@ export async function POST(request: NextRequest) {
     }
 
     // Enviar email de confirmação para o usuário
-    const fromEmail = process.env.RESEND_FROM_EMAIL || 'Coffee Music <no-reply@ritmocertoclub.com.br>'
-        const notificationFromEmail = process.env.RESEND_FROM_EMAIL || 'Coffee Music <no-reply@ritmocertoclub.com.br>'
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'MaxisTalks <no-reply@maxistalks.com>'
+        const notificationFromEmail = process.env.RESEND_FROM_EMAIL || 'MaxisTalks <no-reply@maxistalks.com>'
     
-    const siteBaseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://ritmocertoclub.com.br'
-    const bannerImageUrl = `${siteBaseUrl}/banner-bemvindo.png`
+    const siteBaseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://maxistalks.com'
+    const bannerImageUrl = `${siteBaseUrl}/maxistalks-logo.png`
     
     const { data, error } = await resend.emails.send({
       from: fromEmail,
       to: email,
-      subject: 'Bem-vindo à Newsletter Coffee Music & Run! 🎵☕',
+      subject: 'Bem-vindo à Newsletter MaxisTalks! 🎤',
       html: `
         <!DOCTYPE html>
         <html>
           <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Bem-vindo à Newsletter</title>
+            <title>Bem-vindo à Newsletter MaxisTalks</title>
           </head>
           <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="text-align: center; margin-bottom: 0;">
-              <img src="${bannerImageUrl}" alt="Coffee Music & Run - Bem-vindo" style="max-width: 100%; height: auto; border-radius: 10px; display: block; margin: 0 auto;" />
+              <img src="${bannerImageUrl}" alt="MaxisTalks - Bem-vindo" style="max-width: 100%; height: auto; border-radius: 10px; display: block; margin: 0 auto;" />
             </div>
             <div style="background: #fff; padding: 30px; border-radius: 0 0 10px 10px;">
               <h2 style="color: #000; margin-top: 0;">Bem-vindo à nossa comunidade! 🎉</h2>
               <p>Olá!</p>
-              <p>Obrigado por se inscrever na newsletter do <strong>Coffee Music & Run</strong>!</p>
+              <p>Obrigado por se inscrever na newsletter do <strong>MaxisTalks</strong>!</p>
               <p>Você agora receberá todas as novidades sobre:</p>
               <ul style="margin: 20px 0;">
-                <li>📅 Próximos eventos</li>
-                <li>🎵 Lançamentos e novidades</li>
-                <li>🎁 Ofertas exclusivas</li>
-                <li>🏃 Dicas e conteúdos da comunidade</li>
+                <li>📅 Próximas palestras e eventos</li>
+                <li>🎤 Lançamentos e novidades</li>
+                <li>🎁 Conteúdos exclusivos</li>
+                <li>💡 Dicas e estratégias do digital</li>
               </ul>
-              <p>Fique ligado e prepare-se para fechar o ano no <strong>ritmo certo</strong>!</p>
-              <p style="margin-top: 30px;">Até breve!<br><strong>Equipe Coffee Music & Run</strong></p>
+              <p>Palco para quem gera valor. Fique ligado!</p>
+              <p style="margin-top: 30px;">Até breve!<br><strong>Equipe MaxisTalks</strong></p>
             </div>
             <div style="text-align: center; margin-top: 20px; color: #666; font-size: 12px;">
-              <p>Você recebeu este email porque se inscreveu na newsletter do Coffee Music & Run.</p>
+              <p>Você recebeu este email porque se inscreveu na newsletter do MaxisTalks.</p>
             </div>
           </body>
         </html>
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
         await resend.emails.send({
           from: notificationFromEmail,
           to: process.env.RESEND_NOTIFICATION_EMAIL,
-          subject: 'Nova inscrição na Newsletter',
+          subject: 'Nova inscrição na Newsletter MaxisTalks',
           html: `
             <p>Nova inscrição na newsletter:</p>
             <p><strong>Email:</strong> ${email}</p>

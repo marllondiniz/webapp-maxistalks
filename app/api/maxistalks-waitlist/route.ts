@@ -55,9 +55,9 @@ export async function POST(request: NextRequest) {
     }
 
     const fromEmail =
-      process.env.RESEND_FROM_EMAIL || 'MaxisPlus <no-reply@maxis.plus>'
+      process.env.RESEND_FROM_EMAIL || 'MaxisTalks <no-reply@maxistalks.com>'
     const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, '') || 'https://maxis.plus'
+      process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, '') || 'https://maxistalks.com'
     const imageUrl = `${baseUrl}/maxistalks-joao4.jpeg`
 
     await resend.emails.send({
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
               <p>Olá!</p>
               <p>Obrigado por se inscrever na lista de espera do <strong>MaxisTalks</strong>.</p>
               <p>Você será avisado em primeira mão quando abrirmos as próximas edições.</p>
-              <p style="margin-top: 30px;">Até breve!<br><strong>Equipe MaxisPlus</strong></p>
+              <p style="margin-top: 30px;">Até breve!<br><strong>Equipe MaxisTalks</strong></p>
             </div>
           </body>
         </html>

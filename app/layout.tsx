@@ -3,8 +3,8 @@ import { Inter, DM_Sans } from 'next/font/google'
 import './globals.css'
 import { CookieConsent } from './(components)/CookieConsent'
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://maxis.plus'
-const imageUrl = `${baseUrl}/maxistalks-joao4.jpeg`
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://maxistalks.com'
+const imageUrl = `${baseUrl}/maxistalks-logo.png`
 
 const inter = Inter({
   subsets: ['latin'],
@@ -21,28 +21,28 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
-  title: 'MaxisTalks | MaxisPlus',
+  title: 'MaxisTalks | Palco para quem gera valor',
   description:
-    'Inscreva-se na lista de espera para as próximas edições do MaxisTalks',
-  keywords: ['MaxisTalks', 'MaxisPlus', 'palestras', 'eventos', 'João Muzzy'],
+    'MaxisTalks — palestras presenciais com experts que compartilham estratégias reais para escalar no digital. Inscreva-se nas próximas edições.',
+  keywords: ['MaxisTalks', 'palestras', 'eventos', 'digital', 'empreendedorismo'],
   icons: {
     icon: '/icon.png',
     shortcut: '/icon.png',
     apple: '/icon.png',
   },
   openGraph: {
-    title: 'MaxisTalks | MaxisPlus',
+    title: 'MaxisTalks | Palco para quem gera valor',
     description:
-      'Inscreva-se na lista de espera para as próximas edições do MaxisTalks',
-    url: `${baseUrl}/hub/maxistalks`,
-    siteName: 'MaxisPlus',
+      'Palestras presenciais com experts do digital. Inscreva-se nas próximas edições.',
+    url: baseUrl,
+    siteName: 'MaxisTalks',
     images: [
       {
         url: imageUrl,
-        width: 1080,
-        height: 1350,
-        alt: 'MaxisTalks - João Muzzy',
-        type: 'image/jpeg',
+        width: 1200,
+        height: 630,
+        alt: 'MaxisTalks — palestras presenciais com experts do digital',
+        type: 'image/png',
       },
     ],
     type: 'website',
@@ -50,9 +50,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'MaxisTalks | MaxisPlus',
+    title: 'MaxisTalks | Palco para quem gera valor',
     description:
-      'Inscreva-se na lista de espera para as próximas edições do MaxisTalks',
+      'Palestras presenciais com experts do digital. Inscreva-se nas próximas edições.',
     images: [imageUrl],
   },
 }
@@ -67,10 +67,10 @@ export default function RootLayout({
       <head>
         <meta property="og:image" content={imageUrl} />
         <meta property="og:image:secure_url" content={imageUrl} />
-        <meta property="og:image:type" content="image/jpeg" />
-        <meta property="og:image:width" content="1080" />
-        <meta property="og:image:height" content="1350" />
-        <meta property="og:image:alt" content="MaxisTalks - João Muzzy" />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="MaxisTalks — palestras presenciais com experts do digital" />
       </head>
       <body className={`${inter.variable} ${dmSans.variable} font-sans antialiased`}>
         {children}

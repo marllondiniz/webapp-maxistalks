@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Questionário PAR-Q — Coffee Music & Run',
-  description: 'Questionário de Prontidão para Atividade Física (PAR-Q) - Coffee Music & Run',
+  title: 'Questionário — MaxisTalks',
+  description: 'Questionário do MaxisTalks',
 }
 
 export default function QuizLayout({

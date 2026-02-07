@@ -3,8 +3,8 @@ import { Header } from '../(components)/Header'
 import { Footer } from '../(components)/Footer'
 
 export const metadata: Metadata = {
-  title: 'Termos de Uso — Coffee Music & Run',
-  description: 'Termos de uso do Coffee Music & Run',
+  title: 'Termos de Uso — MaxisTalks',
+  description: 'Termos de uso do MaxisTalks',
 }
 
 export default function TermosUsoPage() {
