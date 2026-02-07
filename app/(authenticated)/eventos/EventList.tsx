@@ -241,7 +241,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
           ...prev,
           [eventId]: {
             type: 'success',
-            text: 'Recebemos seu interesse! Em breve enviaremos um convite no WhatsApp.',
+            text: 'Obrigado pelo interesse! Em breve enviaremos um convite no WhatsApp.',
           },
         }))
 

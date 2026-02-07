@@ -2,7 +2,9 @@
 
 import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Eye, EyeOff } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
+import { translateAuthError } from '@/lib/authErrors'
 
 type AlertState = {
   type: 'info' | 'error' | 'success'
@@ -30,6 +32,8 @@ export function ResetPasswordClient() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   useEffect(() => {
     const handleRedirect = async () => {
@@ -70,9 +74,10 @@ export function ResetPasswordClient() {
       } catch (error) {
         console.error('Erro ao validar link de recuperação:', error)
         setView('error')
+        const msg = error instanceof Error ? error.message : ''
         setAlert({
           type: 'error',
-          text: 'Não foi possível validar o link. Solicite novamente o e-mail de recuperação.',
+          text: translateAuthError(msg) || 'Não foi possível validar o link. Solicite novamente o e-mail de recuperação.',
         })
       }
     }
@@ -117,9 +122,10 @@ export function ResetPasswordClient() {
       }, 2500)
     } catch (error) {
       console.error('Erro ao atualizar senha:', error)
+      const msg = error instanceof Error ? error.message : ''
       setAlert({
         type: 'error',
-        text: 'Não foi possível atualizar a senha. Tente novamente ou solicite um novo e-mail.',
+        text: translateAuthError(msg) || 'Não foi possível atualizar a senha. Tente novamente ou solicite um novo e-mail.',
       })
     } finally {
       setLoading(false)
@@ -184,28 +190,48 @@ export function ResetPasswordClient() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
               <label className="text-sm font-medium text-neutral-200">Nova senha</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                minLength={6}
-                required
-                placeholder="Digite a nova senha"
-                className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-3 text-base text-neutral-100 outline-none transition focus:border-white/60 focus:ring focus:ring-white/20"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  minLength={6}
+                  required
+                  placeholder="Digite a nova senha"
+                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-3 pr-12 text-base text-neutral-100 outline-none transition focus:border-white/60 focus:ring focus:ring-white/20"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((s) => !s)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 transition hover:text-neutral-200"
+                  aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-neutral-200">Confirmar nova senha</label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(event) => setConfirmPassword(event.target.value)}
-                minLength={6}
-                required
-                placeholder="Repita a nova senha"
-                className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-3 text-base text-neutral-100 outline-none transition focus:border-white/60 focus:ring focus:ring-white/20"
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  minLength={6}
+                  required
+                  placeholder="Repita a nova senha"
+                  className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-3 pr-12 text-base text-neutral-100 outline-none transition focus:border-white/60 focus:ring focus:ring-white/20"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((s) => !s)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 transition hover:text-neutral-200"
+                  aria-label={showConfirmPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
             </div>
 
             <button

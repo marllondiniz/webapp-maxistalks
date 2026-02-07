@@ -127,7 +127,7 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
           })
           .eq('id', event.id)
 
-        setMessage({ type: 'success', text: 'Recebemos seu interesse! Em breve enviaremos um convite no WhatsApp.' })
+        setMessage({ type: 'success', text: 'Obrigado pelo interesse! Em breve enviaremos um convite no WhatsApp.' })
         
         // Recarregar página para atualizar contadores
         setTimeout(() => {

@@ -35,15 +35,24 @@ ALTER TABLE event_registrations ADD COLUMN IF NOT EXISTS created_at timestamptz 
 UPDATE event_registrations SET created_at = now() WHERE created_at IS NULL;
 ```
 
-## 3. RLS (Row Level Security)
+## 3. Migrations da tabela `profiles`
+
+Execute no SQL Editor do Supabase, na ordem:
+
+1. `supabase/migrations/20260207000000_add_profile_columns.sql`
+2. `supabase/migrations/20260207200000_add_profile_recebe_beneficios.sql`
+
+Consulte `docs/PERFIL_BANCO_DADOS.md` para verificar se todos os dados do perfil estão sendo salvos.
+
+## 4. RLS (Row Level Security)
 
 As políticas em `supabase/migrations/` precisam estar aplicadas no projeto de produção. Execute as migrations ou crie as políticas manualmente.
 
-## 4. Redeploy após alterar variáveis
+## 5. Redeploy após alterar variáveis
 
 Depois de adicionar ou alterar variáveis na Vercel, faça um **Redeploy** do projeto para que as alterações tenham efeito.
 
-## 5. E-mail de confirmação ao criar conta (Supabase + Resend)
+## 6. E-mail de confirmação ao criar conta (Supabase + Resend)
 
 O Supabase envia o e-mail de confirmação de cadastro. Por padrão, usa SMTP próprio (limitado, pode ir para spam). Para entregar corretamente, configure **Custom SMTP** no Supabase usando Resend:
 

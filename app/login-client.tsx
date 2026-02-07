@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 
+import { Eye, EyeOff } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
+import { translateAuthError } from '@/lib/authErrors'
 
 type AuthMode = 'signIn' | 'signUp' | 'reset'
 
@@ -57,6 +59,8 @@ export default function LoginClient() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const origin = useMemo(
     () => (typeof window !== 'undefined' ? window.location.origin : ''),
@@ -210,11 +214,11 @@ export default function LoginClient() {
         setMode('signIn')
       }
     } catch (error) {
-      const message =
+      const rawMessage =
         error instanceof Error
           ? error.message
           : 'Não foi possível completar a ação. Tente novamente.'
-      setFeedback({ type: 'error', text: message })
+      setFeedback({ type: 'error', text: translateAuthError(rawMessage) })
     } finally {
       setLoading(false)
     }
@@ -287,30 +291,50 @@ export default function LoginClient() {
             {mode !== 'reset' && (
               <label className="flex flex-col gap-2 text-left">
                 <span className="text-[13px] font-medium text-slate-300">Senha</span>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 text-[15px] text-white placeholder-slate-500 outline-none transition focus:border-blue-500/50 focus:bg-white/[0.06] focus:ring-2 focus:ring-blue-500/20"
-                  placeholder="Mínimo 6 caracteres"
-                  required
-                  minLength={6}
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 pr-12 text-[15px] text-white placeholder-slate-500 outline-none transition focus:border-blue-500/50 focus:bg-white/[0.06] focus:ring-2 focus:ring-blue-500/20"
+                    placeholder="Mínimo 6 caracteres"
+                    required
+                    minLength={6}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((s) => !s)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-white"
+                    aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
               </label>
             )}
 
             {mode === 'signUp' && (
               <label className="flex flex-col gap-2 text-left">
                 <span className="text-[13px] font-medium text-slate-300">Confirmar senha</span>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(event) => setConfirmPassword(event.target.value)}
-                  className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 text-[15px] text-white placeholder-slate-500 outline-none transition focus:border-blue-500/50 focus:bg-white/[0.06] focus:ring-2 focus:ring-blue-500/20"
-                  placeholder="Repita sua senha"
-                  required
-                  minLength={6}
-                />
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(event) => setConfirmPassword(event.target.value)}
+                    className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 pr-12 text-[15px] text-white placeholder-slate-500 outline-none transition focus:border-blue-500/50 focus:bg-white/[0.06] focus:ring-2 focus:ring-blue-500/20"
+                    placeholder="Repita sua senha"
+                    required
+                    minLength={6}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((s) => !s)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-white"
+                    aria-label={showConfirmPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
               </label>
             )}
 
