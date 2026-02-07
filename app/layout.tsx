@@ -26,9 +26,9 @@ export const metadata: Metadata = {
     'MaxisTalks — palestras presenciais com experts que compartilham estratégias reais para escalar no digital. Inscreva-se nas próximas edições.',
   keywords: ['MaxisTalks', 'palestras', 'eventos', 'digital', 'empreendedorismo'],
   icons: {
-    icon: '/icon.png',
-    shortcut: '/icon.png',
-    apple: '/icon.png',
+    icon: '/maxistalks-logo.png',
+    shortcut: '/maxistalks-logo.png',
+    apple: '/maxistalks-logo.png',
   },
   openGraph: {
     title: 'MaxisTalks | Palco para quem gera valor',
