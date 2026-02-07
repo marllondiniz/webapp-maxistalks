@@ -9,7 +9,7 @@ export function CookieConsent() {
 
   useEffect(() => {
     // Verificar se o usuário já deu consentimento
-    const consent = localStorage.getItem('cookie-consent')
+    const consent = localStorage.getItem('maxistalks-cookie-consent')
     if (!consent) {
       // Mostrar banner após um pequeno delay
       setTimeout(() => {
@@ -19,14 +19,14 @@ export function CookieConsent() {
   }, [])
 
   const handleAccept = () => {
-    localStorage.setItem('cookie-consent', 'accepted')
-    localStorage.setItem('cookie-consent-date', new Date().toISOString())
+    localStorage.setItem('maxistalks-cookie-consent', 'accepted')
+    localStorage.setItem('maxistalks-cookie-consent-date', new Date().toISOString())
     setShowBanner(false)
   }
 
   const handleReject = () => {
-    localStorage.setItem('cookie-consent', 'rejected')
-    localStorage.setItem('cookie-consent-date', new Date().toISOString())
+    localStorage.setItem('maxistalks-cookie-consent', 'rejected')
+    localStorage.setItem('maxistalks-cookie-consent-date', new Date().toISOString())
     setShowBanner(false)
   }
 

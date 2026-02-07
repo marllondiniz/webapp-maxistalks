@@ -3,8 +3,8 @@ import { Header } from '../(components)/Header'
 import { Footer } from '../(components)/Footer'
 
 export const metadata: Metadata = {
-  title: 'Política de Cookies — Coffee Music & Run',
-  description: 'Política de cookies do Coffee Music & Run',
+  title: 'Política de Cookies — MaxisTalks',
+  description: 'Política de cookies do MaxisTalks',
 }
 
 export default function CookiesPage() {
@@ -36,7 +36,7 @@ export default function CookiesPage() {
                 2. Como Utilizamos Cookies
               </h2>
               <p>
-                O Coffee Music & Run utiliza cookies para:
+                O MaxisTalks utiliza cookies para:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Garantir o funcionamento adequado do site</li>
@@ -115,8 +115,8 @@ export default function CookiesPage() {
               </h2>
               <p>
                 Se você tiver dúvidas sobre nossa Política de Cookies, entre em contato conosco através do nosso Instagram{' '}
-                <a href="https://www.instagram.com/coffeemusicand_/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-neutral-300 underline">
-                  @coffeemusicand_
+                <a href="https://www.instagram.com/maxisplus" target="_blank" rel="noopener noreferrer" className="text-white hover:text-neutral-300 underline">
+                  @maxisplus
                 </a>.
               </p>
             </section>

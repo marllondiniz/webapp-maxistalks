@@ -115,7 +115,7 @@ export default function PoliticaPrivacidadePage() {
                 8. Cookies e tecnologias de navegação
               </h2>
               <p>
-                O Ritmo Certo Club utiliza cookies para melhorar a experiência do usuário, analisar o tráfego e personalizar conteúdos.
+                O MaxisTalks utiliza cookies para melhorar a experiência do usuário, analisar o tráfego e personalizar conteúdos.
               </p>
               
               <h3 className="text-xl font-orbitron font-bold text-neutral-100 mt-6 mb-3">
@@ -184,8 +184,8 @@ export default function PoliticaPrivacidadePage() {
               </p>
               <p className="mt-2">
                 Instagram:{' '}
-                <a href="https://www.instagram.com/coffeemusicand_/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-neutral-300 underline">
-                  @coffeemusicand_
+                <a href="https://www.instagram.com/maxisplus" target="_blank" rel="noopener noreferrer" className="text-white hover:text-neutral-300 underline">
+                  @maxisplus
                 </a>
               </p>
               <p className="mt-2">

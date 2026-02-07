@@ -21,7 +21,7 @@ export function getSupabaseClient(): SupabaseClient {
       {
         auth: {
           persistSession: true,
-          storageKey: 'coffee-music-auth',
+          storageKey: 'maxistalks-auth',
         },
       }
     )
@@ -31,7 +31,7 @@ export function getSupabaseClient(): SupabaseClient {
   browserClient = createClient(url, anonKey, {
     auth: {
       persistSession: true,
-      storageKey: 'coffee-music-auth',
+      storageKey: 'maxistalks-auth',
     },
   })
 
