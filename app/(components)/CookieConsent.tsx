@@ -44,10 +44,10 @@ export function CookieConsent() {
             <div className="bg-neutral-900/95 backdrop-blur-md border border-white/10 rounded-xl p-6 md:p-8 shadow-2xl">
               <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6">
                 <div className="flex-1">
-                  <h3 className="text-lg md:text-xl font-orbitron font-bold text-neutral-100 mb-2">
+                  <h3 className="text-lg md:text-xl font-bold text-neutral-100 mb-2">
                     🍪 Utilizamos Cookies
                   </h3>
-                  <p className="text-sm md:text-base text-neutral-300 font-space leading-relaxed">
+                  <p className="text-sm md:text-base text-neutral-300 leading-relaxed">
                     Utilizamos cookies para melhorar sua experiência, analisar o tráfego do site e personalizar conteúdo.{' '}
                     <Link 
                       href="/cookies" 
@@ -62,7 +62,7 @@ export function CookieConsent() {
                     onClick={handleReject}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="px-6 py-3 bg-transparent border border-white/20 text-neutral-300 font-orbitron font-bold text-sm uppercase tracking-wider rounded-lg hover:bg-white/5 hover:border-white/30 transition-all duration-300"
+                    className="px-6 py-3 bg-transparent border border-white/20 text-neutral-300 font-bold text-sm uppercase tracking-wider rounded-lg hover:bg-white/5 hover:border-white/30 transition-all duration-300"
                   >
                     Recusar
                   </motion.button>
@@ -70,7 +70,7 @@ export function CookieConsent() {
                     onClick={handleAccept}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="px-6 py-3 bg-white text-neutral-950 font-orbitron font-bold text-sm uppercase tracking-wider rounded-lg hover:bg-neutral-100 transition-colors duration-300"
+                    className="px-6 py-3 bg-white text-neutral-950 font-bold text-sm uppercase tracking-wider rounded-lg hover:bg-neutral-100 transition-colors duration-300"
                   >
                     Aceitar
                   </motion.button>

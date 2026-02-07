@@ -1,63 +1,59 @@
 import type { Metadata } from 'next'
-import { Orbitron } from 'next/font/google'
-import localFont from 'next/font/local'
+import { Inter, DM_Sans } from 'next/font/google'
 import './globals.css'
-import { EVENT_NAME, EVENT_DATE, EVENT_TIME, EVENT_LOCATION_NAME } from '@/lib/constants'
 import { CookieConsent } from './(components)/CookieConsent'
 
-const orbitron = Orbitron({
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://maxis.plus'
+const imageUrl = `${baseUrl}/maxistalks-joao4.jpeg`
+
+const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-orbitron',
-  weight: ['400', '700', '900'],
+  variable: '--font-inter',
+  display: 'swap',
 })
 
-const geist = localFont({
-  src: [
-    {
-      path: '../public/Geist-VariableFont_wght.ttf',
-      weight: '100 900',
-      style: 'normal',
-    },
-  ],
-  variable: '--font-geist',
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  variable: '--font-dm',
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://ritmocertoclub.com.br'),
-  title: 'Coffee Music & Run — Edição BRIZZ',
-  description: 'Feche o ano no ritmo certo: corrida leve, música, café especial e comunidade. Edição BRIZZ — 13 de dezembro, 6h30. Garanta seu ingresso.',
-  keywords: ['corrida', 'café', 'música', 'comunidade', 'BRIZZ', 'Guarapari', 'functional', 'yoga', 'DJ'],
+  metadataBase: new URL(baseUrl),
+  title: 'MaxisTalks | MaxisPlus',
+  description:
+    'Inscreva-se na lista de espera para as próximas edições do MaxisTalks',
+  keywords: ['MaxisTalks', 'MaxisPlus', 'palestras', 'eventos', 'João Muzzy'],
   icons: {
-    icon: [
-      { url: '/icon.svg', type: 'image/svg+xml' },
-      { url: '/icon.png', sizes: '32x32', type: 'image/png' },
-      { url: '/icon.png', sizes: '16x16', type: 'image/png' },
-    ],
+    icon: '/icon.png',
     shortcut: '/icon.png',
-    apple: '/logo-coffe-music.jpg',
+    apple: '/icon.png',
   },
   openGraph: {
-    title: 'Coffee Music & Run — Edição BRIZZ',
-    description: 'Feche o ano no ritmo certo: corrida leve, música, café especial e comunidade. Edição BRIZZ — 13 de dezembro, 6h30.',
-    type: 'website',
-    locale: 'pt_BR',
-    url: 'https://ritmocertoclub.com.br',
-    siteName: 'Coffee Music & Run',
+    title: 'MaxisTalks | MaxisPlus',
+    description:
+      'Inscreva-se na lista de espera para as próximas edições do MaxisTalks',
+    url: `${baseUrl}/hub/maxistalks`,
+    siteName: 'MaxisPlus',
     images: [
       {
-        url: 'https://ritmocertoclub.com.br/brizz.webp',
-        width: 1200,
-        height: 630,
-        alt: 'Coffee Music & Run — Edição BRIZZ',
+        url: imageUrl,
+        width: 1080,
+        height: 1350,
+        alt: 'MaxisTalks - João Muzzy',
+        type: 'image/jpeg',
       },
     ],
+    type: 'website',
+    locale: 'pt_BR',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Coffee Music & Run — Edição BRIZZ',
-    description: 'Feche o ano no ritmo certo: corrida leve, música, café especial e comunidade.',
-    images: ['https://ritmocertoclub.com.br/brizz.webp'],
+    title: 'MaxisTalks | MaxisPlus',
+    description:
+      'Inscreva-se na lista de espera para as próximas edições do MaxisTalks',
+    images: [imageUrl],
   },
 }
 
@@ -69,57 +65,17 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="scroll-smooth">
       <head>
-        <meta property="og:title" content="Coffee Music & Run — Edição BRIZZ" />
-        <meta property="og:description" content="Feche o ano no ritmo certo: corrida leve, música, café especial e comunidade. Edição BRIZZ — 13 de dezembro, 6h30." />
-        <meta property="og:image" content="https://ritmocertoclub.com.br/brizz.webp" />
-        <meta property="og:image:width" content="1380" />
-        <meta property="og:image:height" content="1706" />
-        <meta property="og:image:type" content="image/webp" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://ritmocertoclub.com.br" />
-        <meta property="og:site_name" content="Coffee Music & Run" />
-        <meta property="og:locale" content="pt_BR" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Coffee Music & Run — Edição BRIZZ" />
-        <meta name="twitter:description" content="Feche o ano no ritmo certo: corrida leve, música, café especial e comunidade." />
-        <meta name="twitter:image" content="https://ritmocertoclub.com.br/brizz.webp" />
-        <meta name="twitter:image:alt" content="Coffee Music & Run — Edição BRIZZ" />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-        <link rel="icon" href="/icon.png" type="image/png" sizes="32x32" />
-        <link rel="shortcut icon" href="/icon.png" />
-        <link rel="apple-touch-icon" href="/logo-coffe-music.jpg" />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'Event',
-              name: EVENT_NAME,
-              startDate: '2025-12-13T06:30:00',
-              endDate: '2025-12-13T10:00:00',
-              eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-              eventStatus: 'https://schema.org/EventScheduled',
-              location: {
-                '@type': 'Place',
-                name: EVENT_LOCATION_NAME,
-              },
-              organizer: {
-                '@type': 'Organization',
-                name: 'Coffee Music',
-              },
-            }),
-          }}
-        />
+        <meta property="og:image" content={imageUrl} />
+        <meta property="og:image:secure_url" content={imageUrl} />
+        <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:image:width" content="1080" />
+        <meta property="og:image:height" content="1350" />
+        <meta property="og:image:alt" content="MaxisTalks - João Muzzy" />
       </head>
-      <body className={`${orbitron.variable} ${geist.variable} font-space antialiased`}>
+      <body className={`${inter.variable} ${dmSans.variable} font-sans antialiased`}>
         {children}
         <CookieConsent />
-        {/* Analytics placeholder */}
-        {/* <Analytics /> */}
       </body>
     </html>
   )
 }
-
-

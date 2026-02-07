@@ -40,19 +40,19 @@ const NAV_ITEMS: NavItem[] = [
     href: '/blog',
     label: 'Conteúdo',
     icon: BookOpenText,
-    title: 'Conteúdo que move você',
+    title: 'Artigos e inspirações',
   },
   {
     href: '/clube',
-    label: 'Clube',
+    label: 'Comunidade',
     icon: UsersRound,
-    title: 'O clube Ritmo Certo',
+    title: 'A comunidade MaxisTalks',
   },
   {
     href: '/perfil',
     label: 'Perfil',
     icon: User,
-    title: 'Seu ritmo, seu jeito',
+    title: 'Seu perfil',
   },
   {
     href: '/desafios',
@@ -81,9 +81,7 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
           data: { user },
         } = await supabase.auth.getUser()
 
-        if (!isMounted) {
-          return
-        }
+        if (!isMounted) return
 
         if (!user) {
           setProfileStatus('no-user')
@@ -96,9 +94,7 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
           .eq('id', user.id)
           .maybeSingle()
 
-        if (!isMounted) {
-          return
-        }
+        if (!isMounted) return
 
         if (error) {
           console.error('Erro ao verificar status do perfil:', error)
@@ -110,20 +106,19 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
         setProfileStatus(isComplete ? 'complete' : 'incomplete')
       } catch (error) {
         console.error('Erro inesperado ao verificar perfil:', error)
-        if (isMounted) {
-          setProfileStatus('complete')
-        }
+        if (isMounted) setProfileStatus('complete')
       }
     }
 
     checkProfileStatus()
-
-    return () => {
-      isMounted = false
-    }
-  }, [pathname, supabase])
+    return () => { isMounted = false }
+  }, [supabase])
 
   useEffect(() => {
+    if (profileStatus === 'no-user') {
+      router.replace('/testeapp')
+      return
+    }
     if (profileStatus === 'incomplete' && pathname && pathname !== '/perfil') {
       router.replace('/perfil')
     }
@@ -167,29 +162,31 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#0f0f10] text-[#f5f5f5] flex justify-center px-0 md:px-6 lg:px-10">
-      <div className="flex min-h-screen w-full max-w-[480px] flex-col bg-[#0f0f10] md:max-w-5xl xl:max-w-6xl 2xl:max-w-[1867.5px]">
-        <header className="sticky top-0 z-20 border-b border-white/10 bg-[#0f0f10]/95 backdrop-blur">
+    <div className="flex min-h-screen w-full justify-center bg-[#0f172a] px-0 text-white md:px-6 lg:px-10">
+      <div className="flex min-h-screen w-full max-w-[480px] flex-col bg-[#0f172a] md:max-w-5xl xl:max-w-6xl 2xl:max-w-[1867.5px]">
+        <header className="sticky top-0 z-20 border-b border-white/10 bg-[#0f172a]/95 backdrop-blur">
           <div className="mx-auto flex h-[85.23px] w-full max-w-[1867.5px] items-center justify-between gap-4 px-5 md:px-8 lg:px-10">
             <div className="flex flex-1 justify-start" aria-hidden>
               <div className="h-10 w-10" />
             </div>
             <div className="flex flex-1 items-center justify-center">
-              <Image
-                src="/logo-ritmo-certo.svg"
-                alt="Ritmo Certo Club"
-                width={220}
-                height={52}
-                className="h-10 w-auto max-w-[230%] sm:h-12 sm:max-w-none"
-                priority
-              />
+              <Link href="/">
+                <Image
+                  src="/maxistalks-logo.png"
+                  alt="MaxisTalks"
+                  width={180}
+                  height={72}
+                  className="h-10 w-auto max-w-[230%] sm:h-12 sm:max-w-none"
+                  priority
+                />
+              </Link>
             </div>
             <div className="flex flex-1 justify-end">
               <button
                 type="button"
                 onClick={handleLogout}
                 disabled={loggingOut}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#18181b] text-[#f5f5f5] transition hover:bg-[#1f1f23] disabled:opacity-60"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-white transition hover:bg-white/10 disabled:opacity-60"
               >
                 <LogOut size={20} />
                 <span className="sr-only">Sair da conta</span>
@@ -202,7 +199,7 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
           <div className="mx-auto w-full max-w-[1867.5px]">{children}</div>
         </main>
 
-        <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-center border-t border-white/10 bg-[#0f0f10]/95 backdrop-blur">
+        <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-center border-t border-white/10 bg-[#0f172a]/95 backdrop-blur">
           <div className="grid h-20 w-full max-w-[480px] grid-cols-5 md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1867.5px]">
             {navItemsToDisplay.map((item) => {
               const isActive =
@@ -221,14 +218,14 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
                 >
                   <div
                     className={`flex h-10 w-10 items-center justify-center rounded-full transition ${
-                      isActive ? 'bg-[#f5f5f5] text-[#0f0f10]' : 'bg-transparent text-[#f5f5f5]'
+                      isActive ? 'bg-[#3b82f6] text-white' : 'bg-transparent text-white'
                     }`}
                   >
                     <Icon size={20} className={isActive ? 'stroke-[2.5]' : 'opacity-80'} />
                   </div>
                   <span
                     className={`text-[11px] uppercase tracking-wider ${
-                      isActive ? 'text-[#f5f5f5]' : 'text-[#9a9aa2]'
+                      isActive ? 'text-white' : 'text-slate-400'
                     }`}
                   >
                     {item.label}

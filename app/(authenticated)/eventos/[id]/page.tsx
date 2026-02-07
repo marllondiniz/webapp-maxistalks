@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getSupabaseServer } from '@/lib/supabaseServer'
+import { getEvents, getActiveEventBanners } from '@/lib/queries'
 import { EventDetailClient } from './EventDetailClient'
 
 type Props = {
@@ -7,29 +7,29 @@ type Props = {
 }
 
 export default async function EventDetailPage({ params }: Props) {
-  const supabase = getSupabaseServer()
+  const [eventos, banners] = await Promise.all([
+    getEvents(),
+    getActiveEventBanners(),
+  ])
 
-  const { data: event, error } = await supabase
-    .from('events')
-    .select('*')
-    .eq('id', params.id)
-    .single()
-
-  if (error || !event) {
+  const event = eventos.find((e) => e.id === params.id)
+  if (!event) {
     notFound()
   }
 
-  // Buscar banner do evento
-  const { data: banners } = await supabase
-    .from('event_banners')
-    .select('*')
-    .eq('event_id', event.id)
-    .eq('is_active', true)
-    .order('created_at', { ascending: false })
-    .limit(1)
+  const banner = banners.find((b) => b.event_id === event.id) ?? null
+  const outrosEventos = eventos
+    .filter((e) => e.id !== params.id)
+    .sort((a, b) => new Date(a.data_horario).getTime() - new Date(b.data_horario).getTime())
+    .slice(0, 4)
 
-  const banner = banners?.[0] ?? null
-
-  return <EventDetailClient event={event} banner={banner} />
+  return (
+    <EventDetailClient
+      event={event}
+      banner={banner}
+      outrosEventos={outrosEventos}
+      bannersAtivos={banners}
+    />
+  )
 }
 

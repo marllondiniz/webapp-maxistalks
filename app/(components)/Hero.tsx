@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { useState, useMemo, useEffect } from 'react'
 import Image from 'next/image'
+import { Zap } from 'lucide-react'
 import { EVENT_DATE_ISO } from '@/lib/constants'
 import { SponsorsCarousel } from './SponsorsCarousel'
 
@@ -196,9 +197,10 @@ export function Hero() {
                 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-6 sm:px-8 md:px-12 lg:px-16 py-3 sm:py-4 md:py-5 lg:py-6 bg-white text-neutral-950 font-orbitron font-bold text-sm sm:text-base md:text-lg lg:text-xl uppercase tracking-wider border-2 border-white transition-all duration-300 hover:bg-transparent hover:text-white rounded-xl md:rounded-2xl cursor-pointer"
+                className="inline-flex items-center gap-2 px-6 sm:px-8 md:px-12 lg:px-16 py-3 sm:py-4 md:py-5 lg:py-6 bg-white text-neutral-950 font-orbitron font-bold text-sm sm:text-base md:text-lg lg:text-xl uppercase tracking-wider border-2 border-white transition-all duration-300 hover:bg-transparent hover:text-white rounded-xl md:rounded-2xl cursor-pointer"
               >
-                ⚡️ Garantir ingresso
+                <Zap className="h-5 w-5 shrink-0" />
+                Garantir ingresso
               </motion.a>
             </motion.div>
           </div>

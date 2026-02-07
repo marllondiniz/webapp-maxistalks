@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { PartyPopper, Trophy } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { useRitmoPoints } from '@/lib/useRitmoPoints'
 import { formatarPontos, gerarInsightSemanal } from '@/lib/ritmo-points'
@@ -26,19 +27,19 @@ export function RitmoPointsPanel() {
     return (
       <div className="space-y-4">
         {/* Card Ritmo Points */}
-        <div className="relative overflow-hidden rounded-lg border border-white/5 bg-[#18181b] p-5 shadow-lg">
-          <div className="absolute right-3 top-3 rounded-full bg-[#2a2a31] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#9a9aa2]">
+        <div className="relative overflow-hidden rounded-lg border border-slate-600/30 bg-slate-800/80 p-5 shadow-lg">
+          <div className="absolute right-3 top-3 rounded-full bg-slate-700/60 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#9a9aa2]">
             Carregando...
           </div>
           <h3 className="text-base font-semibold uppercase tracking-wide text-[#f5f5f5]">
             Ritmo Points Acumulados
           </h3>
-          <div className="mt-2 h-8 w-24 animate-pulse rounded bg-[#2a2a31]" />
+          <div className="mt-2 h-8 w-24 animate-pulse rounded bg-slate-700/60" />
         </div>
 
         {/* Card Desafio */}
-        <div className="relative overflow-hidden rounded-lg border border-white/5 bg-[#18181b] p-5 shadow-lg">
-          <div className="absolute right-3 top-3 rounded-full bg-[#2a2a31] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#9a9aa2]">
+        <div className="relative overflow-hidden rounded-lg border border-slate-600/30 bg-slate-800/80 p-5 shadow-lg">
+          <div className="absolute right-3 top-3 rounded-full bg-slate-700/60 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#9a9aa2]">
             Em breve
           </div>
           <h3 className="text-base font-semibold uppercase tracking-wide text-[#f5f5f5]">
@@ -56,14 +57,15 @@ export function RitmoPointsPanel() {
   return (
     <div className="space-y-4">
       {/* Card Ritmo Points Acumulados */}
-      <div className="relative overflow-hidden rounded-lg border border-white/5 bg-[#18181b] p-5 shadow-lg md:p-6">
+      <div className="relative overflow-hidden rounded-lg border border-slate-600/30 bg-slate-800/80 p-5 shadow-lg md:p-6">
         <div className="absolute right-3 top-3">
           <span className="rounded-full bg-amber-500/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-200 shadow-lg">
             Em breve
           </span>
           {badges.length > 0 && !badges[0].visualizado && (
-            <span className="ml-2 rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-200 shadow-lg">
-              🎉 Novo badge
+            <span className="ml-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-200 shadow-lg">
+              <PartyPopper className="h-3 w-3" />
+              Novo badge
             </span>
           )}
         </div>
@@ -109,7 +111,7 @@ export function RitmoPointsPanel() {
               {pontosSemanais}/{metaSemanal} pts • {progressoSemanal}%
             </span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-[#2a2a31]">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-slate-700/60">
             <div
               className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-300 transition-all duration-500"
               style={{ width: `${progressoSemanal}%` }}
@@ -122,8 +124,9 @@ export function RitmoPointsPanel() {
             </p>
           )}
           {progressoSemanal >= 100 && (
-            <p className="text-xs font-semibold text-emerald-300">
-              🎉 Meta semanal alcançada! Continue assim!
+            <p className="flex items-center gap-1.5 text-xs font-semibold text-emerald-300">
+              <Trophy className="h-3.5 w-3.5 shrink-0" />
+              Meta semanal alcançada! Continue assim!
             </p>
           )}
         </div>
@@ -134,7 +137,7 @@ export function RitmoPointsPanel() {
             {badges.slice(0, 5).map((userBadge) => (
               <div
                 key={userBadge.badge_id}
-                className="flex items-center gap-1.5 rounded-full bg-[#2a2a31] px-3 py-1.5 text-xs"
+                className="flex items-center gap-1.5 rounded-full bg-slate-700/60 px-3 py-1.5 text-xs"
                 title={userBadge.badge.descricao}
               >
                 <span>{userBadge.badge.icone}</span>
@@ -142,7 +145,7 @@ export function RitmoPointsPanel() {
               </div>
             ))}
             {badges.length > 5 && (
-              <div className="flex items-center gap-1.5 rounded-full bg-[#2a2a31] px-3 py-1.5 text-xs font-semibold text-[#9a9aa2]">
+              <div className="flex items-center gap-1.5 rounded-full bg-slate-700/60 px-3 py-1.5 text-xs font-semibold text-[#9a9aa2]">
                 +{badges.length - 5}
               </div>
             )}
@@ -158,7 +161,7 @@ export function RitmoPointsPanel() {
       </div>
 
       {/* Card Desafio da Semana */}
-      <div className="relative overflow-hidden rounded-lg border border-white/5 bg-[#18181b] p-5 shadow-lg">
+      <div className="relative overflow-hidden rounded-lg border border-slate-600/30 bg-slate-800/80 p-5 shadow-lg">
         <div className="absolute right-3 top-3">
           <span className="rounded-full bg-amber-500/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-200 shadow-lg">
             Em breve

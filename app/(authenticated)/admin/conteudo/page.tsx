@@ -7,11 +7,11 @@ export default async function AdminConteudoPage() {
   return (
     <section className="space-y-8">
       <div>
-        <h2 className="text-xl font-semibold uppercase tracking-wide text-[#f5f5f5]">
+        <h2 className="text-xl font-semibold uppercase tracking-wide text-white">
           Gerenciar conteúdo
         </h2>
-        <p className="text-sm text-[#9a9aa2]">
-          Publique artigos, dicas e materiais exclusivos para o clube.
+        <p className="text-sm text-slate-400">
+          Publique artigos, dicas e materiais exclusivos para a comunidade.
         </p>
       </div>
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { Zap } from 'lucide-react'
 import { TICKETS_URL } from '@/lib/constants'
 
 export function CTA() {
@@ -26,9 +27,10 @@ export function CTA() {
             rel="noopener noreferrer"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="inline-block px-12 md:px-16 py-5 md:py-6 bg-white text-neutral-950 font-orbitron font-bold text-xl md:text-2xl uppercase tracking-wider border-2 border-white transition-all duration-300 hover:bg-transparent hover:text-white rounded-2xl shadow-xl"
+            className="inline-flex items-center gap-2 px-12 md:px-16 py-5 md:py-6 bg-white text-neutral-950 font-orbitron font-bold text-xl md:text-2xl uppercase tracking-wider border-2 border-white transition-all duration-300 hover:bg-transparent hover:text-white rounded-2xl shadow-xl"
           >
-            ⚡️ Garantir meu ingresso agora
+            <Zap className="h-6 w-6 shrink-0" />
+            Garantir meu ingresso agora
           </motion.a>
         </motion.div>
       </div>

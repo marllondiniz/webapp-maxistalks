@@ -6,16 +6,16 @@ export default async function AdminEventosPage() {
 
   return (
     <div className="space-y-8">
-      <header className="space-y-3 rounded-2xl border border-white/5 bg-gradient-to-br from-[#18181b] to-[#111116] p-6 shadow-xl">
+      <header className="space-y-3 rounded-2xl border border-white/10 bg-[#1e293b] p-6 shadow-xl">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#f5f5f5]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#3b82f6]">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className="h-6 w-6 text-[#0f0f10]"
+              className="h-6 w-6 text-white"
             >
               <path
                 strokeLinecap="round"
@@ -25,10 +25,10 @@ export default async function AdminEventosPage() {
             </svg>
           </div>
           <div>
-            <h1 className="text-2xl font-bold uppercase tracking-tight text-[#f5f5f5]">
+            <h1 className="text-2xl font-bold uppercase tracking-tight text-white">
               Gerenciar Eventos
             </h1>
-            <p className="text-sm text-[#9a9aa2]">
+            <p className="text-sm text-slate-400">
               Crie eventos e adicione banners promocionais
             </p>
           </div>

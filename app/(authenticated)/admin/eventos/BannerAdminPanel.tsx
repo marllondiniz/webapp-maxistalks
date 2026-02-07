@@ -1,6 +1,7 @@
 'use client'
 
 import { FormEvent, useMemo, useState } from 'react'
+import { Image as ImageIcon, Lightbulb, Loader2, Upload, ImagePlus, MapPin } from 'lucide-react'
 import type { EventBannerRecord, EventRecord } from '@/lib/queries'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 
@@ -169,17 +170,19 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
   }
 
   return (
-    <div className="space-y-6 rounded-2xl border border-white/5 bg-[#18181b] p-6 shadow-xl">
+    <div className="space-y-6 rounded-2xl border border-white/5 bg-[#1e293b] p-6 shadow-xl">
       <div className="space-y-2">
-        <h3 className="text-lg font-bold uppercase tracking-tight text-[#f5f5f5]">
-          🎨 Banner Promocional
+        <h3 className="text-lg font-bold uppercase tracking-tight text-white flex items-center gap-2">
+          <ImageIcon className="h-5 w-5" />
+          Banner Promocional
         </h3>
-        <p className="text-sm text-[#9a9aa2]">
+        <p className="text-sm text-slate-400">
           Destaque eventos com banners visuais
         </p>
-        <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-3">
+        <div className="flex items-start gap-2 rounded-lg border border-blue-500/20 bg-blue-500/5 p-3">
+          <Lightbulb className="h-4 w-4 shrink-0 text-blue-200 mt-0.5" />
           <p className="text-xs text-blue-200">
-            💡 Cada evento pode ter seu próprio banner
+            Cada evento pode ter seu próprio banner
           </p>
         </div>
       </div>
@@ -187,46 +190,46 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-[#bdbdc3]">Título (opcional)</span>
+            <span className="text-xs font-semibold uppercase text-slate-400">Título (opcional)</span>
             <input
               type="text"
               value={form.titulo}
               onChange={(event) => setForm((prev) => ({ ...prev, titulo: event.target.value }))}
-              className="w-full rounded-xl border border-white/10 bg-[#0f0f10] px-4 py-3 text-sm text-[#f5f5f5]"
+              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
               placeholder="Ex: Aulão Ritmo Certo"
             />
           </label>
 
           <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-[#bdbdc3]">
+            <span className="text-xs font-semibold uppercase text-slate-400">
               Subtítulo (opcional)
             </span>
             <input
               type="text"
               value={form.subtitulo}
               onChange={(event) => setForm((prev) => ({ ...prev, subtitulo: event.target.value }))}
-              className="w-full rounded-xl border border-white/10 bg-[#0f0f10] px-4 py-3 text-sm text-[#f5f5f5]"
+              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
               placeholder="Ex: Garanta sua vaga ainda hoje"
             />
           </label>
 
           <div className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-[#bdbdc3]">
+            <span className="text-xs font-semibold uppercase text-slate-400">
               Evento relacionado (opcional)
             </span>
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setForm((prev) => ({ ...prev, showEventPicker: !prev.showEventPicker }))}
-                className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-[#0f0f10] px-4 py-3 text-left text-sm text-[#f5f5f5] transition hover:border-white/20 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/10"
+                className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-left text-sm text-white transition hover:border-white/20 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/10"
               >
-                <span className={form.eventId ? 'text-[#f5f5f5]' : 'text-[#9a9aa2]'}>
+                <span className={form.eventId ? 'text-white' : 'text-slate-400'}>
                   {form.eventId
                     ? events.find((e) => e.id === form.eventId)?.titulo ?? 'Selecione um evento'
                     : 'Selecione um evento'}
                 </span>
                 <svg
-                  className={`h-5 w-5 text-[#9a9aa2] transition-transform ${
+                  className={`h-5 w-5 text-slate-400 transition-transform ${
                     form.showEventPicker ? 'rotate-180' : ''
                   }`}
                   xmlns="http://www.w3.org/2000/svg"
@@ -242,13 +245,13 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
               </button>
 
               {form.showEventPicker && (
-                <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-y-auto rounded-xl border border-white/10 bg-[#0f0f10] shadow-2xl">
+                <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-y-auto rounded-xl border border-white/10 bg-[#1e293b] shadow-2xl">
                   <button
                     type="button"
                     onClick={() => {
                       setForm((prev) => ({ ...prev, eventId: '', showEventPicker: false }))
                     }}
-                    className="w-full border-b border-white/5 px-4 py-3 text-left text-sm text-[#9a9aa2] transition hover:bg-white/5"
+                    className="w-full border-b border-white/5 px-4 py-3 text-left text-sm text-slate-400 transition hover:bg-white/5"
                   >
                     Nenhum evento
                   </button>
@@ -260,7 +263,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
                         setForm((prev) => ({ ...prev, eventId: evento.id, showEventPicker: false }))
                       }}
                       className={`w-full border-b border-white/5 px-4 py-3 text-left text-sm transition hover:bg-white/5 ${
-                        form.eventId === evento.id ? 'bg-white/10 text-[#f5f5f5]' : 'text-[#c9c9d2]'
+                        form.eventId === evento.id ? 'bg-white/10 text-white' : 'text-slate-300'
                       }`}
                     >
                       {evento.titulo}
@@ -272,12 +275,12 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
           </div>
 
           <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-[#bdbdc3]">Imagem do banner</span>
+            <span className="text-xs font-semibold uppercase text-slate-400">Imagem do banner</span>
             <input
               type="file"
               accept="image/png,image/jpeg,image/webp"
               onChange={(event) => handleFileChange(event.target.files?.[0] ?? null)}
-              className="block w-full cursor-pointer rounded-xl border border-dashed border-white/20 bg-[#0f0f10] px-4 py-3 text-sm text-[#f5f5f5] file:hidden"
+              className="block w-full cursor-pointer rounded-xl border border-dashed border-white/20 bg-[#1e293b] px-4 py-3 text-sm text-white file:hidden"
             />
             {form.previewUrl && (
               // eslint-disable-next-line @next/next/no-img-element
@@ -305,26 +308,37 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-[#f5f5f5] px-4 py-3.5 text-sm font-bold uppercase tracking-wide text-[#0f0f10] shadow-lg transition hover:scale-[1.02] hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#3b82f6] px-4 py-3.5 text-sm font-bold uppercase tracking-wide text-white shadow-lg transition hover:scale-[1.02] hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
         >
-          {loading ? '⏳ Enviando...' : '📤 Salvar banner'}
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Enviando...
+            </>
+          ) : (
+            <>
+              <Upload className="h-4 w-4" />
+              Salvar banner
+            </>
+          )}
         </button>
       </form>
 
       <div className="space-y-3 border-t border-white/5 pt-6">
         <div className="flex items-center justify-between">
-          <h4 className="text-sm font-bold uppercase tracking-wide text-[#bdbdc3]">
-            🖼️ Banners cadastrados
+          <h4 className="text-sm font-bold uppercase tracking-wide text-slate-400 flex items-center gap-2">
+            <ImagePlus className="h-4 w-4" />
+            Banners cadastrados
           </h4>
-          <span className="rounded-full bg-[#2a2a31] px-2.5 py-0.5 text-xs font-bold text-[#f5f5f5]">
+          <span className="rounded-full bg-[#334155] px-2.5 py-0.5 text-xs font-bold text-white">
             {banners.length}
           </span>
         </div>
 
         {banners.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-white/10 bg-[#0f0f10] p-6 text-center">
-            <p className="text-sm text-[#9a9aa2]">Nenhum banner cadastrado</p>
-            <p className="mt-1 text-xs text-[#73737c]">Crie seu primeiro banner acima</p>
+          <div className="rounded-xl border border-dashed border-white/10 bg-[#1e293b] p-6 text-center">
+            <p className="text-sm text-slate-400">Nenhum banner cadastrado</p>
+            <p className="mt-1 text-xs text-slate-500">Crie seu primeiro banner acima</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -334,7 +348,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
                 className={`group flex flex-col gap-3 rounded-xl border p-4 shadow-lg transition md:flex-row md:items-center md:justify-between ${
                   banner.is_active
                     ? 'border-emerald-500/30 bg-emerald-500/5'
-                    : 'border-white/5 bg-[#121217] hover:border-white/10'
+                    : 'border-white/5 bg-[#1e293b] hover:border-white/10'
                 }`}
               >
                 <div className="flex w-full items-center gap-3">
@@ -346,7 +360,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-sm font-bold text-[#f5f5f5] truncate">
+                      <p className="text-sm font-bold text-white truncate">
                         {banner.titulo || 'Banner sem título'}
                       </p>
                       {banner.is_active && (
@@ -357,11 +371,12 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
                       )}
                     </div>
                     {banner.subtitulo && (
-                      <p className="mt-0.5 text-xs text-[#9a9aa2] truncate">{banner.subtitulo}</p>
+                      <p className="mt-0.5 text-xs text-slate-400 truncate">{banner.subtitulo}</p>
                     )}
                     {banner.event_id && events.find(e => e.id === banner.event_id) && (
-                      <p className="mt-1 text-xs text-[#73737c]">
-                        📌 {events.find(e => e.id === banner.event_id)?.titulo}
+                      <p className="mt-1 flex items-center gap-1 text-xs text-slate-500">
+                        <MapPin className="h-3 w-3 shrink-0" />
+                        {events.find(e => e.id === banner.event_id)?.titulo}
                       </p>
                     )}
                   </div>

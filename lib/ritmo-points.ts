@@ -70,7 +70,7 @@ export function obterCorIntensidade(intensidade: number): string {
   if (intensidade >= 60) return 'bg-emerald-300'
   if (intensidade >= 40) return 'bg-emerald-200'
   if (intensidade >= 20) return 'bg-emerald-100'
-  return 'bg-[#2a2a31]'
+  return 'bg-slate-700/60'
 }
 
 export function gerarInsightSemanal(treinos: number): string {

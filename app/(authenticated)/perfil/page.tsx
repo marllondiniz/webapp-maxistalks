@@ -46,22 +46,29 @@ export default function PerfilPage() {
   if (loading) {
     return (
       <section className="mx-auto max-w-3xl space-y-6">
-        <div className="space-y-4 rounded-lg border border-white/5 bg-[#18181b] p-6 text-center text-[#c9c9d2]">
+        <div className="space-y-4 rounded-lg border border-slate-600/30 bg-slate-800/80 p-6 text-center text-[#c9c9d2]">
           Carregando informações do perfil...
         </div>
       </section>
     )
   }
 
+  const isIncomplete = profile?.is_complete === false
+
   return (
     <section className="mx-auto max-w-3xl space-y-6">
-      <header className="space-y-1 text-center">
+      <header className="space-y-4 text-center">
         <h2 className="text-2xl font-bold uppercase tracking-tight text-[#f5f5f5]">
-          SEU RITMO, SEU JEITO
+          Meu perfil
         </h2>
         <p className="text-sm text-[#c9c9d2]">
-          Personalize seu perfil para receber experiências sob medida.
+          Preencha seus dados para conectar com a comunidade e participar dos eventos.
         </p>
+        {isIncomplete && (
+          <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+            Complete todos os campos obrigatórios para acessar as outras áreas do app.
+          </div>
+        )}
       </header>
 
       <ProfileForm

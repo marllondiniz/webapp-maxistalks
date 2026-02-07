@@ -7,10 +7,10 @@ export default async function AdminDesafiosPage() {
   return (
     <section className="space-y-8">
       <div>
-        <h2 className="text-xl font-semibold uppercase tracking-wide text-[#f5f5f5]">
+        <h2 className="text-xl font-semibold uppercase tracking-wide text-white">
           Gerenciar desafios
         </h2>
-        <p className="text-sm text-[#9a9aa2]">
+        <p className="text-sm text-slate-400">
           Configure os desafios semanais e acompanhe o progresso dos membros.
         </p>
       </div>

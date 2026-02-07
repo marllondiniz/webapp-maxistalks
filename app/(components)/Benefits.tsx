@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { Check, Zap } from 'lucide-react'
 import { EXPERIENCIA_ITEMS, EXPERIENCIA_PLUS_ITEMS } from '@/lib/constants'
 
 export function Benefits() {
@@ -35,7 +36,7 @@ export function Benefits() {
             <ul className="space-y-3 md:space-y-4">
               {EXPERIENCIA_ITEMS.map((item, index) => (
                 <li key={index} className="flex items-start gap-3">
-                  <span className="text-neutral-100 mt-1 text-lg">✓</span>
+                  <Check className="h-5 w-5 shrink-0 mt-1 text-neutral-100" />
                   <span className="text-sm md:text-base text-neutral-300 font-space leading-relaxed">{item}</span>
                 </li>
               ))}
@@ -62,7 +63,7 @@ export function Benefits() {
             <ul className="space-y-3 md:space-y-4">
               {EXPERIENCIA_PLUS_ITEMS.map((item, index) => (
                 <li key={index} className="flex items-start gap-3">
-                  <span className="text-neutral-100 mt-1 text-lg">⚡</span>
+                  <Zap className="h-5 w-5 shrink-0 mt-1 text-neutral-100" />
                   <span className="text-sm md:text-base text-neutral-300 font-space leading-relaxed">{item}</span>
                 </li>
               ))}

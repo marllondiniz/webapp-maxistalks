@@ -2,12 +2,20 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
+import { Ticket, Mic, Sparkles, PartyPopper, type LucideIcon } from 'lucide-react'
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  ticket: Ticket,
+  mic: Mic,
+  sparkles: Sparkles,
+  partyPopper: PartyPopper,
+}
 
 export type DestaqueCard = {
   id: string
   titulo: string
   descricao: string
-  icone: string
+  icone: keyof typeof ICON_MAP
   status: 'ativo' | 'expirado'
   ctaLabel: string
   ctaType: 'copy' | 'link'
@@ -41,7 +49,7 @@ export function HighlightCardList({ cards }: HighlightCardListProps) {
         const isActive = card.status === 'ativo'
         const statusLabel = isActive ? 'Ativo' : 'Expirado'
         const baseClass =
-          'flex h-full flex-col justify-between rounded-xl border border-[#1f1f23] bg-[#18181b] p-5 shadow-lg transition-transform hover:border-white/30 hover:-translate-y-1'
+          'flex h-full flex-col justify-between rounded-xl border border-slate-600/30 bg-slate-800/80 p-5 shadow-lg transition-transform hover:border-slate-500/40 hover:-translate-y-1'
 
         const statusStyles = isActive
           ? 'border-emerald-400/20 text-emerald-300 bg-emerald-500/10'
@@ -52,8 +60,11 @@ export function HighlightCardList({ cards }: HighlightCardListProps) {
         const Content = (
           <>
             <div className="flex flex-1 items-start gap-4">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1f1f23] text-xl">
-                {card.icone}
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-700/50 text-[#f5f5f5]">
+                {(() => {
+                  const Icon = ICON_MAP[card.icone]
+                  return Icon ? <Icon className="h-6 w-6" /> : null
+                })()}
               </span>
               <div className="flex flex-1 flex-col space-y-2">
                 <div className="flex items-center gap-3">
@@ -81,7 +92,7 @@ export function HighlightCardList({ cards }: HighlightCardListProps) {
                   disabled={disabledCta}
                   className={`w-full rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-wide transition ${
                     disabledCta
-                      ? 'cursor-not-allowed border border-[#2a2a31] bg-[#141419] text-[#5f5f66] opacity-60'
+                      ? 'cursor-not-allowed border border-slate-600/40 bg-slate-800 text-[#5f5f66] opacity-60'
                       : 'bg-[#f5f5f5] text-[#0f0f10] hover:brightness-95'
                   }`}
                 >
@@ -92,7 +103,7 @@ export function HighlightCardList({ cards }: HighlightCardListProps) {
                   href={card.href}
                   className={`inline-flex w-full items-center justify-center rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-wide transition ${
                     disabledCta
-                      ? 'cursor-not-allowed border border-[#2a2a31] bg-[#141419] text-[#5f5f66] opacity-60'
+                      ? 'cursor-not-allowed border border-slate-600/40 bg-slate-800 text-[#5f5f66] opacity-60'
                       : 'bg-[#f5f5f5] text-[#0f0f10] hover:brightness-95'
                   }`}
                   aria-disabled={disabledCta}
@@ -101,7 +112,7 @@ export function HighlightCardList({ cards }: HighlightCardListProps) {
                   {card.ctaLabel}
                 </Link>
               ) : (
-                <span className="inline-flex w-full items-center justify-center rounded-full border border-dashed border-[#2a2a31] px-4 py-3 text-sm font-semibold uppercase tracking-wide text-[#5f5f66]">
+                <span className="inline-flex w-full items-center justify-center rounded-full border border-dashed border-slate-600/40 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-[#5f5f66]">
                   {card.ctaLabel}
                 </span>
               )}

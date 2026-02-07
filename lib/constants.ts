@@ -1,3 +1,8 @@
+// MaxisTalks
+export const MAXISTALKS_DESCRIPTION =
+  'Inscreva-se na lista de espera para as próximas edições do MaxisTalks'
+
+// Legacy - Coffee Music (mantido para rotas antigas)
 export const EVENT_NAME = "Coffee Music & Run — Edição BRIZZ"
 export const EVENT_DATE = "13 de dezembro de 2025"
 export const EVENT_TIME = "6h30 — 10h00"

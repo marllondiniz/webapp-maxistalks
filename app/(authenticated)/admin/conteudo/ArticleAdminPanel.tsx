@@ -88,29 +88,29 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
     <div className="space-y-8">
       <form
         onSubmit={handleSubmit}
-        className="space-y-5 rounded-lg border border-white/10 bg-[#18181b] p-6 shadow-lg"
+        className="space-y-5 rounded-lg border border-white/10 bg-[#1e293b] p-6 shadow-lg"
       >
         <div>
-          <h3 className="text-lg font-semibold text-[#f5f5f5]">Novo artigo</h3>
-          <p className="text-sm text-[#9a9aa2]">
+          <h3 className="text-lg font-semibold text-white">Novo artigo</h3>
+          <p className="text-sm text-slate-400">
             Divulgue conteúdos relevantes para a comunidade.
           </p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-[#bdbdc3]">Título</span>
+            <span className="text-xs font-semibold uppercase text-slate-400">Título</span>
             <input
               type="text"
               value={form.titulo}
               onChange={(event) => setForm((prev) => ({ ...prev, titulo: event.target.value }))}
-              className="w-full rounded-xl border border-white/10 bg-[#0f0f10] px-4 py-3 text-sm text-[#f5f5f5]"
+              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
               required
             />
           </label>
 
           <label className="space-y-2">
-            <span className="text-xs font-semibold uppercase text-[#bdbdc3]">Autor</span>
+            <span className="text-xs font-semibold uppercase text-slate-400">Autor</span>
             <input
               type="text"
               value={form.autor_handle}
@@ -118,18 +118,18 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
                 setForm((prev) => ({ ...prev, autor_handle: event.target.value }))
               }
               placeholder="@usuario"
-              className="w-full rounded-xl border border-white/10 bg-[#0f0f10] px-4 py-3 text-sm text-[#f5f5f5]"
+              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
             />
           </label>
 
           <label className="space-y-2">
-            <span className="text-xs font-semibold uppercase text-[#bdbdc3]">Categoria</span>
+            <span className="text-xs font-semibold uppercase text-slate-400">Categoria</span>
             <select
               value={form.categoria}
               onChange={(event) =>
                 setForm((prev) => ({ ...prev, categoria: event.target.value }))
               }
-              className="w-full rounded-xl border border-white/10 bg-[#0f0f10] px-4 py-3 text-sm text-[#f5f5f5]"
+              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
             >
               {categorias.map((categoria) => (
                 <option key={categoria.value} value={categoria.value}>
@@ -140,23 +140,23 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
           </label>
 
           <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-[#bdbdc3]">Resumo</span>
+            <span className="text-xs font-semibold uppercase text-slate-400">Resumo</span>
             <textarea
               value={form.resumo}
               onChange={(event) => setForm((prev) => ({ ...prev, resumo: event.target.value }))}
               rows={3}
-              className="w-full rounded-xl border border-white/10 bg-[#0f0f10] px-4 py-3 text-sm text-[#f5f5f5]"
+              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
             />
           </label>
 
           <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-[#bdbdc3]">Ícone (emoji)</span>
+            <span className="text-xs font-semibold uppercase text-slate-400">Ícone (emoji)</span>
             <input
               type="text"
               maxLength={2}
               value={form.icone}
               onChange={(event) => setForm((prev) => ({ ...prev, icone: event.target.value }))}
-              className="w-full rounded-xl border border-white/10 bg-[#0f0f10] px-4 py-3 text-sm text-[#f5f5f5]"
+              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
               placeholder="Ex: ☕"
             />
           </label>
@@ -165,28 +165,28 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-[#f5f5f5] px-4 py-3 text-sm font-semibold uppercase tracking-wide text-[#0f0f10] transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
+          className="w-full rounded-xl bg-[#3b82f6] px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {loading ? 'Salvando...' : 'Publicar artigo'}
         </button>
 
-        {feedback && <p className="text-center text-xs text-[#9a9aa2]">{feedback}</p>}
+        {feedback && <p className="text-center text-xs text-slate-400">{feedback}</p>}
       </form>
 
       <section className="space-y-4">
-        <h3 className="text-lg font-semibold text-[#f5f5f5]">Conteúdos publicados</h3>
+        <h3 className="text-lg font-semibold text-white">Conteúdos publicados</h3>
         {articles.length === 0 ? (
-          <p className="text-sm text-[#9a9aa2]">Nenhum conteúdo cadastrado ainda.</p>
+          <p className="text-sm text-slate-400">Nenhum conteúdo cadastrado ainda.</p>
         ) : (
           <div className="space-y-3">
             {articles.map((article) => (
               <div
                 key={article.id}
-                className="flex flex-col gap-3 rounded-lg border border-white/10 bg-[#18181b] p-5 shadow-lg md:flex-row md:items-center md:justify-between"
+                className="flex flex-col gap-3 rounded-lg border border-white/10 bg-[#1e293b] p-5 shadow-lg md:flex-row md:items-center md:justify-between"
               >
                 <div>
-                  <h4 className="text-base font-semibold text-[#f5f5f5]">{article.titulo}</h4>
-                  <p className="text-xs text-[#9a9aa2]">
+                  <h4 className="text-base font-semibold text-white">{article.titulo}</h4>
+                  <p className="text-xs text-slate-400">
                     {article.autor_handle} • {article.categoria}
                   </p>
                 </div>

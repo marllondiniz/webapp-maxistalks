@@ -3,21 +3,21 @@ import type { Metadata } from 'next'
 import LoginClient from '../login-client'
 
 export const metadata: Metadata = {
-  title: 'Área exclusiva | Coffee Music & Run',
+  title: 'Área exclusiva | MaxisTalks',
   description:
-    'Faça login ou crie sua conta para acessar o Clube Ritmo Certo: eventos, desafios, conteúdo e benefícios exclusivos.',
+    'Faça login ou crie sua conta para acessar o MaxisTalks: criar eventos, gerenciar conteúdo e palestras.',
   openGraph: {
-    title: 'Área exclusiva | Coffee Music & Run',
+    title: 'Área exclusiva | MaxisTalks',
     description:
-      'Entre para acessar eventos, desafios, conteúdos e benefícios do Clube Ritmo Certo.',
-    url: 'https://ritmocertoclub.com.br/testeapp',
+      'Entre para acessar o painel administrativo do MaxisTalks.',
+    url: 'https://maxis.plus/testeapp',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Área exclusiva | Coffee Music & Run',
+    title: 'Área exclusiva | MaxisTalks',
     description:
-      'Entre para acessar eventos, desafios, conteúdos e benefícios do Clube Ritmo Certo.',
+      'Entre para acessar o painel administrativo do MaxisTalks.',
   },
 }
 

@@ -7,51 +7,51 @@ export default async function AdminHomePage() {
   return (
     <section className="space-y-8">
       <div>
-        <h2 className="text-xl font-semibold uppercase tracking-wide text-[#f5f5f5]">
+        <h2 className="text-xl font-semibold uppercase tracking-wide text-white">
           Visão geral
         </h2>
-        <p className="text-sm text-[#9a9aa2]">
-          Atalhos rápidos para gerenciar o conteúdo do Clube Ritmo Certo.
+        <p className="text-sm text-slate-400">
+          Atalhos rápidos para gerenciar o conteúdo do MaxisTalks.
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <Link
           href="/admin/eventos"
-          className="rounded-lg border border-white/10 bg-[#18181b] p-5 shadow-lg transition hover:border-white/30"
+          className="rounded-xl border border-white/10 bg-[#1e293b] p-5 shadow-lg transition hover:border-[#3b82f6]/50 hover:bg-[#1e293b]/80"
         >
-          <h3 className="text-lg font-semibold text-[#f5f5f5]">Eventos</h3>
-          <p className="mt-1 text-sm text-[#c9c9d2]">
+          <h3 className="text-lg font-semibold text-white">Eventos</h3>
+          <p className="mt-1 text-sm text-slate-400">
             {eventos.length} evento(s) cadastrados.
           </p>
-          <span className="mt-4 inline-flex text-xs font-semibold uppercase tracking-wider text-[#f5f5f5]">
-            Gerenciar
+          <span className="mt-4 inline-flex text-xs font-semibold uppercase tracking-wider text-[#3b82f6]">
+            Gerenciar →
           </span>
         </Link>
 
         <Link
           href="/admin/conteudo"
-          className="rounded-lg border border-white/10 bg-[#18181b] p-5 shadow-lg transition hover:border-white/30"
+          className="rounded-xl border border-white/10 bg-[#1e293b] p-5 shadow-lg transition hover:border-[#3b82f6]/50 hover:bg-[#1e293b]/80"
         >
-          <h3 className="text-lg font-semibold text-[#f5f5f5]">Conteúdo</h3>
-          <p className="mt-1 text-sm text-[#c9c9d2]">
+          <h3 className="text-lg font-semibold text-white">Conteúdo</h3>
+          <p className="mt-1 text-sm text-slate-400">
             Publicações do blog e dicas para a comunidade.
           </p>
-          <span className="mt-4 inline-flex text-xs font-semibold uppercase tracking-wider text-[#f5f5f5]">
-            Gerenciar
+          <span className="mt-4 inline-flex text-xs font-semibold uppercase tracking-wider text-[#3b82f6]">
+            Gerenciar →
           </span>
         </Link>
 
         <Link
           href="/admin/desafios"
-          className="rounded-lg border border-white/10 bg-[#18181b] p-5 shadow-lg transition hover:border-white/30"
+          className="rounded-xl border border-white/10 bg-[#1e293b] p-5 shadow-lg transition hover:border-[#3b82f6]/50 hover:bg-[#1e293b]/80"
         >
-          <h3 className="text-lg font-semibold text-[#f5f5f5]">Desafios</h3>
-          <p className="mt-1 text-sm text-[#c9c9d2]">
+          <h3 className="text-lg font-semibold text-white">Desafios</h3>
+          <p className="mt-1 text-sm text-slate-400">
             {desafios.length} desafio(s) ativos esta semana.
           </p>
-          <span className="mt-4 inline-flex text-xs font-semibold uppercase tracking-wider text-[#f5f5f5]">
-            Gerenciar
+          <span className="mt-4 inline-flex text-xs font-semibold uppercase tracking-wider text-[#3b82f6]">
+            Gerenciar →
           </span>
         </Link>
       </div>

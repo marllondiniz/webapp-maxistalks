@@ -34,7 +34,7 @@ export default async function DesafiosPage() {
         <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#2f2f2f]">
           Total acumulado
         </span>
-          <span className="rounded-full bg-[#0f0f10]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#2f2f2f]">
+          <span className="rounded-full bg-slate-900/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-300">
             Em breve
           </span>
         </div>
@@ -54,13 +54,13 @@ export default async function DesafiosPage() {
           return (
             <article
               key={desafio.id}
-              className="space-y-3 rounded-lg border border-white/5 bg-[#18181b] p-5 shadow-lg"
+              className="space-y-3 rounded-lg border border-slate-600/30 bg-slate-800/80 p-5 shadow-lg"
             >
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold text-[#f5f5f5]">{desafio.titulo}</h3>
                 <span className="text-sm font-semibold text-[#f5f5f5]">{progresso}%</span>
               </div>
-              <div className="h-2 w-full rounded-full bg-[#2a2a31]">
+              <div className="h-2 w-full rounded-full bg-slate-700/60">
                 <div
                   className="h-full rounded-full bg-[#f5f5f5] transition-all"
                   style={{ width: `${progresso}%` }}

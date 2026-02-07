@@ -1,8 +1,9 @@
 'use client'
 
-import { FormEvent, useMemo, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import Link from 'next/link'
 
 import { getSupabaseClient } from '@/lib/supabaseClient'
 
@@ -16,6 +17,39 @@ const MODE_LABEL: Record<AuthMode, string> = {
 
 export default function LoginClient() {
   const router = useRouter()
+
+  useEffect(() => {
+    router.prefetch('/perfil')
+    router.prefetch('/inicio')
+    router.prefetch('/admin')
+  }, [router])
+
+  useEffect(() => {
+    let isMounted = true
+    const checkSession = async () => {
+      const supabase = getSupabaseClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!isMounted || !session?.user) return
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_admin, is_complete')
+        .eq('id', session.user.id)
+        .maybeSingle()
+
+      if (profile?.is_admin) {
+        router.replace('/admin')
+        return
+      }
+      if (profile?.is_complete === false) {
+        router.replace('/perfil')
+        return
+      }
+      router.replace('/inicio')
+    }
+    checkSession()
+    return () => { isMounted = false }
+  }, [router])
   const [mode, setMode] = useState<AuthMode>('signIn')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -69,23 +103,23 @@ export default function LoginClient() {
 
           if (profile?.is_admin) {
             setFeedback({ type: 'success', text: 'Bem-vindo(a), administrador!' })
-            router.push('/admin')
+            router.replace('/admin')
             return
           }
 
           if (profile?.is_complete === false) {
             setFeedback({ type: 'success', text: 'Complete seu perfil para continuar.' })
-            router.push('/perfil')
+            router.replace('/perfil')
             return
           }
 
           setFeedback({ type: 'success', text: 'Login realizado com sucesso!' })
-          router.push('/inicio')
+          router.replace('/inicio')
           return
         }
 
         setFeedback({ type: 'success', text: 'Login realizado com sucesso!' })
-        router.push('/inicio')
+        router.replace('/inicio')
       }
 
       if (mode === 'signUp') {
@@ -93,10 +127,10 @@ export default function LoginClient() {
           email,
           password,
           options: {
-            emailRedirectTo: origin ? `${origin}/testeapp` : undefined,
+            emailRedirectTo: origin ? `${origin}/perfil` : undefined,
           },
         })
-        
+
         if (error) {
           throw error
         }
@@ -116,6 +150,12 @@ export default function LoginClient() {
           if (!response.ok) {
             console.error('Falha ao sincronizar perfil:', await response.text())
           }
+        }
+
+        if (data.session) {
+          setFeedback({ type: 'success', text: 'Conta criada! Complete seu perfil para continuar.' })
+          router.replace('/perfil')
+          return
         }
 
         setFeedback({
@@ -165,118 +205,151 @@ export default function LoginClient() {
   const primaryActionLabel = MODE_LABEL[mode]
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-neutral-950 px-4 py-16 text-neutral-100">
-      <div className="grid w-full max-w-5xl gap-12 rounded-lg border border-neutral-800 bg-neutral-900/70 p-10 shadow-xl backdrop-blur">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <Image src="/coffe-music.png" alt="Coffee Music & Run" width={240} height={240} />
-          <div>
-            <h1 className="mt-2 text-3xl font-semibold">
-              {mode === 'signIn' && 'Faça login para acessar a área exclusiva'}
-              {mode === 'signUp' && 'Crie sua conta para participar'}
-              {mode === 'reset' && 'Esqueceu sua senha? Sem problemas.'}
+    <main className="relative flex min-h-screen flex-col items-center justify-center bg-[#060c1f] px-4 py-16">
+      {/* Radial glow */}
+      <div className="pointer-events-none absolute inset-0 hero-glow" />
+      <div className="pointer-events-none fixed inset-0 z-50 noise-texture" />
+
+      {/* Banner */}
+      <div className="absolute left-0 right-0 top-0 z-10 flex justify-center bg-gradient-to-r from-[#2563eb] via-[#3b82f6] to-[#2563eb] px-4 py-3">
+        <p className="text-[13px] font-medium tracking-wide text-white/90">Palco para quem gera valor</p>
+      </div>
+
+      <div className="relative z-10 mt-14 w-full max-w-md">
+        <Link href="/" className="mb-10 flex justify-center">
+          <Image
+            src="/maxistalks-logo.png"
+            alt="MaxisTalks"
+            width={220}
+            height={88}
+            className="h-auto w-44"
+          />
+        </Link>
+
+        <div className="glass-card p-8 md:p-10">
+          <div className="mb-8 text-center">
+            <h1 className="font-display text-2xl font-bold text-white">
+              {mode === 'signIn' && 'Bem-vindo de volta'}
+              {mode === 'signUp' && 'Crie sua conta'}
+              {mode === 'reset' && 'Recuperar senha'}
             </h1>
+            <p className="mt-2 text-sm leading-relaxed text-slate-400">
+              {mode === 'signIn' && 'Acesse sua conta para gerenciar eventos e conteúdo'}
+              {mode === 'signUp' && 'Junte-se ao MaxisTalks e participe de eventos exclusivos'}
+              {mode === 'reset' && 'Enviaremos instruções de recuperação para seu e-mail'}
+            </p>
           </div>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <label className="flex flex-col gap-2 text-left">
+              <span className="text-[13px] font-medium text-slate-300">E-mail</span>
+              <input
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                onInvalid={(event) =>
+                  event.currentTarget.setCustomValidity('Informe um endereço de e-mail válido.')
+                }
+                onInput={(event) => event.currentTarget.setCustomValidity('')}
+                className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 text-[15px] text-white placeholder-slate-500 outline-none transition focus:border-blue-500/50 focus:bg-white/[0.06] focus:ring-2 focus:ring-blue-500/20"
+                placeholder="seu@email.com"
+                required
+              />
+            </label>
+
+            {mode !== 'reset' && (
+              <label className="flex flex-col gap-2 text-left">
+                <span className="text-[13px] font-medium text-slate-300">Senha</span>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 text-[15px] text-white placeholder-slate-500 outline-none transition focus:border-blue-500/50 focus:bg-white/[0.06] focus:ring-2 focus:ring-blue-500/20"
+                  placeholder="Mínimo 6 caracteres"
+                  required
+                  minLength={6}
+                />
+              </label>
+            )}
+
+            {mode === 'signUp' && (
+              <label className="flex flex-col gap-2 text-left">
+                <span className="text-[13px] font-medium text-slate-300">Confirmar senha</span>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 text-[15px] text-white placeholder-slate-500 outline-none transition focus:border-blue-500/50 focus:bg-white/[0.06] focus:ring-2 focus:ring-blue-500/20"
+                  placeholder="Repita sua senha"
+                  required
+                  minLength={6}
+                />
+              </label>
+            )}
+
+            {feedback && (
+              <div
+                className={`rounded-xl border px-4 py-3 text-sm ${
+                  feedback.type === 'success'
+                    ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+                    : 'border-red-400/30 bg-red-500/10 text-red-300'
+                }`}
+              >
+                {feedback.text}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-glow flex items-center justify-center gap-2 rounded-xl bg-[#3b82f6] px-4 py-3.5 text-[15px] font-bold text-white transition hover:bg-[#2563eb] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {loading ? (
+                <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              ) : (
+                primaryActionLabel
+              )}
+            </button>
+
+            <div className="flex flex-wrap items-center justify-center gap-4 text-[13px] text-slate-500">
+              {mode !== 'signIn' && (
+                <button
+                  type="button"
+                  onClick={() => handleModeChange('signIn')}
+                  className="transition hover:text-white"
+                >
+                  Já tenho conta
+                </button>
+              )}
+              {mode !== 'signUp' && (
+                <button
+                  type="button"
+                  onClick={() => handleModeChange('signUp')}
+                  className="transition hover:text-white"
+                >
+                  Criar conta
+                </button>
+              )}
+              {mode !== 'reset' && (
+                <button
+                  type="button"
+                  onClick={() => handleModeChange('reset')}
+                  className="transition hover:text-white"
+                >
+                  Esqueci minha senha
+                </button>
+              )}
+            </div>
+          </form>
         </div>
 
-        <form onSubmit={handleSubmit} className="mx-auto flex w-full max-w-md flex-col gap-5">
-          <label className="flex flex-col gap-2 text-left">
-            <span className="text-sm font-medium text-neutral-200">E-mail</span>
-            <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              onInvalid={(event) =>
-                event.currentTarget.setCustomValidity('Informe um endereço de e-mail válido.')
-              }
-              onInput={(event) => event.currentTarget.setCustomValidity('')}
-              className="rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-3 text-base text-neutral-100 outline-none transition focus:border-white/60 focus:ring focus:ring-white/20"
-              placeholder="seu@email.com"
-              required
-            />
-          </label>
-
-          {mode !== 'reset' && (
-            <label className="flex flex-col gap-2 text-left">
-              <span className="text-sm font-medium text-neutral-200">Senha</span>
-              <input
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                className="rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-3 text-base text-neutral-100 outline-none transition focus:border-white/60 focus:ring focus:ring-white/20"
-                placeholder="Mínimo 6 caracteres"
-                required
-                minLength={6}
-              />
-            </label>
-          )}
-
-          {mode === 'signUp' && (
-            <label className="flex flex-col gap-2 text-left">
-              <span className="text-sm font-medium text-neutral-200">Confirmar senha</span>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(event) => setConfirmPassword(event.target.value)}
-                className="rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-3 text-base text-neutral-100 outline-none transition focus:border-white/60 focus:ring focus:ring-white/20"
-                placeholder="Repita sua senha"
-                required
-                minLength={6}
-              />
-            </label>
-          )}
-
-          {feedback && (
-            <div
-              className={`rounded-lg border px-4 py-3 text-sm ${
-                feedback.type === 'success'
-                  ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-200'
-                  : 'border-red-400/40 bg-red-500/10 text-red-200'
-              }`}
-            >
-              {feedback.text}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex items-center justify-center gap-2 rounded-lg bg-[#f5f5f5] px-4 py-3 text-base font-semibold text-[#0f0f10] transition hover:bg-white/80 disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-400"
-          >
-            {loading ? 'Aguarde...' : primaryActionLabel}
-          </button>
-
-          <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-neutral-300">
-            {mode !== 'signIn' && (
-              <button
-                type="button"
-                onClick={() => handleModeChange('signIn')}
-                className="transition hover:text-white"
-              >
-                Já tenho conta
-              </button>
-            )}
-            {mode !== 'signUp' && (
-              <button
-                type="button"
-                onClick={() => handleModeChange('signUp')}
-                className="transition hover:text-white"
-              >
-                Criar conta
-              </button>
-            )}
-            {mode !== 'reset' && (
-              <button
-                type="button"
-                onClick={() => handleModeChange('reset')}
-                className="transition hover:text-white"
-              >
-                Esqueci minha senha
-              </button>
-            )}
-          </div>
-        </form>
+        <p className="mt-8 text-center text-xs text-slate-600">
+          © {new Date().getFullYear()} MaxisPlus. Todos os direitos reservados.
+        </p>
       </div>
     </main>
   )
 }
-

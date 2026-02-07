@@ -1,6 +1,7 @@
 'use client'
 
 import { FormEvent, useMemo, useState } from 'react'
+import { Pencil, Plus, Upload, Image as ImageIcon, Check, Trash2, Info, Lightbulb, Loader2, Save, Calendar } from 'lucide-react'
 import type { EventBannerRecord, EventRecord } from '@/lib/queries'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 
@@ -346,6 +347,8 @@ export function EventAdminPanel({ initialEvents }: Props) {
                 image_url: imageUrl,
                 image_path: filePath,
                 is_active: true,
+                titulo: form.bannerTitulo || null,
+                subtitulo: form.bannerSubtitulo || null,
               }),
             })
             
@@ -385,6 +388,31 @@ export function EventAdminPanel({ initialEvents }: Props) {
       } else {
       if (form.bannerFile && !eventId) {
         console.error('❌ Banner não foi enviado: eventId não encontrado')
+      }
+    }
+
+    // Atualizar titulo/subtitulo do banner mesmo sem nova imagem (quando editando)
+    if (editingBanner && eventId && !form.bannerFile) {
+      const hasChanges =
+        form.bannerTitulo !== (editingBanner.titulo ?? '') ||
+        form.bannerSubtitulo !== (editingBanner.subtitulo ?? '')
+      if (hasChanges) {
+        try {
+          const updateResponse = await fetch('/api/admin/event-banners', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: editingBanner.id,
+              titulo: form.bannerTitulo || null,
+              subtitulo: form.bannerSubtitulo || null,
+            }),
+          })
+          if (updateResponse.ok) {
+            setFeedback((prev) => (prev ? `${prev} Dados do banner atualizados!` : 'Dados do banner atualizados!'))
+          }
+        } catch (error) {
+          console.error('Erro ao atualizar título/subtítulo do banner:', error)
+        }
       }
     }
 
@@ -466,14 +494,14 @@ export function EventAdminPanel({ initialEvents }: Props) {
     <div className="space-y-6">
       <form
         onSubmit={handleSubmit}
-        className="space-y-6 rounded-2xl border border-white/5 bg-[#18181b] p-6 shadow-xl"
+        className="space-y-6 rounded-2xl border border-white/5 bg-[#1e293b] p-6 shadow-xl"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-lg font-bold uppercase tracking-tight text-[#f5f5f5]">
-              {editingId ? '✏️ Editar evento' : '➕ Novo evento'}
+            <h3 className="text-lg font-bold uppercase tracking-tight text-white flex items-center gap-2">
+              {editingId ? <><Pencil className="h-4 w-4" /> Editar evento</> : <><Plus className="h-4 w-4" /> Novo evento</>}
             </h3>
-            <p className="mt-1 text-sm text-[#9a9aa2]">
+            <p className="mt-1 text-sm text-slate-400">
               {editingId
                 ? 'Atualize as informações e salve'
                 : 'Preencha os dados do evento'}
@@ -483,7 +511,7 @@ export function EventAdminPanel({ initialEvents }: Props) {
             <button
               type="button"
               onClick={handleCancelEdit}
-              className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold uppercase text-[#9a9aa2] transition hover:border-white/20 hover:text-[#f5f5f5]"
+              className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold uppercase text-slate-400 transition hover:border-white/20 hover:text-white"
             >
               Cancelar
             </button>
@@ -492,23 +520,23 @@ export function EventAdminPanel({ initialEvents }: Props) {
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2">
-            <span className="text-xs font-semibold uppercase text-[#bdbdc3]">Título</span>
+            <span className="text-xs font-semibold uppercase text-slate-400">Título</span>
             <input
               type="text"
               value={form.titulo}
               onChange={(event) => handleChange('titulo', event.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-[#0f0f10] px-4 py-3 text-sm text-[#f5f5f5]"
+              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
               required
             />
           </label>
 
           <label className="space-y-2">
-            <span className="text-xs font-semibold uppercase text-[#bdbdc3]">Data e horário</span>
+            <span className="text-xs font-semibold uppercase text-slate-400">Data e horário</span>
             <input
               type="datetime-local"
               value={form.data_horario}
               onChange={(event) => handleChange('data_horario', event.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-[#0f0f10] px-4 py-3 text-sm text-[#f5f5f5]"
+              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
               required
             />
           </label>
@@ -516,19 +544,19 @@ export function EventAdminPanel({ initialEvents }: Props) {
           <div className="space-y-3 md:col-span-2">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <span className="text-xs font-semibold uppercase text-[#bdbdc3]">
+                <span className="text-xs font-semibold uppercase text-slate-400">
                   Seções do evento
                 </span>
-                <p className="text-[11px] text-[#9a9aa2]">
+                <p className="text-[11px] text-slate-400">
                   Organize o conteúdo em blocos. Cada bloco aparece como um card na página do evento.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={handleAddSection}
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold uppercase text-[#f5f5f5] transition hover:border-white/20 hover:bg-white/5"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold uppercase text-white transition hover:border-white/20 hover:bg-white/5"
               >
-                <span>➕</span>
+                <Plus className="h-3.5 w-3.5" />
                 <span>Adicionar bloco</span>
               </button>
             </div>
@@ -537,11 +565,11 @@ export function EventAdminPanel({ initialEvents }: Props) {
               {form.descricaoSections.map((section, index) => (
                 <div
                   key={section.id}
-                  className="space-y-3 rounded-xl border border-white/10 bg-[#0f0f10] p-4 shadow-sm"
+                  className="space-y-3 rounded-xl border border-white/10 bg-[#1e293b] p-4 shadow-sm"
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-xs font-semibold uppercase text-[#bdbdc3]">
-                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[11px] text-[#f5f5f5]">
+                    <div className="flex items-center gap-2 text-xs font-semibold uppercase text-slate-400">
+                      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[11px] text-white">
                         {index + 1}
                       </span>
                       <span>Bloco do conteúdo</span>
@@ -558,7 +586,7 @@ export function EventAdminPanel({ initialEvents }: Props) {
                   </div>
 
                   <label className="space-y-2">
-                    <span className="text-[11px] font-semibold uppercase text-[#9a9aa2]">
+                    <span className="text-[11px] font-semibold uppercase text-slate-400">
                       Título opcional
                     </span>
                     <input
@@ -566,12 +594,12 @@ export function EventAdminPanel({ initialEvents }: Props) {
                       value={section.titulo}
                       onChange={(event) => handleSectionChange(section.id, 'titulo', event.target.value)}
                       placeholder="Ex: Ingresso Experiência Coffee Music"
-                      className="w-full rounded-lg border border-white/10 bg-[#18181b] px-4 py-3 text-sm text-[#f5f5f5] placeholder:text-[#5f5f66]"
+                      className="w-full rounded-lg border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white placeholder:text-[#5f5f66]"
             />
           </label>
 
                   <label className="space-y-2">
-                    <span className="text-[11px] font-semibold uppercase text-[#9a9aa2]">
+                    <span className="text-[11px] font-semibold uppercase text-slate-400">
                       Conteúdo
                     </span>
                     <textarea
@@ -581,7 +609,7 @@ export function EventAdminPanel({ initialEvents }: Props) {
                       }
                       rows={5}
                       placeholder="Descreva este bloco. Você pode usar listas, emojis e quebras de linha."
-                      className="w-full rounded-lg border border-white/10 bg-[#18181b] px-4 py-3 text-sm text-[#f5f5f5] placeholder:text-[#5f5f66]"
+                      className="w-full rounded-lg border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white placeholder:text-[#5f5f66]"
                     />
                   </label>
                 </div>
@@ -590,48 +618,48 @@ export function EventAdminPanel({ initialEvents }: Props) {
           </div>
 
           <label className="space-y-2">
-            <span className="text-xs font-semibold uppercase text-[#bdbdc3]">Local</span>
+            <span className="text-xs font-semibold uppercase text-slate-400">Local</span>
             <input
               type="text"
               value={form.local_nome}
               onChange={(event) => handleChange('local_nome', event.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-[#0f0f10] px-4 py-3 text-sm text-[#f5f5f5]"
+              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
               required
             />
           </label>
 
           <label className="space-y-2">
-            <span className="text-xs font-semibold uppercase text-[#bdbdc3]">Detalhes do local</span>
+            <span className="text-xs font-semibold uppercase text-slate-400">Detalhes do local</span>
             <input
               type="text"
               value={form.local_detalhe}
               onChange={(event) => handleChange('local_detalhe', event.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-[#0f0f10] px-4 py-3 text-sm text-[#f5f5f5]"
+              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
             />
           </label>
 
           <label className="space-y-2">
-            <span className="text-xs font-semibold uppercase text-[#bdbdc3]">Preço</span>
+            <span className="text-xs font-semibold uppercase text-slate-400">Preço</span>
             <input
               type="number"
               min="0"
               step="0.01"
               value={form.preco}
               onChange={(event) => handleChange('preco', event.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-[#0f0f10] px-4 py-3 text-sm text-[#f5f5f5]"
+              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
               placeholder="0 para gratuito"
             />
           </label>
 
           <label className="space-y-2">
-            <span className="text-xs font-semibold uppercase text-[#bdbdc3]">Capacidade máxima</span>
+            <span className="text-xs font-semibold uppercase text-slate-400">Capacidade máxima</span>
             <input
               type="number"
               min="0"
               step="1"
               value={form.capacidade_maxima}
               onChange={(event) => handleChange('capacidade_maxima', event.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-[#0f0f10] px-4 py-3 text-sm text-[#f5f5f5]"
+              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
               placeholder="Quantidade total de vagas"
             />
           </label>
@@ -641,18 +669,20 @@ export function EventAdminPanel({ initialEvents }: Props) {
               type="checkbox"
               checked={form.destaque}
               onChange={(event) => handleChange('destaque', event.target.checked)}
-              className="h-4 w-4 rounded border-white/20 bg-[#0f0f10]"
+              className="h-4 w-4 rounded border-white/20 bg-[#1e293b]"
             />
-            <span className="text-sm text-[#c9c9d2]">Marcar como evento em destaque</span>
+            <span className="text-sm text-slate-300">Marcar como evento em destaque</span>
           </label>
         </div>
 
           <div className="space-y-4 rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-orange-500/5 p-6 shadow-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="text-2xl">🎨</span>
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/20 text-amber-200">
+                  <ImageIcon className="h-5 w-5" />
+                </span>
                 <div>
-                  <h4 className="text-base font-bold uppercase tracking-wide text-[#f5f5f5]">
+                  <h4 className="text-base font-bold uppercase tracking-wide text-white">
                     Banner Promocional
                   </h4>
                   <p className="mt-0.5 text-xs text-amber-200/90">
@@ -669,26 +699,55 @@ export function EventAdminPanel({ initialEvents }: Props) {
               )}
             </div>
 
-            <div className="space-y-3 rounded-lg border border-white/10 bg-[#0f0f10] p-4">
+            <div className="space-y-3 rounded-lg border border-white/10 bg-[#1e293b] p-4">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="space-y-2">
+                <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Nome do palestrante
+                </span>
+                <input
+                  type="text"
+                  value={form.bannerSubtitulo}
+                  onChange={(event) => handleChange('bannerSubtitulo', event.target.value)}
+                  placeholder="Ex: João Silva"
+                  className="w-full rounded-lg border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white placeholder:text-slate-500"
+                />
+              </label>
+              <label className="space-y-2">
+                <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Tema do evento
+                </span>
+                <input
+                  type="text"
+                  value={form.bannerTitulo}
+                  onChange={(event) => handleChange('bannerTitulo', event.target.value)}
+                  placeholder="Ex: Transformação Pessoal"
+                  className="w-full rounded-lg border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white placeholder:text-slate-500"
+                />
+              </label>
+            </div>
+
             <label className="space-y-2">
-                <span className="text-xs font-semibold uppercase tracking-wide text-[#bdbdc3]">
-                  📤 Selecione a imagem do banner
+                <span className="text-xs font-semibold uppercase tracking-wide text-slate-400 flex items-center gap-1.5">
+                  <Upload className="h-3.5 w-3.5" />
+                  Selecione a imagem do banner
                 </span>
               <input
                 type="file"
                 accept="image/png,image/jpeg,image/webp"
                 onChange={(event) => handleBannerFileChange(event.target.files?.[0] ?? null)}
-                  className="block w-full cursor-pointer rounded-xl border-2 border-dashed border-amber-500/30 bg-[#18181b] px-4 py-4 text-sm text-[#f5f5f5] transition hover:border-amber-500/50 hover:bg-[#1a1a1f] file:mr-4 file:cursor-pointer file:rounded-lg file:border-0 file:bg-amber-500/20 file:px-4 file:py-2 file:text-xs file:font-bold file:uppercase file:tracking-wide file:text-amber-200 file:transition hover:file:bg-amber-500/30"
+                  className="block w-full cursor-pointer rounded-xl border-2 border-dashed border-amber-500/30 bg-[#1e293b] px-4 py-4 text-sm text-white transition hover:border-amber-500/50 hover:bg-[#1a1a1f] file:mr-4 file:cursor-pointer file:rounded-lg file:border-0 file:bg-amber-500/20 file:px-4 file:py-2 file:text-xs file:font-bold file:uppercase file:tracking-wide file:text-amber-200 file:transition hover:file:bg-amber-500/30"
               />
-                <p className="text-[11px] text-[#9a9aa2]">
-                  ✨ Formato: PNG, JPG ou WebP • Tamanho recomendado: 1200x600px
+                <p className="text-[11px] text-slate-400 flex items-center gap-1">
+                  <ImageIcon className="h-3 w-3 shrink-0" />
+                  Formato: PNG, JPG ou WebP • Tamanho recomendado: 1200x600px
                 </p>
               </label>
 
               {(form.bannerPreview || editingBanner?.image_url) && (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-xs text-emerald-300">
-                    <span>✅</span>
+                    <Check className="h-3.5 w-3.5 shrink-0" />
                     <span className="font-semibold">Pré-visualização do banner:</span>
                   </div>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -701,23 +760,26 @@ export function EventAdminPanel({ initialEvents }: Props) {
                     <button
                       type="button"
                       onClick={() => handleBannerFileChange(null)}
-                      className="text-xs font-semibold uppercase text-amber-300 transition hover:text-amber-200"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase text-amber-300 transition hover:text-amber-200"
                     >
-                      🗑️ Remover banner
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Remover banner
                     </button>
                   )}
                 </div>
               )}
 
               {editingId && editingBanner && !form.bannerFile && (
-                <div className="rounded-lg border border-blue-500/20 bg-blue-500/10 p-3 text-xs text-blue-200">
-                  ℹ️ Banner atual em uso. Selecione um novo arquivo acima para substituí-lo.
+                <div className="flex items-start gap-2 rounded-lg border border-blue-500/20 bg-blue-500/10 p-3 text-xs text-blue-200">
+                  <Info className="h-4 w-4 shrink-0 mt-0.5" />
+                  <span>Banner atual em uso. Selecione um novo arquivo acima para substituí-lo.</span>
           </div>
         )}
 
               {!form.bannerPreview && !editingBanner && !form.bannerFile && (
-                <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-200">
-                  💡 Dica: Eventos com banner se destacam mais na home e na lista de eventos!
+                <div className="flex items-start gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-200">
+                  <Lightbulb className="h-4 w-4 shrink-0 mt-0.5" />
+                  <span>Dica: Eventos com banner se destacam mais na home e na lista de eventos!</span>
                 </div>
               )}
             </div>
@@ -736,36 +798,52 @@ export function EventAdminPanel({ initialEvents }: Props) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-[#f5f5f5] px-4 py-3.5 text-sm font-bold uppercase tracking-wide text-[#0f0f10] shadow-lg transition hover:scale-[1.02] hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#3b82f6] px-4 py-3.5 text-sm font-bold uppercase tracking-wide text-white shadow-lg transition hover:bg-[#2563eb] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
         >
-          {loading ? '⏳ Salvando...' : editingId ? '💾 Atualizar evento' : '✨ Criar evento'}
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Salvando...
+            </>
+          ) : editingId ? (
+            <>
+              <Save className="h-4 w-4" />
+              Atualizar evento
+            </>
+          ) : (
+            <>
+              <Plus className="h-4 w-4" />
+              Criar evento
+            </>
+          )}
         </button>
       </form>
 
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold uppercase tracking-tight text-[#f5f5f5]">
-            📅 Eventos cadastrados
+          <h3 className="text-lg font-bold uppercase tracking-tight text-white flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            Eventos cadastrados
           </h3>
-          <span className="rounded-full bg-[#2a2a31] px-3 py-1 text-xs font-bold text-[#f5f5f5]">
+          <span className="rounded-full bg-[#334155] px-3 py-1 text-xs font-bold text-white">
             {events.length}
           </span>
         </div>
         {events.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-white/10 bg-[#0f0f10] p-8 text-center">
-            <p className="text-sm text-[#9a9aa2]">Nenhum evento cadastrado ainda.</p>
-            <p className="mt-1 text-xs text-[#73737c]">Crie seu primeiro evento acima</p>
+          <div className="rounded-xl border border-dashed border-white/10 bg-[#1e293b] p-8 text-center">
+            <p className="text-sm text-slate-400">Nenhum evento cadastrado ainda.</p>
+            <p className="mt-1 text-xs text-slate-500">Crie seu primeiro evento acima</p>
           </div>
         ) : (
           <div className="space-y-3">
             {events.map((evento) => (
               <div
                 key={evento.id}
-                className="group flex flex-col gap-4 rounded-xl border border-white/5 bg-[#18181b] p-5 shadow-lg transition hover:border-white/10 hover:shadow-xl md:flex-row md:items-center md:justify-between"
+                className="group flex flex-col gap-4 rounded-xl border border-white/5 bg-[#1e293b] p-5 shadow-lg transition hover:border-white/10 hover:shadow-xl md:flex-row md:items-center md:justify-between"
               >
                 <div className="flex-1 space-y-1">
                   <div className="flex items-start gap-2">
-                    <h4 className="text-base font-bold text-[#f5f5f5]">
+                    <h4 className="text-base font-bold text-white">
                       {evento.titulo}
                     </h4>
                     {evento.destaque && (
@@ -774,7 +852,7 @@ export function EventAdminPanel({ initialEvents }: Props) {
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-[#9a9aa2]">
+                  <p className="text-xs text-slate-400">
                     📍 {evento.local_nome} • 🕐 {new Date(evento.data_horario).toLocaleString('pt-BR', {
                       day: '2-digit',
                       month: 'short',
@@ -784,7 +862,7 @@ export function EventAdminPanel({ initialEvents }: Props) {
                     })}
                   </p>
                   {getDescriptionPreview(evento.descricao) && (
-                    <p className="text-xs text-[#73737c] line-clamp-2">
+                    <p className="text-xs text-slate-500 line-clamp-2">
                       {getDescriptionPreview(evento.descricao)}
                     </p>
                   )}
@@ -793,7 +871,7 @@ export function EventAdminPanel({ initialEvents }: Props) {
                   <button
                     type="button"
                     onClick={() => handleEdit(evento)}
-                    className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-[#2a2a31] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-[#f5f5f5] transition hover:border-white/20 hover:bg-[#34343b]"
+                    className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-[#334155] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:border-white/20 hover:bg-[#34343b]"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-3.5 w-3.5">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
