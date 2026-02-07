@@ -156,13 +156,13 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
     }
   }, [supabase])
 
-  const handleConfirmParticipation = (eventId: string) => {
+  const handleExpressInterest = (eventId: string) => {
     if (!userId) {
       setMessages((prev) => ({
         ...prev,
         [eventId]: {
           type: 'error',
-          text: 'Você precisa estar logado para confirmar participação.',
+          text: 'Você precisa estar logado para manifestar interesse.',
         },
       }))
       return
@@ -194,7 +194,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
           ...prev,
           [eventId]: {
             type: 'success',
-            text: 'Você já está inscrito neste evento.',
+            text: 'Você já manifestou interesse! Em breve enviaremos um convite no WhatsApp.',
           },
         }))
         setActiveEventId(null)
@@ -211,12 +211,12 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
         .single()
 
       if (insertError) {
-        console.error('Erro ao confirmar participação:', insertError)
+        console.error('Erro ao registrar interesse:', insertError)
         setMessages((prev) => ({
           ...prev,
           [eventId]: {
             type: 'error',
-            text: 'Não foi possível confirmar sua participação. Tente novamente.',
+            text: 'Não foi possível registrar seu interesse. Tente novamente.',
           },
         }))
         setActiveEventId(null)
@@ -253,7 +253,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
           ...prev,
           [eventId]: {
             type: 'success',
-            text: 'Participação confirmada com sucesso!',
+            text: 'Recebemos seu interesse! Em breve enviaremos um convite no WhatsApp.',
           },
         }))
 
@@ -460,7 +460,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                         onClick={() => setTicketModalEvent({ event, registration })}
                         className="inline-flex flex-1 items-center justify-center rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-wide transition bg-[#f5f5f5] text-[#0f0f10] hover:brightness-95"
                       >
-                        Ver ingresso
+                        {registration.ticket_url ? 'Ver ingresso' : 'Interesse registrado'}
                       </button>
                     </>
                   ) : isPaidEvent ? (
@@ -488,7 +488,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                   ) : (
                     <button
                       type="button"
-                      onClick={() => !isPastEvent && handleConfirmParticipation(event.id)}
+                      onClick={() => !isPastEvent && handleExpressInterest(event.id)}
                       disabled={buttonDisabled}
                       className={`inline-flex flex-1 items-center justify-center rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-wide transition ${
                         buttonDisabled
@@ -497,10 +497,10 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                       }`}
                     >
                       {isProcessing
-                        ? 'Confirmando...'
+                        ? 'Enviando...'
                         : isPastEvent
                         ? 'Evento realizado'
-                        : 'Confirmar participação'}
+                        : 'Tenho interesse em participar'}
                     </button>
                   )}
                 </div>
@@ -542,8 +542,14 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                 <Check className="h-6 w-6 text-emerald-400" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white">Você está inscrito!</h3>
-                <p className="text-sm text-slate-400">Informações do seu ingresso</p>
+                <h3 className="text-lg font-bold text-white">
+                  {ticketModalEvent.registration.ticket_url ? 'Você está inscrito!' : 'Interesse registrado!'}
+                </h3>
+                <p className="text-sm text-slate-400">
+                  {ticketModalEvent.registration.ticket_url
+                    ? 'Informações do seu ingresso'
+                    : 'Em breve enviaremos um convite no WhatsApp.'}
+                </p>
               </div>
             </div>
 

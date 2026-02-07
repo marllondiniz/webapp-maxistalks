@@ -90,15 +90,15 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
     [event.descricao]
   )
 
-  const handleParticipation = async () => {
+  const handleExpressInterest = async () => {
     if (!profile?.id) {
-      setMessage({ type: 'error', text: 'Você precisa estar logado para participar.' })
+      setMessage({ type: 'error', text: 'Você precisa estar logado para manifestar interesse.' })
       return
     }
 
     startTransition(async () => {
       try {
-        // Verificar se já está inscrito
+        // Verificar se já manifestou interesse
         const { data: existingRegistration } = await supabase
           .from('event_registrations')
           .select('id')
@@ -107,11 +107,11 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
           .single()
 
         if (existingRegistration) {
-          setMessage({ type: 'success', text: 'Você já está inscrito neste evento!' })
+          setMessage({ type: 'success', text: 'Você já manifestou interesse! Em breve enviaremos um convite no WhatsApp.' })
           return
         }
 
-        // Registrar participação
+        // Registrar interesse
         const { error: insertError } = await supabase
           .from('event_registrations')
           .insert({
@@ -129,15 +129,15 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
           })
           .eq('id', event.id)
 
-        setMessage({ type: 'success', text: 'Participação confirmada com sucesso!' })
+        setMessage({ type: 'success', text: 'Recebemos seu interesse! Em breve enviaremos um convite no WhatsApp.' })
         
         // Recarregar página para atualizar contadores
         setTimeout(() => {
           router.refresh()
         }, 1500)
       } catch (error) {
-        console.error('Erro ao confirmar participação:', error)
-        setMessage({ type: 'error', text: 'Não foi possível confirmar sua participação.' })
+        console.error('Erro ao registrar interesse:', error)
+        setMessage({ type: 'error', text: 'Não foi possível registrar seu interesse. Tente novamente.' })
       }
     })
   }
@@ -236,18 +236,18 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
           )}
 
           <button
-            onClick={() => !isPastEvent && (isFreeEvent ? handleParticipation() : handleBuyTicket())}
+            onClick={() => !isPastEvent && (isFreeEvent ? handleExpressInterest() : handleBuyTicket())}
             disabled={isPastEvent || isPending || (capacity > 0 && confirmedParticipants >= capacity)}
             className="w-full rounded-xl bg-[#f5f5f5] px-6 py-4 text-center text-base font-bold uppercase tracking-wide text-[#0f0f10] transition hover:bg-[#e2e2e2] disabled:cursor-not-allowed disabled:opacity-50 md:text-lg"
           >
             {isPending
-              ? 'Processando...'
+              ? 'Enviando...'
               : isPastEvent
               ? 'Evento realizado'
               : capacity > 0 && confirmedParticipants >= capacity
               ? 'Vagas esgotadas'
               : isFreeEvent
-              ? 'Participar gratuitamente'
+              ? 'Tenho interesse em participar'
               : 'Comprar ingresso'}
           </button>
         </div>
