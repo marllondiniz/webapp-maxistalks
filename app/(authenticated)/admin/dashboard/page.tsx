@@ -1,9 +1,11 @@
+import { unstable_noStore } from 'next/cache'
 import { getEventRegistrationsWithDetails, getDashboardStats } from '@/lib/queries'
 import { AdminDashboard } from './AdminDashboard'
 
 export const dynamic = 'force-dynamic'
 
 export default async function AdminDashboardPage() {
+  unstable_noStore()
   let registrations: Awaited<ReturnType<typeof getEventRegistrationsWithDetails>> = []
   let stats: Awaited<ReturnType<typeof getDashboardStats>> = {
     totalInscricoes: 0,

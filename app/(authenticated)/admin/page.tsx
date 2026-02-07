@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { getChallenges, getEvents, getDashboardStats } from '@/lib/queries'
 
+export const dynamic = 'force-dynamic'
+
 export default async function AdminHomePage() {
   const [eventos, desafios, stats] = await Promise.all([
     getEvents(),

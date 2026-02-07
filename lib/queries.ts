@@ -203,27 +203,28 @@ export async function getEventRegistrationsWithDetails(): Promise<
 > {
   const supabase = getSupabaseAdmin()
 
-  // Tenta created_at; se não existir, tenta registered_at (Supabase pode usar um ou outro)
+  // Tenta registered_at primeiro (comum no Supabase); se não existir, tenta created_at
   let registrations: { event_id: string; user_id: string; ticket_url: string | null; created_at?: string }[] = []
-  const { data: dataWithCreated, error: errWithCreated } = await supabase
+  const { data: dataWithRegistered, error: errRegistered } = await supabase
     .from('event_registrations')
-    .select('event_id, user_id, ticket_url, created_at')
-    .order('created_at', { ascending: false })
+    .select('event_id, user_id, ticket_url, registered_at')
+    .order('registered_at', { ascending: false })
     .limit(5000)
 
-  if (errWithCreated?.code === '42703') {
-    // created_at não existe - tenta registered_at
-    const { data: dataWithRegistered, error: errRegistered } = await supabase
+  if (!errRegistered && dataWithRegistered?.length) {
+    registrations = (dataWithRegistered as { event_id: string; user_id: string; ticket_url: string | null; registered_at?: string }[]).map(
+      (r) => ({ event_id: r.event_id, user_id: r.user_id, ticket_url: r.ticket_url ?? null, created_at: r.registered_at ?? '' })
+    )
+  } else if (errRegistered?.code === '42703') {
+    // registered_at não existe - tenta created_at
+    const { data: dataWithCreated, error: errWithCreated } = await supabase
       .from('event_registrations')
-      .select('event_id, user_id, ticket_url, registered_at')
-      .order('registered_at', { ascending: false })
+      .select('event_id, user_id, ticket_url, created_at')
+      .order('created_at', { ascending: false })
       .limit(5000)
-
-    if (!errRegistered && dataWithRegistered?.length) {
-      registrations = (dataWithRegistered as { event_id: string; user_id: string; ticket_url: string | null; registered_at?: string }[]).map(
-        (r) => ({ event_id: r.event_id, user_id: r.user_id, ticket_url: r.ticket_url ?? null, created_at: r.registered_at ?? '' })
-      )
-    } else if (errRegistered?.code === '42703') {
+    if (!errWithCreated && dataWithCreated?.length) {
+      registrations = dataWithCreated ?? []
+    } else if (errWithCreated?.code === '42703') {
       const { data: dataFallback, error: errFallback } = await supabase
         .from('event_registrations')
         .select('event_id, user_id, ticket_url')
@@ -233,15 +234,13 @@ export async function getEventRegistrationsWithDetails(): Promise<
         return []
       }
       registrations = (dataFallback ?? []).map((r) => ({ ...r, created_at: '' }))
-    } else if (errRegistered) {
-      console.error('Erro ao buscar inscrições:', errRegistered)
+    } else if (errWithCreated) {
+      console.error('Erro ao buscar inscrições:', errWithCreated)
       return []
     }
-  } else if (errWithCreated) {
-    console.error('Erro ao buscar inscrições:', errWithCreated)
+  } else if (errRegistered) {
+    console.error('Erro ao buscar inscrições:', errRegistered)
     return []
-  } else {
-    registrations = dataWithCreated ?? []
   }
 
   if (!registrations?.length) return []
