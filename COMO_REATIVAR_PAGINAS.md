@@ -31,7 +31,7 @@ mv app/quiz/page.backup.tsx app/quiz/page.tsx && mv app/brizz/page.backup.tsx ap
 
 Ao reativar, você pode querer ajustar o redirecionamento da página raiz (`app/page.tsx`) caso queira que `/` redirecione para `/brizz` novamente.
 
-Atualmente, `/` está redirecionando para `/testeapp` (página de login).
+Atualmente, `/` está redirecionando para `/login` (página de login).
 
 ---
 

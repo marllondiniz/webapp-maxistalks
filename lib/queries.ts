@@ -1,4 +1,5 @@
 import { getSupabaseServer } from './supabaseServer'
+import { getSupabaseAdmin } from './supabaseAdmin'
 import type { ProfileRecord } from './profile'
 
 export type EventRecord = {
@@ -156,5 +157,108 @@ export async function getProfile(userId: string): Promise<ProfileRecord | null> 
   }
 
   return data ?? null
+}
+
+// Registrations para dashboard admin
+export type EventRegistrationWithDetails = {
+  id?: string
+  event_id: string
+  user_id: string
+  ticket_url: string | null
+  created_at: string
+  event_titulo: string
+  event_data_horario: string
+  event_local: string
+  event_capacidade: number | null
+  user_nome: string | null
+  user_email: string | null
+  user_empresa: string | null
+  user_instagram: string | null
+  user_cidade: string | null
+  user_area: string | null
+}
+
+export type DashboardStats = {
+  totalInscricoes: number
+  totalUsuariosUnicos: number
+  inscricoesPorEvento: { eventoId: string; titulo: string; total: number }[]
+}
+
+export async function getEventRegistrationsWithDetails(): Promise<
+  EventRegistrationWithDetails[]
+> {
+  const supabase = getSupabaseAdmin()
+
+  const { data: registrations, error: regError } = await supabase
+    .from('event_registrations')
+    .select('event_id, user_id, ticket_url, created_at')
+    .order('created_at', { ascending: false })
+
+  if (regError) {
+    console.error('Erro ao buscar inscrições:', regError)
+    return []
+  }
+
+  if (!registrations?.length) return []
+
+  const eventIds = [...new Set(registrations.map((r) => r.event_id))]
+  const userIds = [...new Set(registrations.map((r) => r.user_id))]
+
+  const [{ data: events }, { data: profiles }] = await Promise.all([
+    supabase.from('events').select('id, titulo, data_horario, local_nome, capacidade_maxima').in('id', eventIds),
+    supabase.from('profiles').select('id, nome, email, empresa_projeto, instagram, cidade_estado, area_principal').in('id', userIds),
+  ])
+
+  const eventsMap = new Map((events ?? []).map((e) => [e.id, e]))
+  const profilesMap = new Map((profiles ?? []).map((p) => [p.id, p]))
+
+  return registrations.map((r) => {
+    const event = eventsMap.get(r.event_id)
+    const profile = profilesMap.get(r.user_id)
+    return {
+      id: `${r.event_id}-${r.user_id}`,
+      event_id: r.event_id,
+      user_id: r.user_id,
+      ticket_url: r.ticket_url ?? null,
+      created_at: r.created_at ?? '',
+      event_titulo: event?.titulo ?? 'Evento removido',
+      event_data_horario: event?.data_horario ?? '',
+      event_local: event?.local_nome ?? '',
+      event_capacidade: event?.capacidade_maxima ?? null,
+      user_nome: profile?.nome ?? null,
+      user_email: profile?.email ?? null,
+      user_empresa: profile?.empresa_projeto ?? null,
+      user_instagram: profile?.instagram ?? null,
+      user_cidade: profile?.cidade_estado ?? null,
+      user_area: profile?.area_principal ?? null,
+    }
+  })
+}
+
+export async function getDashboardStats(): Promise<DashboardStats> {
+  const registrations = await getEventRegistrationsWithDetails()
+  const uniqueUsers = new Set(registrations.map((r) => r.user_id))
+
+  const byEvent = new Map<string, { titulo: string; total: number }>()
+  for (const r of registrations) {
+    const current = byEvent.get(r.event_id)
+    if (current) {
+      current.total += 1
+    } else {
+      byEvent.set(r.event_id, { titulo: r.event_titulo, total: 1 })
+    }
+  }
+
+  const inscricoesPorEvento = [...byEvent.entries()].map(([eventoId, { titulo, total }]) => ({
+    eventoId,
+    titulo,
+    total,
+  }))
+
+  return {
+    totalInscricoes: registrations.length,
+    totalUsuariosUnicos: uniqueUsers.size,
+    inscricoesPorEvento,
+  }
 }
 

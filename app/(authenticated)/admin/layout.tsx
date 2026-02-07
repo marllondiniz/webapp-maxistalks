@@ -8,6 +8,7 @@ import { getSupabaseClient } from '@/lib/supabaseClient'
 
 const NAV_LINKS = [
   { href: '/admin', label: 'Visão geral' },
+  { href: '/admin/dashboard', label: 'Dashboard' },
   { href: '/admin/eventos', label: 'Eventos' },
   { href: '/admin/conteudo', label: 'Conteúdo' },
   { href: '/admin/desafios', label: 'Desafios' },
@@ -28,7 +29,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       } = await supabase.auth.getUser()
 
       if (!user) {
-        router.replace('/testeapp')
+        router.replace('/login')
         return
       }
 
@@ -54,7 +55,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     try {
       setLoggingOut(true)
       await supabase.auth.signOut()
-      router.push('/testeapp')
+      router.push('/login')
     } catch (error) {
       console.error('Erro ao sair do painel admin:', error)
     } finally {

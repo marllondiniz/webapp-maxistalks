@@ -116,7 +116,7 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
 
   useEffect(() => {
     if (profileStatus === 'no-user') {
-      router.replace('/testeapp')
+      router.replace('/login')
       return
     }
     if (profileStatus === 'incomplete' && pathname && pathname !== '/perfil') {
@@ -147,7 +147,7 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
       setLoggingOut(true)
       const supabase = getSupabaseClient()
       await supabase.auth.signOut()
-      router.push('/testeapp')
+      router.push('/login')
     } catch (error) {
       console.error('Erro ao sair:', error)
     } finally {

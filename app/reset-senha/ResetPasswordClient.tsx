@@ -113,7 +113,7 @@ export function ResetPasswordClient() {
       })
 
       setTimeout(() => {
-        router.replace('/testeapp')
+        router.replace('/login')
       }, 2500)
     } catch (error) {
       console.error('Erro ao atualizar senha:', error)
@@ -127,7 +127,7 @@ export function ResetPasswordClient() {
   }
 
   const handleGoToLogin = () => {
-    router.replace('/testeapp')
+    router.replace('/login')
   }
 
   return (

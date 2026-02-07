@@ -1,8 +1,16 @@
 import Link from 'next/link'
-import { getChallenges, getEvents } from '@/lib/queries'
+import { getChallenges, getEvents, getDashboardStats } from '@/lib/queries'
 
 export default async function AdminHomePage() {
-  const [eventos, desafios] = await Promise.all([getEvents(), getChallenges()])
+  const [eventos, desafios, stats] = await Promise.all([
+    getEvents(),
+    getChallenges(),
+    getDashboardStats().catch(() => ({
+      totalInscricoes: 0,
+      totalUsuariosUnicos: 0,
+      inscricoesPorEvento: [],
+    })),
+  ])
 
   return (
     <section className="space-y-8">
@@ -15,7 +23,19 @@ export default async function AdminHomePage() {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-4">
+        <Link
+          href="/admin/dashboard"
+          className="rounded-xl border border-white/10 bg-[#1e293b] p-5 shadow-lg transition hover:border-[#3b82f6]/50 hover:bg-[#1e293b]/80"
+        >
+          <h3 className="text-lg font-semibold text-white">Dashboard</h3>
+          <p className="mt-1 text-sm text-slate-400">
+            {stats.totalInscricoes} inscrição(ões) em {stats.inscricoesPorEvento.length} evento(s).
+          </p>
+          <span className="mt-4 inline-flex text-xs font-semibold uppercase tracking-wider text-[#3b82f6]">
+            Ver detalhes →
+          </span>
+        </Link>
         <Link
           href="/admin/eventos"
           className="rounded-xl border border-white/10 bg-[#1e293b] p-5 shadow-lg transition hover:border-[#3b82f6]/50 hover:bg-[#1e293b]/80"

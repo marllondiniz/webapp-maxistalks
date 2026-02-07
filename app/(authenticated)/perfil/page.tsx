@@ -20,7 +20,7 @@ export default function PerfilPage() {
       } = await supabase.auth.getUser()
 
       if (!user) {
-        router.replace('/testeapp')
+        router.replace('/login')
         return
       }
 

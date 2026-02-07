@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: 'Área exclusiva | MaxisTalks',
     description:
       'Entre para acessar o painel administrativo do MaxisTalks.',
-    url: 'https://maxis.plus/testeapp',
+    url: 'https://maxistalks.com/login',
     type: 'website',
   },
   twitter: {
@@ -21,7 +21,6 @@ export const metadata: Metadata = {
   },
 }
 
-export default function TesteAppPage() {
+export default function LoginPage() {
   return <LoginClient />
 }
-
