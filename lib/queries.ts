@@ -172,6 +172,7 @@ export type EventRegistrationWithDetails = {
   event_capacidade: number | null
   user_nome: string | null
   user_email: string | null
+  user_telefone: string | null
   user_empresa: string | null
   user_instagram: string | null
   user_cidade: string | null
@@ -189,14 +190,28 @@ export async function getEventRegistrationsWithDetails(): Promise<
 > {
   const supabase = getSupabaseAdmin()
 
-  const { data: registrations, error: regError } = await supabase
+  // Tenta com created_at; se não existir, usa fallback
+  let registrations: { event_id: string; user_id: string; ticket_url: string | null; created_at?: string }[] = []
+  const { data: dataWithCreated, error: errWithCreated } = await supabase
     .from('event_registrations')
     .select('event_id, user_id, ticket_url, created_at')
     .order('created_at', { ascending: false })
 
-  if (regError) {
-    console.error('Erro ao buscar inscrições:', regError)
+  if (errWithCreated?.code === '42703') {
+    // Coluna created_at não existe - usa query sem ordenação por data
+    const { data: dataFallback, error: errFallback } = await supabase
+      .from('event_registrations')
+      .select('event_id, user_id, ticket_url')
+    if (errFallback) {
+      console.error('Erro ao buscar inscrições:', errFallback)
+      return []
+    }
+    registrations = (dataFallback ?? []).map((r) => ({ ...r, created_at: '' }))
+  } else if (errWithCreated) {
+    console.error('Erro ao buscar inscrições:', errWithCreated)
     return []
+  } else {
+    registrations = dataWithCreated ?? []
   }
 
   if (!registrations?.length) return []
@@ -206,7 +221,7 @@ export async function getEventRegistrationsWithDetails(): Promise<
 
   const [{ data: events }, { data: profiles }] = await Promise.all([
     supabase.from('events').select('id, titulo, data_horario, local_nome, capacidade_maxima').in('id', eventIds),
-    supabase.from('profiles').select('id, nome, email, empresa_projeto, instagram, cidade_estado, area_principal').in('id', userIds),
+    supabase.from('profiles').select('id, nome, email, telefone, empresa_projeto, instagram, cidade_estado, area_principal').in('id', userIds),
   ])
 
   const eventsMap = new Map((events ?? []).map((e) => [e.id, e]))
@@ -227,6 +242,7 @@ export async function getEventRegistrationsWithDetails(): Promise<
       event_capacidade: event?.capacidade_maxima ?? null,
       user_nome: profile?.nome ?? null,
       user_email: profile?.email ?? null,
+      user_telefone: profile?.telefone ?? null,
       user_empresa: profile?.empresa_projeto ?? null,
       user_instagram: profile?.instagram ?? null,
       user_cidade: profile?.cidade_estado ?? null,

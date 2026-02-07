@@ -74,7 +74,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
   const [isPending, startTransition] = useTransition()
   const [activeEventId, setActiveEventId] = useState<string | null>(null)
   const [ticketModalEvent, setTicketModalEvent] = useState<{
-    event: EventRecord & { capacidade?: number; confirmados?: number; progress?: number }
+    event: EventRecord
     registration: RegistrationMeta
   } | null>(null)
 
@@ -171,19 +171,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
     const event = eventStates.find((item) => item.id === eventId)
     if (!event) return
 
-    const capacidade = event.capacidade_maxima ?? 0
     const confirmados = event.participantes_confirmados ?? 0
-
-    if (capacidade && confirmados >= capacidade) {
-      setMessages((prev) => ({
-        ...prev,
-        [eventId]: {
-          type: 'error',
-          text: 'Este evento já está com todas as vagas preenchidas.',
-        },
-      }))
-      return
-    }
 
     startTransition(async () => {
       setActiveEventId(eventId)
@@ -268,23 +256,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
     })
   }
 
-  const normalizedEvents = useMemo(
-    () =>
-      eventStates.map((event) => {
-        const capacidade = event.capacidade_maxima ?? 0
-        const confirmados = event.participantes_confirmados ?? 0
-        const progress =
-          capacidade > 0 ? Math.min(100, Math.round((confirmados / capacidade) * 100)) : 0
-
-        return {
-          ...event,
-          capacidade,
-          confirmados,
-          progress,
-        }
-      }),
-    [eventStates]
-  )
+  const normalizedEvents = eventStates
 
   return (
     <div className="space-y-4">
@@ -292,9 +264,6 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
         {normalizedEvents.map((event) => {
           const registration = registrations[event.id]
           const isRegistered = Boolean(registration)
-          const capacidadeTotal = event.capacidade || '—'
-          const vagasRestantes =
-            event.capacidade > 0 ? Math.max(event.capacidade - event.confirmados, 0) : null
           const isPaidEvent = typeof event.preco === 'number' && event.preco > 0
           
           // Aplicar desconto de 20% para assinantes em eventos pagos
@@ -325,7 +294,6 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
           const buttonDisabled =
             isPastEvent ||
             isRegistered ||
-            (event.capacidade > 0 && event.confirmados >= event.capacidade) ||
             (isPending && activeEventId === event.id)
 
           const isProcessing = isPending && activeEventId === event.id
@@ -415,26 +383,6 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                   </div>
                 </div>
 
-                <div className="space-y-3 rounded-2xl border border-slate-600/30 bg-slate-800/90 p-4 text-sm text-[#d6d6de]">
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-[#f5f5f5]">Progresso</span>
-                    <span className="text-xs text-[#9a9aa2]">
-                      {event.confirmados}/{capacidadeTotal}{' '}
-                      {vagasRestantes !== null ? `• ${vagasRestantes} vagas` : null}
-                    </span>
-                  </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-slate-700/60">
-                    <div
-                      className={`h-full rounded-full ${
-                        event.progress >= 100 ? 'bg-emerald-400' : 'bg-[#f5f5f5]'
-                      }`}
-                      style={{ width: `${event.progress}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-
                 <div className="mt-auto space-y-3">
                 {messages[event.id] && (
                   <div
@@ -450,19 +398,10 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
 
                 <div className="flex flex-col gap-2 sm:flex-row">
                   {isRegistered ? (
-                    <>
-                      <span className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-emerald-200">
-                        <Check className="h-4 w-4 shrink-0" />
-                        Inscrito
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setTicketModalEvent({ event, registration })}
-                        className="inline-flex flex-1 items-center justify-center rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-wide transition bg-[#f5f5f5] text-[#0f0f10] hover:brightness-95"
-                      >
-                        {registration.ticket_url ? 'Ver ingresso' : 'Interesse registrado'}
-                      </button>
-                    </>
+                    <span className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-emerald-200">
+                      <Check className="h-4 w-4 shrink-0" />
+                      Inscrito
+                    </span>
                   ) : isPaidEvent ? (
                     <button
                       type="button"
@@ -543,7 +482,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-white">
-                  {ticketModalEvent.registration.ticket_url ? 'Você está inscrito!' : 'Interesse registrado!'}
+                  Você está inscrito!
                 </h3>
                 <p className="text-sm text-slate-400">
                   {ticketModalEvent.registration.ticket_url

@@ -80,9 +80,6 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
   }
 
   const confirmedParticipants = event.participantes_confirmados ?? 0
-  const capacity = event.capacidade_maxima ?? 0
-  const progressPercentage =
-    capacity > 0 ? Math.min((confirmedParticipants / capacity) * 100, 100) : 0
   const isPastEvent = new Date(event.data_horario) < new Date()
 
   const descriptionSections = useMemo(
@@ -237,38 +234,18 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
 
           <button
             onClick={() => !isPastEvent && (isFreeEvent ? handleExpressInterest() : handleBuyTicket())}
-            disabled={isPastEvent || isPending || (capacity > 0 && confirmedParticipants >= capacity)}
+            disabled={isPastEvent || isPending}
             className="w-full rounded-xl bg-[#f5f5f5] px-6 py-4 text-center text-base font-bold uppercase tracking-wide text-[#0f0f10] transition hover:bg-[#e2e2e2] disabled:cursor-not-allowed disabled:opacity-50 md:text-lg"
           >
             {isPending
               ? 'Enviando...'
               : isPastEvent
               ? 'Evento realizado'
-              : capacity > 0 && confirmedParticipants >= capacity
-              ? 'Vagas esgotadas'
               : isFreeEvent
               ? 'Tenho interesse em participar'
               : 'Comprar ingresso'}
           </button>
         </div>
-
-        {/* Progresso */}
-        {event.capacidade_maxima && (
-          <div className="mb-8 rounded-xl border border-slate-600/30 bg-slate-800/80 p-6">
-            <div className="mb-3 flex items-center justify-between text-sm">
-              <span className="font-semibold text-[#f5f5f5]">Progresso de inscrições</span>
-              <span className="text-[#c9c9d2]">
-                {confirmedParticipants} de {capacity} vagas
-              </span>
-            </div>
-            <div className="h-3 w-full overflow-hidden rounded-full bg-slate-700/60">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-500"
-                style={{ width: `${progressPercentage}%` }}
-              />
-            </div>
-          </div>
-        )}
 
         {/* Descrição */}
         {descriptionSections.length > 0 && (

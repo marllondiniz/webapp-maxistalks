@@ -10,6 +10,7 @@ import {
   Filter,
   ChevronDown,
   ChevronUp,
+  MessageCircle,
 } from 'lucide-react'
 import type {
   EventRegistrationWithDetails,
@@ -57,7 +58,9 @@ export function AdminDashboard({ registrations, stats }: Props) {
 
   const sorted = [...filtered].sort((a, b) => {
     if (sortBy === 'recent') {
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      const timeA = a.created_at ? new Date(a.created_at).getTime() : 0
+      const timeB = b.created_at ? new Date(b.created_at).getTime() : 0
+      return timeB - timeA
     }
     if (sortBy === 'event') {
       return a.event_titulo.localeCompare(b.event_titulo, 'pt-BR')
@@ -72,10 +75,10 @@ export function AdminDashboard({ registrations, stats }: Props) {
     <section className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold uppercase tracking-wide text-white">
-          Dashboard de inscrições
+          Dashboard de interesses
         </h2>
         <p className="text-sm text-slate-400">
-          Quem se inscreveu em qual evento e informações dos participantes.
+          Quem manifestou interesse em participar dos eventos. Use os contatos para enviar o convite no WhatsApp.
         </p>
       </div>
 
@@ -87,7 +90,7 @@ export function AdminDashboard({ registrations, stats }: Props) {
               <Users className="h-5 w-5 text-[#3b82f6]" />
             </div>
             <div>
-              <p className="text-sm text-slate-400">Total de inscrições</p>
+              <p className="text-sm text-slate-400">Total de interesses</p>
               <p className="text-2xl font-bold text-white">{stats.totalInscricoes}</p>
             </div>
           </div>
@@ -109,7 +112,7 @@ export function AdminDashboard({ registrations, stats }: Props) {
               <Calendar className="h-5 w-5 text-amber-400" />
             </div>
             <div>
-              <p className="text-sm text-slate-400">Eventos com inscrições</p>
+              <p className="text-sm text-slate-400">Eventos com interesses</p>
               <p className="text-2xl font-bold text-white">
                 {stats.inscricoesPorEvento.length}
               </p>
@@ -139,7 +142,7 @@ export function AdminDashboard({ registrations, stats }: Props) {
       {stats.inscricoesPorEvento.length > 0 && (
         <div className="rounded-xl border border-white/10 bg-[#1e293b] p-5">
           <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-300">
-            Inscrições por evento
+            Interesses por evento
           </h3>
           <div className="flex flex-wrap gap-2">
             {stats.inscricoesPorEvento
@@ -165,7 +168,7 @@ export function AdminDashboard({ registrations, stats }: Props) {
         >
           <div className="flex items-center gap-3">
             <Filter className="h-5 w-5 text-slate-400" />
-            <h3 className="font-semibold text-white">Lista de inscrições</h3>
+            <h3 className="font-semibold text-white">Lista de interesses</h3>
             <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-medium text-slate-300">
               {registrations.length} registro(s)
             </span>
@@ -212,14 +215,14 @@ export function AdminDashboard({ registrations, stats }: Props) {
                     <th className="px-5 py-3 font-semibold text-slate-300">Participante</th>
                     <th className="px-5 py-3 font-semibold text-slate-300">Evento</th>
                     <th className="px-5 py-3 font-semibold text-slate-300">Empresa</th>
-                    <th className="px-5 py-3 font-semibold text-slate-300">Contato</th>
+                    <th className="px-5 py-3 font-semibold text-slate-300">Contato / WhatsApp</th>
                   </tr>
                 </thead>
                 <tbody>
                   {sorted.length === 0 ? (
                     <tr>
                       <td className="px-5 py-8 text-center text-slate-400" colSpan={5}>
-                        Nenhuma inscrição encontrada.
+                        Nenhum interesse encontrado.
                       </td>
                     </tr>
                   ) : (
@@ -280,19 +283,32 @@ export function AdminDashboard({ registrations, stats }: Props) {
                           </div>
                         </td>
                         <td className="px-5 py-3">
-                          {r.user_instagram && (
-                            <a
-                              href={`https://instagram.com/${r.user_instagram.replace('@', '')}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-[#3b82f6] hover:underline"
-                            >
-                              {r.user_instagram}
-                            </a>
-                          )}
-                          {!r.user_instagram && (
-                            <span className="text-slate-500">—</span>
-                          )}
+                          <div className="flex flex-col gap-1">
+                            {r.user_telefone && (
+                              <a
+                                href={`https://wa.me/55${r.user_telefone.replace(/\D/g, '')}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 text-emerald-400 hover:underline"
+                              >
+                                <MessageCircle className="h-3.5 w-3.5" />
+                                WhatsApp
+                              </a>
+                            )}
+                            {r.user_instagram && (
+                              <a
+                                href={`https://instagram.com/${r.user_instagram.replace('@', '')}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 text-[#3b82f6] hover:underline"
+                              >
+                                {r.user_instagram}
+                              </a>
+                            )}
+                            {!r.user_telefone && !r.user_instagram && (
+                              <span className="text-slate-500">—</span>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))
