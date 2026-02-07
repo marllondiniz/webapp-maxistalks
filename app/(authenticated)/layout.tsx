@@ -112,7 +112,13 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
 
     checkProfileStatus()
     return () => { isMounted = false }
-  }, [supabase])
+  }, [supabase, pathname])
+
+  useEffect(() => {
+    const onProfileCompleted = () => setProfileStatus('complete')
+    window.addEventListener('profile-completed', onProfileCompleted)
+    return () => window.removeEventListener('profile-completed', onProfileCompleted)
+  }, [])
 
   useEffect(() => {
     if (profileStatus === 'no-user') {

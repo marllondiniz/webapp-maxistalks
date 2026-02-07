@@ -263,6 +263,9 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
         avatar_url: avatarPath,
       })
 
+      // Notifica o layout para atualizar o status antes do redirect
+      window.dispatchEvent(new CustomEvent('profile-completed'))
+
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
       timeoutRef.current = setTimeout(() => {
         setFeedback(null)

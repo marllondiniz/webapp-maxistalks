@@ -43,8 +43,29 @@ As políticas em `supabase/migrations/` precisam estar aplicadas no projeto de p
 
 Depois de adicionar ou alterar variáveis na Vercel, faça um **Redeploy** do projeto para que as alterações tenham efeito.
 
+## 5. E-mail de confirmação ao criar conta (Supabase + Resend)
+
+O Supabase envia o e-mail de confirmação de cadastro. Por padrão, usa SMTP próprio (limitado, pode ir para spam). Para entregar corretamente, configure **Custom SMTP** no Supabase usando Resend:
+
+1. No **Supabase Dashboard** → **Project Settings** → **Authentication**
+2. Na seção **SMTP**, ative **Enable Custom SMTP**
+3. Preencha:
+   - **Sender email:** `onboarding@resend.dev` (ou seu domínio verificado no Resend)
+   - **Sender name:** `MaxisTalks`
+   - **Host:** `smtp.resend.com`
+   - **Port:** `465`
+   - **Username:** `resend`
+   - **Password:** sua `RESEND_API_KEY` (a mesma do .env)
+
+4. Salve e teste criando uma nova conta.
+
+**Importante:** O domínio do remetente precisa estar verificado no Resend. Se usar `onboarding@resend.dev`, já vem verificado, mas há limite de envio.
+
+**Alternativa (desativar confirmação):** Se quiser que o usuário entre sem confirmar e-mail, em **Authentication** → **Providers** → **Email** desative **Confirm email**.
+
 ## Problemas comuns
 
 - **Dashboard vazio:** Verifique se `SUPABASE_SERVICE_ROLE_KEY` está configurada e se fez redeploy.
+- **E-mail de confirmação não chega:** Configure o Custom SMTP (Resend) no Supabase (seção 5 acima). Verifique a pasta de spam.
 - **"Tenho interesse" não salva:** Verifique `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 - **Redirect do perfil não funciona:** O redirect para `/inicio` ocorre após ~800ms. Se persistir, verifique o console do navegador.
