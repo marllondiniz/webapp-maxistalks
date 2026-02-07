@@ -57,7 +57,20 @@ export async function getEvents(): Promise<EventRecord[]> {
   const { data, error } = await supabase
     .from('events')
     .select('*')
-    .order('data_horario', { ascending: true })
+    .order('created_at', { ascending: true, nullsFirst: false })
+
+  if (error?.code === '42703') {
+    // Coluna created_at não existe - ordena por data_horario (mais antigo primeiro)
+    const { data: fallback, error: err } = await supabase
+      .from('events')
+      .select('*')
+      .order('data_horario', { ascending: true })
+    if (err) {
+      console.error('Erro ao buscar eventos:', err)
+      return []
+    }
+    return fallback ?? []
+  }
 
   if (error) {
     console.error('Erro ao buscar eventos:', error)

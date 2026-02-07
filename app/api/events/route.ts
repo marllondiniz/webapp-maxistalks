@@ -12,23 +12,35 @@ export async function GET() {
       await Promise.all([
         supabase
           .from('events')
-          .select('id, titulo, descricao, data_horario, local_nome, destaque')
-          .order('data_horario', { ascending: false }),
+          .select('id, titulo, descricao, data_horario, local_nome, destaque, created_at')
+          .order('created_at', { ascending: true, nullsFirst: false }),
         supabase
           .from('event_banners')
           .select('event_id, image_url, titulo, subtitulo')
           .eq('is_active', true),
       ])
 
-    if (eventsError) {
+    let events: Record<string, unknown>[] = eventsData ?? []
+    if (eventsError?.code === '42703') {
+      // Coluna created_at não existe - ordena por data_horario (mais antigo primeiro)
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from('events')
+        .select('id, titulo, descricao, data_horario, local_nome, destaque')
+        .order('data_horario', { ascending: true })
+      if (fallbackError) {
+        console.error('Erro ao buscar eventos:', fallbackError)
+        return NextResponse.json({ events: [] })
+      }
+      events = fallbackData ?? []
+    } else if (eventsError) {
       console.error('Erro ao buscar eventos:', eventsError)
       return NextResponse.json({ events: [] })
     }
 
-    const events = (eventsData ?? []).slice(0, 12)
+    const eventsLimit = events.slice(0, 12)
     const banners = bannersData ?? []
 
-    const eventsWithBanners = events.map((event) => {
+    const eventsWithBanners = eventsLimit.map((event) => {
       const banner = banners.find((b) => b.event_id === event.id)
       return {
         ...event,
