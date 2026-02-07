@@ -111,6 +111,36 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
     'nome',
   ] as const
 
+  const FIELD_LABELS: Record<string, string> = {
+    telefone: 'WhatsApp',
+    cidade_estado: 'Cidade/Estado',
+    empresa_projeto: 'Empresa/Projeto',
+    area_principal: 'Área principal',
+    estagio_negocio: 'Estágio do negócio',
+    objetivo_mes: 'Objetivo do mês',
+    nome: 'Nome',
+  }
+
+  const getMissingFields = (): string[] => {
+    const missing: string[] = []
+    for (const field of REQUIRED_FIELDS) {
+      const value = profile?.[field as keyof ProfileRecord]
+      const str = typeof value === 'string' ? value.trim() : ''
+      if (!str) {
+        missing.push(FIELD_LABELS[field] || field)
+      }
+    }
+    return missing
+  }
+
+  const missingFields = getMissingFields()
+  const hasMissingFields = missingFields.length > 0
+
+  const scrollToField = (fieldName: string) => {
+    const el = document.getElementById(`field-${fieldName}`)
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
@@ -119,16 +149,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
     for (const field of REQUIRED_FIELDS) {
       const value = String(formData.get(field) || '').trim()
       if (!value) {
-        const labels: Record<string, string> = {
-          telefone: 'WhatsApp',
-          cidade_estado: 'Cidade/Estado',
-          empresa_projeto: 'Empresa/Projeto',
-          area_principal: 'Área principal',
-          estagio_negocio: 'Estágio do negócio',
-          objetivo_mes: 'Objetivo do mês',
-          nome: 'Nome',
-        }
-        missing.push(labels[field] || field)
+        missing.push(FIELD_LABELS[field] || field)
       }
     }
 
@@ -316,6 +337,30 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
         {email && <span className="text-xs text-[#7c7c84]">Logado como {email}</span>}
       </div>
 
+      {hasMissingFields && (
+        <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4">
+          <h4 className="mb-2 text-sm font-bold text-amber-200">
+            Faltam {missingFields.length} campo(s) para completar seu perfil:
+          </h4>
+          <ul className="flex flex-wrap gap-2">
+            {missingFields.map((label) => {
+              const fieldKey = Object.entries(FIELD_LABELS).find(([, v]) => v === label)?.[0] ?? label
+              return (
+                <li key={fieldKey}>
+                  <button
+                    type="button"
+                    onClick={() => scrollToField(fieldKey)}
+                    className="rounded-lg border border-amber-500/50 bg-amber-500/20 px-3 py-1.5 text-xs font-semibold text-amber-200 transition hover:bg-amber-500/30"
+                  >
+                    {label} →
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      )}
+
       <div className="space-y-4">
         <h3 className="text-sm font-bold uppercase tracking-wide text-[#f5f5f5]">
           Dados pessoais
@@ -332,7 +377,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
               disabled
             />
           </label>
-          <label className="space-y-2">
+          <label id="field-telefone" className="space-y-2 scroll-mt-24">
             <span className="text-sm font-semibold text-[#f5f5f5]">WhatsApp *</span>
             <input
               name="telefone"
@@ -342,7 +387,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
               className={inputClass}
             />
           </label>
-          <label className="space-y-2">
+          <label id="field-cidade_estado" className="space-y-2 scroll-mt-24">
             <span className="text-sm font-semibold text-[#f5f5f5]">Cidade/Estado *</span>
             <input
               name="cidade_estado"
@@ -352,7 +397,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
               className={inputClass}
             />
           </label>
-          <label className="space-y-2">
+          <label id="field-empresa_projeto" className="space-y-2 scroll-mt-24">
             <span className="text-sm font-semibold text-[#f5f5f5]">Empresa/Projeto *</span>
             <input
               name="empresa_projeto"
@@ -362,7 +407,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
               className={inputClass}
             />
           </label>
-          <label className="space-y-2">
+          <label id="field-area_principal" className="space-y-2 scroll-mt-24">
             <span className="text-sm font-semibold text-[#f5f5f5]">Área principal *</span>
             <SelectField
               name="area_principal"
@@ -378,7 +423,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
               ]}
             />
           </label>
-          <label className="space-y-2">
+          <label id="field-estagio_negocio" className="space-y-2 scroll-mt-24">
             <span className="text-sm font-semibold text-[#f5f5f5]">Estágio do negócio *</span>
             <SelectField
               name="estagio_negocio"
@@ -392,7 +437,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
               ]}
             />
           </label>
-          <label className="space-y-2 md:col-span-2">
+          <label id="field-objetivo_mes" className="space-y-2 md:col-span-2 scroll-mt-24">
             <span className="text-sm font-semibold text-[#f5f5f5]">Objetivo do mês *</span>
             <SelectField
               name="objetivo_mes"
@@ -631,8 +676,8 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
       </div>
 
       <div className="space-y-4">
-        <label className="space-y-2 block">
-          <span className="text-sm font-semibold text-[#f5f5f5]">Nome</span>
+        <label id="field-nome" className="space-y-2 block scroll-mt-24">
+          <span className="text-sm font-semibold text-[#f5f5f5]">Nome *</span>
           <input
             name="nome"
             defaultValue={profile?.nome ?? ''}

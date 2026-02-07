@@ -2,13 +2,13 @@
 
 import { motion } from 'framer-motion'
 import Image from 'next/image'
-import { EVENT_NAME } from '@/lib/constants'
+import Link from 'next/link'
 
 export function Footer() {
   return (
     <footer className="relative py-4 md:py-6 px-6 md:px-12 border-t border-white/10">
       <div className="max-w-6xl mx-auto">
-        {/* Coffee Music Logo */}
+        {/* MaxisTalks Logo */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -16,16 +16,18 @@ export function Footer() {
           transition={{ duration: 0.8 }}
           className="flex items-center justify-center mb-0"
         >
-          <div className="relative h-48 w-48 md:h-56 md:w-56 lg:h-64 lg:w-64 flex-shrink-0">
-            <Image
-              src="/icone-com-coffemussic.png"
-              alt="Coffee Music & Run"
-              width={256}
-              height={256}
-              className="object-contain h-full w-full"
-              sizes="(max-width: 768px) 192px, (max-width: 1024px) 224px, 256px"
-            />
-          </div>
+          <Link href="/" className="block">
+            <div className="relative h-16 w-auto md:h-20 flex-shrink-0">
+              <Image
+                src="/maxistalks-logo.png"
+                alt="MaxisTalks"
+                width={200}
+                height={80}
+                className="object-contain h-full w-auto"
+                sizes="(max-width: 768px) 120px, 160px"
+              />
+            </div>
+          </Link>
         </motion.div>
 
         {/* Instagram Link */}
@@ -37,7 +39,7 @@ export function Footer() {
           className="flex items-center justify-center mb-2"
         >
           <motion.a
-            href="https://www.instagram.com/coffeemusicand_/"
+            href="https://www.instagram.com/maxisplus"
             target="_blank"
             rel="noopener noreferrer"
             whileHover={{ scale: 1.1 }}
@@ -63,7 +65,7 @@ export function Footer() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-center text-base md:text-lg text-neutral-300 font-space max-w-70ch mx-auto leading-relaxed mb-2 md:mb-3"
         >
-          O Brizz será palco dessa nova largada. Pode apostar: vai ser histórico.
+          Palco para quem gera valor. Palestras presenciais com experts do digital.
         </motion.p>
 
         <motion.div
@@ -96,7 +98,7 @@ export function Footer() {
             </a>
           </div>
           <p className="text-sm text-neutral-400 font-space">
-            © 2025 {EVENT_NAME}. Todos os direitos reservados.
+            © 2025 MaxisTalks. Todos os direitos reservados.
           </p>
         </motion.div>
       </div>

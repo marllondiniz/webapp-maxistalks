@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from 'react'
 import Link from 'next/link'
-import { PartyPopper, Check } from 'lucide-react'
+import { PartyPopper, Check, MapPin, Calendar, X } from 'lucide-react'
 import type { EventBannerRecord, EventRecord } from '@/lib/queries'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { useUserRole } from '@/lib/useUserRole'
@@ -73,6 +73,10 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
   const [messages, setMessages] = useState<Record<string, MessageState | null>>({})
   const [isPending, startTransition] = useTransition()
   const [activeEventId, setActiveEventId] = useState<string | null>(null)
+  const [ticketModalEvent, setTicketModalEvent] = useState<{
+    event: EventRecord & { capacidade?: number; confirmados?: number; progress?: number }
+    registration: RegistrationMeta
+  } | null>(null)
 
   const [eventStates, setEventStates] = useState(() =>
     events.map((event) => ({
@@ -451,18 +455,13 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                         <Check className="h-4 w-4 shrink-0" />
                         Inscrito
                       </span>
-                      <a
-                        href={registration.ticket_url ?? '#'}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`inline-flex flex-1 items-center justify-center rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-wide transition ${
-                          registration.ticket_url
-                            ? 'bg-[#f5f5f5] text-[#0f0f10] hover:brightness-95'
-                            : 'cursor-not-allowed border border-slate-600/40 bg-slate-800 text-[#5f5f66]'
-                        }`}
+                      <button
+                        type="button"
+                        onClick={() => setTicketModalEvent({ event, registration })}
+                        className="inline-flex flex-1 items-center justify-center rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-wide transition bg-[#f5f5f5] text-[#0f0f10] hover:brightness-95"
                       >
                         Ver ingresso
-                      </a>
+                      </button>
                     </>
                   ) : isPaidEvent ? (
                     <button
@@ -518,6 +517,117 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
           )
         })}
       </div>
+
+      {/* Modal de ingresso */}
+      {ticketModalEvent && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          onClick={() => setTicketModalEvent(null)}
+        >
+          <div
+            className="relative max-w-md w-full rounded-2xl border border-slate-600/40 bg-slate-900 p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setTicketModalEvent(null)}
+              className="absolute right-4 top-4 rounded-lg p-2 text-slate-400 transition hover:bg-slate-700/50 hover:text-white"
+              aria-label="Fechar"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20">
+                <Check className="h-6 w-6 text-emerald-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">Você está inscrito!</h3>
+                <p className="text-sm text-slate-400">Informações do seu ingresso</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="rounded-xl border border-slate-600/40 bg-slate-800/80 p-4">
+                <h4 className="font-bold text-white">{ticketModalEvent.event.titulo}</h4>
+              </div>
+
+              <div className="flex items-start gap-3 rounded-xl border border-slate-600/40 bg-slate-800/80 p-4">
+                <Calendar className="h-5 w-5 shrink-0 text-slate-400" />
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    Data e horário
+                  </p>
+                  <p className="mt-1 text-[#f5f5f5]">
+                    {new Date(ticketModalEvent.event.data_horario).toLocaleDateString('pt-BR', {
+                      weekday: 'long',
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                  </p>
+                  <p className="mt-0.5 text-[#c9c9d2]">
+                    às{' '}
+                    {new Date(ticketModalEvent.event.data_horario).toLocaleTimeString('pt-BR', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 rounded-xl border border-slate-600/40 bg-slate-800/80 p-4">
+                <MapPin className="h-5 w-5 shrink-0 text-slate-400" />
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                    Local
+                  </p>
+                  <p className="mt-1 text-[#f5f5f5]">{ticketModalEvent.event.local_nome}</p>
+                  {ticketModalEvent.event.local_detalhe && (
+                    <p className="mt-0.5 text-[#c9c9d2]">
+                      {ticketModalEvent.event.local_detalhe}
+                    </p>
+                  )}
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                      `${ticketModalEvent.event.local_nome}${ticketModalEvent.event.local_detalhe ? `, ${ticketModalEvent.event.local_detalhe}` : ''}`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-400 transition hover:text-blue-300"
+                  >
+                    Ver no Google Maps
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-col gap-2">
+              {ticketModalEvent.registration.ticket_url ? (
+                <a
+                  href={ticketModalEvent.registration.ticket_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex w-full items-center justify-center rounded-xl bg-[#f5f5f5] px-4 py-3 text-sm font-semibold uppercase tracking-wide text-[#0f0f10] transition hover:brightness-95"
+                >
+                  Abrir ingresso
+                </a>
+              ) : (
+                <p className="text-center text-sm text-slate-400">
+                  Apresente-se no local com o e-mail de confirmação.
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={() => setTicketModalEvent(null)}
+                className="inline-flex w-full items-center justify-center rounded-xl border border-slate-600/40 px-4 py-3 text-sm font-semibold text-[#f5f5f5] transition hover:bg-slate-700/50"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function CookiesPage() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-neutral-950">
       <Header />
       <div className="pt-32 pb-20 px-6 md:px-12">
         <div className="max-w-4xl mx-auto">

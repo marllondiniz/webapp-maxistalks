@@ -63,8 +63,8 @@ export function Header() {
                 >
                   <div className="relative h-6 sm:h-7">
                     <Image
-                      src="/coffe-music.png"
-                      alt="Coffee Music & Run"
+                      src="/maxistalks-logo.png"
+                      alt="MaxisTalks"
                       width={150}
                       height={75}
                       className="object-contain h-full w-auto"
@@ -124,8 +124,8 @@ export function Header() {
               >
                 <div className="relative h-7 md:h-8">
                   <Image
-                    src="/coffe-music.png"
-                    alt="Coffee Music & Run"
+                    src="/maxistalks-logo.png"
+                    alt="MaxisTalks"
                     width={150}
                     height={75}
                     className="object-contain h-full w-auto"
@@ -186,8 +186,8 @@ export function Header() {
               >
                 <div className="relative h-6 sm:h-7 lg:h-8">
                   <Image
-                    src="/coffe-music.png"
-                    alt="Coffee Music & Run"
+                    src="/maxistalks-logo.png"
+                    alt="MaxisTalks"
                     width={150}
                     height={75}
                     className="object-contain h-full w-auto"

@@ -3,13 +3,13 @@ import { Header } from '../(components)/Header'
 import { Footer } from '../(components)/Footer'
 
 export const metadata: Metadata = {
-  title: 'Política de Privacidade — Coffee Music & Run',
-  description: 'Política de privacidade do Coffee Music & Run',
+  title: 'Política de Privacidade — MaxisTalks',
+  description: 'Política de privacidade do MaxisTalks',
 }
 
 export default function PoliticaPrivacidadePage() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-neutral-950">
       <Header />
       <div className="pt-32 pb-20 px-6 md:px-12">
         <div className="max-w-4xl mx-auto">
@@ -19,7 +19,7 @@ export default function PoliticaPrivacidadePage() {
           
           <div className="prose prose-invert max-w-none text-neutral-300 font-space space-y-6">
             <p className="text-neutral-400 text-sm">
-              Última atualização: 05 de novembro de 2025
+              Última atualização: {new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}
             </p>
 
             <p className="text-lg text-neutral-200 mb-6">
@@ -31,7 +31,7 @@ export default function PoliticaPrivacidadePage() {
                 1. Quem somos
               </h2>
               <p>
-                O RITMO CERTO CLUB é uma empresa especializada na promoção de eventos na área de bem-estar, wellness e fitness. Para oferecer nossos serviços, produtos e garantir segurança nas inscrições e compras, precisamos coletar e tratar alguns dados pessoais.
+                O MaxisTalks é uma plataforma que promove palestras presenciais com experts que compartilham estratégias reais para escalar no digital. Para oferecer nossos serviços, inscrições em eventos e garantir sua experiência, precisamos coletar e tratar alguns dados pessoais.
               </p>
             </section>
 
@@ -41,10 +41,11 @@ export default function PoliticaPrivacidadePage() {
               </h2>
               <p>Podemos coletar:</p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Nome completo e CPF;</li>
-                <li>Telefone, e-mail e endereço;</li>
-                <li>Informações de pagamento (comprovantes, dados do cartão ou transferência);</li>
-                <li>Documentos adicionais em casos de conferência antifraude (RG, selfie com cartão, comprovante de endereço, declaração assinada).</li>
+                <li>Nome completo e e-mail;</li>
+                <li>Telefone e endereço;</li>
+                <li>Informações de perfil (foto, bio, redes sociais);</li>
+                <li>Dados de inscrição em eventos;</li>
+                <li>Informações de pagamento (quando aplicável) processadas por parceiros.</li>
               </ul>
             </section>
 
@@ -56,11 +57,11 @@ export default function PoliticaPrivacidadePage() {
                 Nossas práticas seguem os princípios da Lei Geral de Proteção de Dados (13.709/18). Utilizamos seus dados para:
               </p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Confirmar sua identidade e proteger contra fraudes;</li>
-                <li>Processar e concluir suas compras;</li>
-                <li>Emitir notas fiscais e cumprir obrigações legais;</li>
-                <li>Entrar em contato sobre pedidos, entregas, trocas, agendamentos e cancelamento de eventos;</li>
-                <li>Atender solicitações de devolução, cancelamento ou suporte.</li>
+                <li>Confirmar sua identidade e acesso à plataforma;</li>
+                <li>Processar inscrições em eventos e palestras;</li>
+                <li>Enviar comunicações sobre eventos, novidades e confirmações;</li>
+                <li>Melhorar a experiência do usuário na plataforma;</li>
+                <li>Atender solicitações de suporte e dúvidas.</li>
               </ul>
             </section>
 
@@ -69,9 +70,9 @@ export default function PoliticaPrivacidadePage() {
                 4. Com quem podemos compartilhar
               </h2>
               <ul className="list-disc pl-6 space-y-2">
-                <li><strong>Instituições financeiras e operadoras de pagamento:</strong> para processar transações.</li>
+                <li><strong>Operadores de pagamento:</strong> para processar transações de inscrições.</li>
                 <li><strong>Órgãos públicos:</strong> quando houver obrigação legal.</li>
-                <li><strong>Colaboradores autorizados da Ritmo Certo Club:</strong> apenas os que precisam para concluir a venda.</li>
+                <li><strong>Colaboradores autorizados do MaxisTalks:</strong> apenas os que precisam para realizar o serviço.</li>
               </ul>
             </section>
 
@@ -81,8 +82,8 @@ export default function PoliticaPrivacidadePage() {
               </h2>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Os dados são guardados em ambiente seguro e com acesso restrito.</li>
-                <li>Adotamos medidas para evitar acessos não autorizados.</li>
-                <li>Os documentos não podem ser armazenados em celulares ou e-mails pessoais.</li>
+                <li>Adotamos medidas técnicas para evitar acessos não autorizados.</li>
+                <li>Utilizamos serviços de infraestrutura confiáveis para proteção dos dados.</li>
               </ul>
             </section>
 
@@ -91,15 +92,14 @@ export default function PoliticaPrivacidadePage() {
                 6. Por quanto tempo guardamos os dados
               </h2>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Guardamos seus dados somente pelo tempo necessário para cumprir obrigações legais e dar segurança às transações.</li>
-                <li>O prazo máximo é de 5 anos, considerando prazos de defesa em processos.</li>
-                <li>Após esse período, os dados são excluídos de forma segura.</li>
+                <li>Guardamos seus dados somente pelo tempo necessário para cumprir obrigações legais e prestar nossos serviços.</li>
+                <li>Após o período necessário, os dados podem ser excluídos ou anonimizados.</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-2xl font-orbitron font-bold text-neutral-100 mt-8 mb-4">
-                7. Seus direitos como cliente
+                7. Seus direitos
               </h2>
               <p>Você pode, a qualquer momento:</p>
               <ul className="list-disc pl-6 space-y-2">
@@ -122,18 +122,17 @@ export default function PoliticaPrivacidadePage() {
                 Tipos de cookies utilizados:
               </h3>
               <ul className="list-disc pl-6 space-y-2 mb-4">
-                <li><strong>Essenciais:</strong> garantem o funcionamento básico da plataforma.</li>
-                <li><strong>Analíticos:</strong> coletam dados de uso (Google Analytics, Meta Pixel, Hotjar).</li>
+                <li><strong>Essenciais:</strong> garantem o funcionamento básico da plataforma e autenticação.</li>
+                <li><strong>Analíticos:</strong> coletam dados de uso para melhorar o site.</li>
                 <li><strong>Funcionais:</strong> armazenam preferências e configurações.</li>
-                <li><strong>Marketing:</strong> medem desempenho de campanhas e anúncios.</li>
               </ul>
               
               <p className="mb-2">
-                Ao acessar o site pela primeira vez, o usuário visualizará o banner de consentimento de cookies, podendo aceitar, rejeitar ou gerenciar preferências. É possível desativar cookies a qualquer momento nas configurações do navegador, ciente de que certas funções podem deixar de funcionar corretamente.
+                Ao acessar o site pela primeira vez, o usuário visualizará o banner de consentimento de cookies, podendo aceitar ou rejeitar. É possível desativar cookies nas configurações do navegador, ciente de que certas funções podem deixar de funcionar.
               </p>
               
               <p>
-                Os cookies não coletam informações sensíveis como senha ou número de cartão.
+                Os cookies não coletam informações sensíveis como senha ou dados de pagamento completos.
               </p>
               
               <p className="mt-4">
@@ -156,30 +155,12 @@ export default function PoliticaPrivacidadePage() {
 
             <section>
               <h2 className="text-2xl font-orbitron font-bold text-neutral-100 mt-8 mb-4">
-                10. Disposições gerais
-              </h2>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>Tratamos seus dados para concluir sua compra e prevenir fraudes, conforme a Lei Geral de Proteção de Dados.</li>
-                <li>Não armazenamos o número completo do seu cartão em nossos sistemas. O processamento é feito pelas empresas de pagamento parceiras.</li>
-                <li>Nunca vendemos ou cedemos seus dados a terceiros para fins comerciais.</li>
-                <li>Se você pedir a exclusão dos dados, vamos avaliar se precisamos manter os dados por obrigação legal; se não for o caso, excluiremos e avisaremos você.</li>
-                <li>Para exercer seus direitos, envie um e-mail para{' '}
-                  <a href="mailto:victormezadri@hotmail.com" className="text-white hover:text-neutral-300 underline">
-                    victormezadri@hotmail.com
-                  </a>. Nós responderemos em até 10 dias.
-                </li>
-                <li>Em caso de incidente de segurança que possa trazer risco, informaremos você e, quando necessário, as autoridades.</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-orbitron font-bold text-neutral-100 mt-8 mb-4">
-                11. Fale conosco
+                10. Fale conosco
               </h2>
               <p>
                 E-mail:{' '}
-                <a href="mailto:victormezadri@hotmail.com" className="text-white hover:text-neutral-300 underline">
-                  victormezadri@hotmail.com
+                <a href="mailto:contato@maxistalks.com" className="text-white hover:text-neutral-300 underline">
+                  contato@maxistalks.com
                 </a>
               </p>
               <p className="mt-2">
@@ -189,7 +170,7 @@ export default function PoliticaPrivacidadePage() {
                 </a>
               </p>
               <p className="mt-2">
-                Endereço: RUA ALUYSIO SIMÕES, Nº 338, CEP: 29050-632, Vitória - ES
+                Endereço: Rua Aluysio Simões, nº 338, CEP 29050-632, Vitória - ES
               </p>
             </section>
           </div>
@@ -199,4 +180,3 @@ export default function PoliticaPrivacidadePage() {
     </main>
   )
 }
-
