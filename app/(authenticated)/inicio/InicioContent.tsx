@@ -9,6 +9,7 @@ import {
   type ArticleRecord,
 } from '@/lib/queries'
 import { Calendar, BookOpenText, UsersRound, ChevronRight } from 'lucide-react'
+import { InstagramLink } from '@/components/InstagramLink'
 
 function formatEventDate(date: string | null) {
   if (!date) return ''
@@ -73,7 +74,7 @@ function EventCard({
       {banner && (
         <div
           className={`relative shrink-0 ${
-            isDestaque ? 'h-40 w-full' : 'h-24 w-24'
+            isDestaque ? 'h-48 w-full' : 'h-28 w-28'
           }`}
         >
           <Image
@@ -81,7 +82,7 @@ function EventCard({
             alt={titulo}
             fill
             sizes={isDestaque ? '(max-width: 768px) 100vw, 480px' : '96px'}
-            className="object-cover"
+            className="object-cover object-top"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f10]/95 via-[#0f0f10]/50 to-transparent" />
         </div>
@@ -92,11 +93,14 @@ function EventCard({
             {formatEventDate(evento.data_horario)}
           </p>
           <h3 className="mt-1 font-semibold text-[#f5f5f5] line-clamp-2">{titulo}</h3>
-          {!isDestaque && (
-            <p className="mt-0.5 text-xs text-[#9a9aa2] line-clamp-1">{subtitulo}</p>
+          {banner?.palestrante_instagram && (
+            <InstagramLink
+              handle={banner.palestrante_instagram}
+              className="mt-0.5 inline-block cursor-pointer text-xs font-semibold text-blue-300 transition hover:text-blue-200"
+            />
           )}
-          {isDestaque && (
-            <p className="mt-1 text-xs text-[#9a9aa2]">{evento.local_nome}</p>
+          {!isDestaque && !banner?.palestrante_instagram && (
+            <p className="mt-0.5 text-xs text-[#9a9aa2] line-clamp-1">{subtitulo}</p>
           )}
         </div>
         <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-300 transition group-hover:text-blue-200">

@@ -16,7 +16,7 @@ export async function GET() {
           .order('created_at', { ascending: true, nullsFirst: false }),
         supabase
           .from('event_banners')
-          .select('event_id, image_url, titulo, subtitulo')
+          .select('event_id, image_url, titulo, subtitulo, palestrante_instagram, palestrante_descricao')
           .eq('is_active', true),
       ])
 
@@ -49,6 +49,8 @@ export async function GET() {
               image_url: banner.image_url,
               titulo: banner.titulo,
               subtitulo: banner.subtitulo,
+              palestrante_instagram: banner.palestrante_instagram ?? null,
+              palestrante_descricao: banner.palestrante_descricao ?? null,
             }
           : null,
       }

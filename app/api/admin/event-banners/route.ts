@@ -35,6 +35,8 @@ export async function POST(request: Request) {
       image_url: body.image_url,
       image_path: body.image_path,
       is_active: Boolean(body.is_active),
+      palestrante_instagram: body.palestrante_instagram ?? null,
+      palestrante_descricao: body.palestrante_descricao ?? null,
     }
 
     const { data, error } = await supabaseAdmin

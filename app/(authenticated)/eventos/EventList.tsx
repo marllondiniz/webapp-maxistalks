@@ -21,50 +21,6 @@ type MessageState = {
   text: string
 }
 
-type DescriptionSection = {
-  titulo: string | null
-  conteudo: string
-}
-
-const parseDescriptionSections = (raw: string | null): DescriptionSection[] => {
-  if (!raw) return []
-
-  try {
-    const parsed = JSON.parse(raw) as { sections?: Array<{ titulo?: string | null; conteudo?: string | null }> }
-    if (parsed && Array.isArray(parsed.sections)) {
-      return parsed.sections
-        .map((section) => ({
-          titulo: section.titulo ?? null,
-          conteudo: section.conteudo ?? '',
-        }))
-        .filter((section) => section.conteudo.trim().length > 0)
-    }
-  } catch (error) {
-    // Conteúdo não está no formato JSON estruturado
-  }
-
-  if (raw.includes('---')) {
-    return raw
-      .split(/^-{3,}$|---+/gm)
-      .map((part) => part.trim())
-      .filter(Boolean)
-      .map((conteudo) => ({ titulo: null, conteudo }))
-  }
-
-  const trimmed = raw.trim()
-  if (!trimmed) return []
-
-  return [{ titulo: null, conteudo: trimmed }]
-}
-
-const getShortDescription = (raw: string | null, limit = 220) => {
-  const sections = parseDescriptionSections(raw)
-  const first = sections[0]?.conteudo ?? ''
-  const normalized = first.replace(/\s+/g, ' ').trim()
-  if (!normalized) return 'Detalhes em breve.'
-  return normalized.length > limit ? `${normalized.slice(0, limit)}…` : normalized
-}
-
 export function EventList({ events, activeBanners = [] }: EventListProps) {
   const supabase = getSupabaseClient()
   const { role, hasActiveSubscription } = useUserRole()
@@ -302,8 +258,6 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
           const isProcessing = isPending && activeEventId === event.id
           const eventBanner = activeBanners.find(banner => banner.event_id === event.id)
           const hasBanner = Boolean(eventBanner)
-          const shortDescription = getShortDescription(event.descricao)
-
           return (
             <article
               id={`evento-${event.id}`}
@@ -316,21 +270,8 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                   <img
                     src={eventBanner.image_url}
                     alt={eventBanner.titulo ?? 'Banner de evento'}
-                    className="h-40 w-full object-cover sm:h-48 md:h-56"
+                    className="h-44 w-full object-cover object-top sm:h-52 md:h-64"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#18181b] via-[#18181b]/60 to-transparent" />
-                  <div className="absolute bottom-3 left-4 right-4 space-y-1 sm:bottom-4">
-                    {eventBanner.titulo && (
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#f5f5f5]/90 sm:text-xs sm:tracking-[0.3em]">
-                        {eventBanner.titulo}
-                      </p>
-                    )}
-                    {eventBanner.subtitulo && (
-                      <h4 className="text-base font-bold leading-tight text-[#f5f5f5] sm:text-lg">
-                        {eventBanner.subtitulo}
-                      </h4>
-                    )}
-                  </div>
                 </div>
               )}
 
@@ -338,14 +279,45 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                 <header className="space-y-2">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <span className="inline-flex items-center rounded-full bg-slate-700/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#9a9aa2]">
+                      <span className="inline-flex items-center rounded-full bg-blue-500/20 border border-blue-500/30 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-blue-300">
                         Evento
                       </span>
-                      <Link href={`/eventos/${event.id}`}>
-                        <h3 className="mt-3 text-xl font-bold tracking-tight text-[#f5f5f5] transition hover:text-[#e2e2e2]">
-                        {event.titulo}
-                      </h3>
-                      </Link>
+                      <div className="mt-2 space-y-1">
+                        <Link href={`/eventos/${event.id}`}>
+                          {eventBanner?.subtitulo && (
+                            <h3 className="text-xl font-bold tracking-tight text-[#f5f5f5] transition hover:text-white sm:text-2xl">
+                              {eventBanner.subtitulo}
+                            </h3>
+                          )}
+                          {!eventBanner && (
+                            <h3 className="text-xl font-bold tracking-tight text-[#f5f5f5] transition hover:text-white">
+                              {event.titulo}
+                            </h3>
+                          )}
+                        </Link>
+                        {eventBanner?.palestrante_instagram && (
+                          <a
+                            href={`https://instagram.com/${eventBanner.palestrante_instagram.replace(/^@/, '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-block text-xs font-semibold text-blue-300 transition hover:text-blue-200"
+                          >
+                            @{eventBanner.palestrante_instagram.replace(/^@/, '')}
+                          </a>
+                        )}
+                        {eventBanner?.palestrante_descricao && (
+                          <p className="text-xs text-[#9a9aa2] line-clamp-2">
+                            {eventBanner.palestrante_descricao}
+                          </p>
+                        )}
+                        {eventBanner?.titulo && (
+                          <div className="mt-2 rounded-lg border border-slate-600/30 bg-slate-700/30 px-3 py-2">
+                            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Tema da palestra</p>
+                            <p className="mt-0.5 text-sm font-medium text-[#f5f5f5] line-clamp-2">{eventBanner.titulo}</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div className="text-right text-sm text-[#c9c9d2]">
                       <p>{new Date(event.data_horario).toLocaleDateString('pt-BR')}</p>
@@ -357,16 +329,9 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                       </p>
                     </div>
                   </div>
-                <p className="text-sm text-[#d6d6de]">{shortDescription}</p>
                 </header>
 
                 <div className="space-y-3 text-sm text-[#d6d6de]">
-                  <div>
-                    <p>
-                      <span className="font-semibold text-[#f5f5f5]">Local:</span> {event.local_nome}
-                    </p>
-                    {event.local_detalhe && <p className="text-[#9a9aa2]">• {event.local_detalhe}</p>}
-                  </div>
                   <div>
                     <p>
                       <span className="font-semibold text-[#f5f5f5]">Inscrição:</span>{' '}
@@ -470,18 +435,18 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
           {normalizedEvents.map((event) =>
             renderEventCard(
               event,
-              'flex h-full w-[300px] shrink-0 flex-col rounded-2xl border border-slate-600/30 bg-slate-800/80 shadow-xl transition hover:border-slate-500/40 overflow-hidden'
+              'flex h-full w-[300px] shrink-0 flex-col rounded-2xl border-l-4 border-l-blue-500/80 border border-slate-600/30 bg-slate-800/90 shadow-xl shadow-black/20 transition hover:border-l-blue-400 hover:border-slate-500/50 hover:shadow-2xl overflow-hidden'
             )
           )}
         </div>
       </div>
 
-      {/* Desktop: grid */}
-      <div className="hidden grid-cols-2 gap-4 md:grid">
+      {/* Desktop: grid 2 colunas, cards mais estreitos */}
+      <div className="hidden md:grid md:grid-cols-2 md:gap-6 md:max-w-2xl md:mx-auto">
         {normalizedEvents.map((event) =>
           renderEventCard(
             event,
-            'flex h-full flex-col rounded-2xl border border-slate-600/30 bg-slate-800/80 shadow-xl transition hover:border-slate-500/40 hover:-translate-y-1 overflow-hidden'
+            'flex flex-col rounded-2xl border-l-4 border-l-blue-500/80 border border-slate-600/30 bg-slate-800/90 shadow-xl shadow-black/20 transition hover:border-l-blue-400 hover:border-slate-500/50 hover:shadow-2xl overflow-hidden'
           )
         )}
       </div>

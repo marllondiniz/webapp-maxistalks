@@ -153,18 +153,15 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
   return (
     <div className="min-h-screen bg-slate-900">
       {/* Banner */}
-      <div className="relative h-[300px] w-full overflow-hidden md:h-[400px]">
+      <div className="relative h-[340px] w-full overflow-hidden md:h-[450px]">
         {banner?.image_url ? (
-          <>
-            <Image
-              src={banner.image_url}
-              alt={event.titulo}
-              fill
-              className="object-cover"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f10] via-[#0f0f10]/60 to-transparent" />
-          </>
+          <Image
+            src={banner.image_url}
+            alt={event.titulo}
+            fill
+            className="object-cover object-top"
+            priority
+          />
         ) : (
           <div className="h-full w-full bg-gradient-to-br from-[#2a2a31] to-[#18181b]" />
         )}
@@ -188,8 +185,27 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
                 Evento
               </span>
               <h1 className="mt-3 text-3xl font-bold text-[#f5f5f5] md:text-4xl">
-                {event.titulo}
+                {banner?.subtitulo || event.titulo}
               </h1>
+              {banner?.palestrante_instagram && (
+                <a
+                  href={`https://instagram.com/${banner.palestrante_instagram.replace(/^@/, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1 inline-block text-sm font-semibold text-blue-300 transition hover:text-blue-200"
+                >
+                  @{banner.palestrante_instagram.replace(/^@/, '')}
+                </a>
+              )}
+              {banner?.palestrante_descricao && (
+                <p className="mt-2 text-sm leading-relaxed text-[#9a9aa2]">{banner.palestrante_descricao}</p>
+              )}
+              {banner?.titulo && (
+                <div className="mt-4 rounded-xl border border-slate-600/30 bg-slate-800/50 px-4 py-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Tema da palestra</p>
+                  <p className="mt-1 text-base font-semibold text-[#f5f5f5]">{banner.titulo}</p>
+                </div>
+              )}
             </div>
             {event.destaque && (
               <span className="rounded-full bg-amber-500/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-200">
@@ -337,7 +353,7 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
                         <img
                           src={evBanner.image_url}
                           alt={evBanner.subtitulo ?? ev.titulo}
-                          className="h-full w-full object-cover transition group-hover:scale-[1.02]"
+                          className="h-full w-full object-cover object-top transition group-hover:scale-[1.02]"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#18181b] via-transparent to-transparent" />
                       </div>

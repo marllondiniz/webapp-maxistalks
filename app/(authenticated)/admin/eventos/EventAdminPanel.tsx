@@ -28,6 +28,8 @@ type FormState = {
   bannerPreview: string | null
   bannerTitulo: string
   bannerSubtitulo: string
+  bannerPalestranteInstagram: string
+  bannerPalestranteDescricao: string
 }
 
 const generateId = () => crypto.randomUUID?.() ?? Math.random().toString(36).slice(2)
@@ -51,6 +53,8 @@ const createDefaultForm = (): FormState => ({
   bannerPreview: null,
   bannerTitulo: '',
   bannerSubtitulo: '',
+  bannerPalestranteInstagram: '',
+  bannerPalestranteDescricao: '',
 })
 
 const BANNER_BUCKET = 'event-banners'
@@ -349,6 +353,8 @@ export function EventAdminPanel({ initialEvents }: Props) {
                 is_active: true,
                 titulo: form.bannerTitulo || null,
                 subtitulo: form.bannerSubtitulo || null,
+                palestrante_instagram: form.bannerPalestranteInstagram || null,
+                palestrante_descricao: form.bannerPalestranteDescricao || null,
               }),
             })
             
@@ -364,6 +370,8 @@ export function EventAdminPanel({ initialEvents }: Props) {
                 body: JSON.stringify({
                   titulo: form.bannerTitulo || null,
                   subtitulo: form.bannerSubtitulo || null,
+                  palestrante_instagram: form.bannerPalestranteInstagram || null,
+                  palestrante_descricao: form.bannerPalestranteDescricao || null,
                 event_id: eventId,
                   image_url: imageUrl,
                   image_path: filePath,
@@ -391,11 +399,13 @@ export function EventAdminPanel({ initialEvents }: Props) {
       }
     }
 
-    // Atualizar titulo/subtitulo do banner mesmo sem nova imagem (quando editando)
+    // Atualizar dados do banner mesmo sem nova imagem (quando editando)
     if (editingBanner && eventId && !form.bannerFile) {
       const hasChanges =
         form.bannerTitulo !== (editingBanner.titulo ?? '') ||
-        form.bannerSubtitulo !== (editingBanner.subtitulo ?? '')
+        form.bannerSubtitulo !== (editingBanner.subtitulo ?? '') ||
+        form.bannerPalestranteInstagram !== (editingBanner.palestrante_instagram ?? '') ||
+        form.bannerPalestranteDescricao !== (editingBanner.palestrante_descricao ?? '')
       if (hasChanges) {
         try {
           const updateResponse = await fetch('/api/admin/event-banners', {
@@ -405,6 +415,8 @@ export function EventAdminPanel({ initialEvents }: Props) {
               id: editingBanner.id,
               titulo: form.bannerTitulo || null,
               subtitulo: form.bannerSubtitulo || null,
+              palestrante_instagram: form.bannerPalestranteInstagram || null,
+              palestrante_descricao: form.bannerPalestranteDescricao || null,
             }),
           })
           if (updateResponse.ok) {
@@ -477,6 +489,8 @@ export function EventAdminPanel({ initialEvents }: Props) {
       bannerPreview: banner?.image_url ?? null,
       bannerTitulo: banner?.titulo ?? '',
       bannerSubtitulo: banner?.subtitulo ?? '',
+      bannerPalestranteInstagram: banner?.palestrante_instagram ?? '',
+      bannerPalestranteDescricao: banner?.palestrante_descricao ?? '',
     })
 
     setFeedback('Editando evento. Atualize as informações e salve.')
@@ -725,6 +739,30 @@ export function EventAdminPanel({ initialEvents }: Props) {
                   className="w-full rounded-lg border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white placeholder:text-slate-500"
                 />
               </label>
+              <label className="space-y-2 sm:col-span-2">
+                <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Instagram do palestrante
+                </span>
+                <input
+                  type="text"
+                  value={form.bannerPalestranteInstagram}
+                  onChange={(event) => handleChange('bannerPalestranteInstagram', event.target.value)}
+                  placeholder="Ex: @joaosilva ou joaosilva"
+                  className="w-full rounded-lg border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white placeholder:text-slate-500"
+                />
+              </label>
+              <label className="space-y-2 sm:col-span-2">
+                <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Descrição do palestrante
+                </span>
+                <textarea
+                  value={form.bannerPalestranteDescricao}
+                  onChange={(event) => handleChange('bannerPalestranteDescricao', event.target.value)}
+                  placeholder="Ex: Fundador da empresa X, palestrante em eventos de liderança..."
+                  rows={3}
+                  className="w-full rounded-lg border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white placeholder:text-slate-500 resize-none"
+                />
+              </label>
             </div>
 
             <label className="space-y-2">
@@ -740,7 +778,7 @@ export function EventAdminPanel({ initialEvents }: Props) {
               />
                 <p className="text-[11px] text-slate-400 flex items-center gap-1">
                   <ImageIcon className="h-3 w-3 shrink-0" />
-                  Formato: PNG, JPG ou WebP • Tamanho recomendado: 1200x600px
+                  Formato: PNG, JPG ou WebP • Tamanho: 1200×640 px • Rosto/sujeito no terço superior, parte inferior livre para texto
                 </p>
               </label>
 
@@ -779,7 +817,7 @@ export function EventAdminPanel({ initialEvents }: Props) {
               {!form.bannerPreview && !editingBanner && !form.bannerFile && (
                 <div className="flex items-start gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-200">
                   <Lightbulb className="h-4 w-4 shrink-0 mt-0.5" />
-                  <span>Dica: Eventos com banner se destacam mais na home e na lista de eventos!</span>
+                  <span>Dica: Eventos com banner se destacam mais! Use 1200×640 px, rosto no terço superior e parte inferior livre para o texto.</span>
                 </div>
               )}
             </div>

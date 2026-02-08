@@ -25,6 +25,8 @@ export type EventBannerRecord = {
   image_url: string
   image_path: string
   is_active: boolean | null
+  palestrante_instagram?: string | null
+  palestrante_descricao?: string | null
   created_at: string
 }
 

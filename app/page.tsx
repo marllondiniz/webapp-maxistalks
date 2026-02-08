@@ -16,6 +16,8 @@ type EventPreview = {
     image_url: string
     titulo: string | null
     subtitulo: string | null
+    palestrante_instagram?: string | null
+    palestrante_descricao?: string | null
   } | null
 }
 
@@ -163,7 +165,7 @@ export default function MaxisTalksPage() {
                                 alt={nomePalestrante || event.titulo}
                                 className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-[1.02]"
                               />
-                              <div className="absolute left-4 top-4 flex items-center gap-2">
+                                  <div className="absolute left-4 top-4 flex items-center gap-2">
                                 <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium tracking-wider text-white/90 backdrop-blur-sm">
                                   Ed. {String(i + 1).padStart(2, '0')}
                                 </span>
@@ -188,6 +190,20 @@ export default function MaxisTalksPage() {
                           <div className="border-t border-white/[0.05] px-5 py-4">
                             <p className="text-[11px] text-slate-500">{formatEventDate(event.data_horario)}</p>
                             <h3 className="mt-1 text-lg font-bold text-white">{nomePalestrante || event.titulo}</h3>
+                            {event.banner?.palestrante_instagram && (
+                              <a
+                                href={`https://instagram.com/${event.banner.palestrante_instagram.replace(/^@/, '')}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="mt-1 inline-block text-xs font-semibold text-blue-400 hover:text-blue-300"
+                              >
+                                @{event.banner.palestrante_instagram.replace(/^@/, '')}
+                              </a>
+                            )}
+                            {event.banner?.palestrante_descricao && (
+                              <p className="mt-1 text-xs text-slate-400 line-clamp-2">{event.banner.palestrante_descricao}</p>
+                            )}
                           </div>
                           <div className="mx-5 mb-5 rounded-xl bg-[#1e293b]/80 px-4 py-3">
                             <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
@@ -258,10 +274,24 @@ export default function MaxisTalksPage() {
                         </div>
                       )}
 
-                      {/* Nome e data */}
+                      {/* Nome, Instagram, quem é */}
                       <div className="border-t border-white/[0.05] px-5 py-4">
                         <p className="text-[11px] text-slate-500">{formatEventDate(event.data_horario)}</p>
                         <h3 className="mt-1 text-lg font-bold text-white">{nomePalestrante || event.titulo}</h3>
+                        {event.banner?.palestrante_instagram && (
+                          <a
+                            href={`https://instagram.com/${event.banner.palestrante_instagram.replace(/^@/, '')}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="mt-1 inline-block text-xs font-semibold text-blue-400 hover:text-blue-300"
+                          >
+                            @{event.banner.palestrante_instagram.replace(/^@/, '')}
+                          </a>
+                        )}
+                        {event.banner?.palestrante_descricao && (
+                          <p className="mt-1 text-xs text-slate-400 line-clamp-2">{event.banner.palestrante_descricao}</p>
+                        )}
                       </div>
 
                       {/* Tema da palestra */}
