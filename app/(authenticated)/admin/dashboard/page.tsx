@@ -1,5 +1,5 @@
 import { unstable_noStore } from 'next/cache'
-import { getEventRegistrationsWithDetails, getDashboardStats } from '@/lib/queries'
+import { getEventRegistrationsWithDetails, getDashboardStats, getAllUsersWithProfiles } from '@/lib/queries'
 import { AdminDashboard } from './AdminDashboard'
 
 export const dynamic = 'force-dynamic'
@@ -12,12 +12,14 @@ export default async function AdminDashboardPage() {
     totalUsuariosUnicos: 0,
     inscricoesPorEvento: [],
   }
+  let allUsers: Awaited<ReturnType<typeof getAllUsersWithProfiles>> = []
   let configError: string | null = null
 
   try {
-    ;[registrations, stats] = await Promise.all([
+    ;[registrations, stats, allUsers] = await Promise.all([
       getEventRegistrationsWithDetails(),
       getDashboardStats(),
+      getAllUsersWithProfiles(),
     ])
   } catch (err) {
     console.error('Erro ao carregar dashboard:', err)
@@ -31,6 +33,7 @@ export default async function AdminDashboardPage() {
     <AdminDashboard
       registrations={registrations}
       stats={stats}
+      allUsers={allUsers}
       configError={configError}
     />
   )

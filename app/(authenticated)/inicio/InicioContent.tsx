@@ -3,8 +3,10 @@ import Image from 'next/image'
 import {
   getActiveEventBanners,
   getEvents,
+  getArticles,
   type EventBannerRecord,
   type EventRecord,
+  type ArticleRecord,
 } from '@/lib/queries'
 import { Calendar, BookOpenText, UsersRound, ChevronRight } from 'lucide-react'
 
@@ -106,10 +108,39 @@ function EventCard({
   )
 }
 
+function ConteudoDestaqueCard({ artigo }: { artigo: ArticleRecord }) {
+  return (
+    <Link
+      href={`/blog/${artigo.id}`}
+      className="group flex overflow-hidden rounded-xl border border-slate-600/30 bg-slate-800/80 transition hover:border-slate-500/40"
+    >
+      {artigo.image_url ? (
+        <div className="relative h-20 w-24 shrink-0">
+          <Image
+            src={artigo.image_url}
+            alt={artigo.titulo}
+            fill
+            sizes="96px"
+            className="object-cover"
+          />
+        </div>
+      ) : (
+        <span className="flex h-20 w-24 shrink-0 items-center justify-center bg-white/5" />
+      )}
+      <div className="flex flex-1 flex-col justify-center p-4">
+        <h4 className="font-semibold text-[#f5f5f5] line-clamp-1">{artigo.titulo}</h4>
+        <p className="text-xs text-slate-400">{artigo.autor_handle}</p>
+      </div>
+      <ChevronRight className="mr-3 h-5 w-5 shrink-0 text-slate-500 group-hover:text-[#f5f5f5]" />
+    </Link>
+  )
+}
+
 export async function InicioContent() {
-  const [eventos, banners] = await Promise.all([
+  const [eventos, banners, artigosInicio] = await Promise.all([
     getEvents(),
     getActiveEventBanners(),
+    getArticles('inicio'),
   ])
 
   const eventosOrdenados = [...eventos].sort(
@@ -167,6 +198,28 @@ export async function InicioContent() {
             Ver eventos
             <ChevronRight className="h-4 w-4" />
           </Link>
+        </div>
+      )}
+
+      {/* Conteúdo em destaque */}
+      {artigosInicio.length > 0 && (
+        <div>
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+              Conteúdo em destaque
+            </h3>
+            <Link
+              href="/blog"
+              className="text-xs font-semibold text-blue-300 transition hover:text-blue-200"
+            >
+              Ver todos
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {artigosInicio.slice(0, 3).map((artigo) => (
+              <ConteudoDestaqueCard key={artigo.id} artigo={artigo} />
+            ))}
+          </div>
         </div>
       )}
 

@@ -1,7 +1,17 @@
+import Image from 'next/image'
+import Link from 'next/link'
 import { getArticles } from '@/lib/queries'
 import { Activity, Coffee, Heart, Sparkles, Lightbulb, type LucideIcon } from 'lucide-react'
 
-const filtros = ['Todos', 'Inspiração', 'Dicas', 'Desenvolvimento', 'Palestras']
+const CATEGORIAS = [
+  { value: 'todos', label: 'Todos' },
+  { value: 'inspiracao', label: 'Inspiração' },
+  { value: 'dicas', label: 'Dicas' },
+  { value: 'desenvolvimento', label: 'Desenvolvimento' },
+  { value: 'palestras', label: 'Palestras' },
+  { value: 'vendas', label: 'Vendas' },
+  { value: 'marketing', label: 'Marketing' },
+] as const
 
 const CATEGORIA_ICONS: Record<string, LucideIcon> = {
   treino: Activity,
@@ -11,6 +21,8 @@ const CATEGORIA_ICONS: Record<string, LucideIcon> = {
   inspiracao: Sparkles,
   desenvolvimento: Heart,
   palestras: Activity,
+  vendas: Sparkles,
+  marketing: Lightbulb,
 }
 
 function resolveIcon(icone: string | null, categoria: string | null): LucideIcon {
@@ -18,12 +30,22 @@ function resolveIcon(icone: string | null, categoria: string | null): LucideIcon
   return Icon ?? Sparkles
 }
 
-export default async function BlogPage() {
-  const artigos = await getArticles()
+export default async function BlogPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ categoria?: string }>
+}) {
+  const { categoria } = await searchParams
+  const artigos = await getArticles('blog')
+
+  const artigosFiltrados =
+    categoria && categoria !== 'todos'
+      ? artigos.filter((a) => a.categoria?.toLowerCase() === categoria.toLowerCase())
+      : artigos
 
   return (
     <section className="space-y-6">
-      <header className="space-y-1 text-center">
+      <header className="space-y-2 text-center">
         <h2 className="text-2xl font-bold uppercase tracking-tight text-[#f5f5f5]">
           Artigos e inspirações
         </h2>
@@ -33,74 +55,102 @@ export default async function BlogPage() {
       </header>
 
       <div className="flex flex-wrap justify-center gap-2">
-        {filtros.map((filtro, index) => (
-          <button
-            key={filtro}
-            type="button"
-            className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-wide transition ${
-              index === 0
-                ? 'border border-blue-400/40 bg-blue-500/20 text-blue-200'
-                : 'border border-slate-600/40 bg-slate-800/80 text-slate-300 hover:border-slate-500/50 hover:bg-slate-700/60 hover:text-slate-200'
-            }`}
-          >
-            {filtro}
-          </button>
-        ))}
+        {CATEGORIAS.map((filtro) => {
+          const isActive =
+            (filtro.value === 'todos' && !categoria) || categoria === filtro.value
+          return (
+            <Link
+              key={filtro.value}
+              href={filtro.value === 'todos' ? '/blog' : `/blog?categoria=${filtro.value}`}
+              className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-wide transition ${
+                isActive
+                  ? 'border border-blue-400/40 bg-blue-500/20 text-blue-200'
+                  : 'border border-slate-600/40 bg-slate-800/80 text-slate-300 hover:border-slate-500/50 hover:bg-slate-700/60 hover:text-slate-200'
+              }`}
+            >
+              {filtro.label}
+            </Link>
+          )
+        })}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {artigos.map((artigo) => (
-          <article
+      <div className="grid gap-5 sm:grid-cols-2">
+        {artigosFiltrados.map((artigo) => (
+          <Link
             key={artigo.id}
-            className="flex items-center justify-between rounded-lg border border-slate-600/30 bg-slate-800/80 p-5 shadow-lg transition hover:border-slate-500/40"
+            href={`/blog/${artigo.id}`}
+            className="group overflow-hidden rounded-xl border border-slate-600/30 bg-slate-800/80 shadow-lg transition hover:border-slate-500/40 hover:shadow-xl"
           >
-            <div className="flex items-start gap-4">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-white/5 text-[#f5f5f5]">
-                {(() => {
-                  const Icon = resolveIcon(artigo.icone, artigo.categoria)
-                  return <Icon className="h-6 w-6" />
-                })()}
-              </span>
-              <div>
-                <h3 className="text-lg font-bold text-[#f5f5f5]">{artigo.titulo}</h3>
-                <p className="text-sm text-[#c9c9d2]">
+            <div className="flex flex-col">
+              {artigo.image_url ? (
+                <div className="relative aspect-[16/10] w-full shrink-0">
+                  <Image
+                    src={artigo.image_url}
+                    alt={artigo.titulo}
+                    fill
+                    sizes="(max-width: 640px) 100vw, 50vw"
+                    className="object-cover transition group-hover:scale-[1.02]"
+                  />
+                  {artigo.categoria && (
+                    <span className="absolute left-3 top-3 rounded-full bg-black/50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur-sm">
+                      {artigo.categoria}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div className="flex aspect-[16/10] w-full items-center justify-center bg-gradient-to-br from-slate-700/50 to-slate-800/80">
+                  {(() => {
+                    const Icon = resolveIcon(artigo.icone, artigo.categoria)
+                    return <Icon className="h-12 w-12 text-slate-500" />
+                  })()}
+                </div>
+              )}
+              <div className="flex flex-1 flex-col p-5">
+                <h3 className="font-bold text-[#f5f5f5] line-clamp-2 transition group-hover:text-white">
+                  {artigo.titulo}
+                </h3>
+                <p className="mt-2 text-sm text-slate-400">
                   por {artigo.autor_handle || '@maxistalks'}
                 </p>
+                {artigo.resumo && (
+                  <p className="mt-2 line-clamp-2 text-sm text-slate-500">{artigo.resumo}</p>
+                )}
+                <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#3b82f6] transition group-hover:text-blue-400">
+                  Ler
+                  <span className="inline-block transition group-hover:translate-x-0.5">→</span>
+                </span>
               </div>
             </div>
-            <button
-              type="button"
-              className="rounded-full border border-white/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-[#f5f5f5] transition hover:bg-[#f5f5f5] hover:text-[#0f0f10]"
-            >
-              Ler
-            </button>
-          </article>
+          </Link>
         ))}
       </div>
 
-      <button
-        type="button"
-        className="w-full rounded-2xl border border-white/30 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-[#f5f5f5] transition hover:bg-[#f5f5f5] hover:text-[#0f0f10]"
-      >
-        Ver mais artigos
-      </button>
+      {artigosFiltrados.length === 0 && (
+        <div className="rounded-xl border border-slate-600/30 bg-slate-800/80 p-12 text-center">
+          <p className="text-sm text-slate-400">Nenhum conteúdo disponível no momento.</p>
+          <Link
+            href="/eventos"
+            className="mt-4 inline-block text-sm font-semibold text-[#3b82f6] transition hover:text-blue-400"
+          >
+            Ver eventos
+          </Link>
+        </div>
+      )}
 
-      <div className="rounded-lg border border-slate-600/30 bg-slate-800/80 p-6 text-center shadow-lg">
+      <div className="rounded-xl border border-slate-600/30 bg-slate-800/80 p-6 text-center sm:p-8">
         <h3 className="text-lg font-bold text-[#f5f5f5]">
           Quer publicar seu conteúdo aqui?
         </h3>
         <p className="mt-2 text-sm text-[#c9c9d2]">
           Compartilhe seus insights com a comunidade e inspire outros membros.
         </p>
-        <button
-          type="button"
-          className="mt-5 rounded-full bg-[#f5f5f5] px-6 py-3 text-sm font-semibold uppercase tracking-wide text-[#0f0f10] transition hover:brightness-95"
+        <Link
+          href="/eventos"
+          className="mt-5 inline-block rounded-full bg-[#f5f5f5] px-6 py-3 text-sm font-semibold uppercase tracking-wide text-[#0f0f10] transition hover:brightness-95"
         >
-          Contribua com a comunidade
-        </button>
+          Ver eventos
+        </Link>
       </div>
     </section>
   )
 }
-
-

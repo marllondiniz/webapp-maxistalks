@@ -28,14 +28,27 @@ export type EventBannerRecord = {
   created_at: string
 }
 
+export type ArticleGalleryRecord = {
+  id: string
+  article_id: string
+  image_url: string
+  image_path: string
+  ordem: number | null
+  created_at: string
+}
+
 export type ArticleRecord = {
   id: string
   titulo: string
   autor_handle: string
   categoria: string | null
   resumo: string | null
+  conteudo: string | null
   icone: string | null
   publicado_em: string | null
+  image_url: string | null
+  image_path: string | null
+  tipo_conteudo: string | null
 }
 
 export type ChallengeRecord = {
@@ -111,12 +124,37 @@ export async function getEventBanners(): Promise<EventBannerRecord[]> {
   return data ?? []
 }
 
-export async function getArticles(): Promise<ArticleRecord[]> {
+export async function getArticleGallery(articleId: string): Promise<ArticleGalleryRecord[]> {
   const supabase = getSupabaseServer()
   const { data, error } = await supabase
+    .from('article_gallery')
+    .select('*')
+    .eq('article_id', articleId)
+    .order('ordem', { ascending: true })
+    .order('created_at', { ascending: true })
+
+  if (error) {
+    console.error('Erro ao buscar galeria do artigo:', error)
+    return []
+  }
+
+  return data ?? []
+}
+
+export type ArticlesFilter = 'blog' | 'inicio' | 'comunidade' | 'geral' | 'all'
+
+export async function getArticles(tipo?: ArticlesFilter): Promise<ArticleRecord[]> {
+  const supabase = getSupabaseServer()
+  let query = supabase
     .from('articles')
     .select('*')
     .order('publicado_em', { ascending: false })
+
+  if (tipo && tipo !== 'all') {
+    query = query.or(`tipo_conteudo.eq.${tipo},tipo_conteudo.eq.geral`)
+  }
+
+  const { data, error } = await query
 
   if (error) {
     console.error('Erro ao buscar artigos:', error)
@@ -124,6 +162,22 @@ export async function getArticles(): Promise<ArticleRecord[]> {
   }
 
   return data ?? []
+}
+
+export async function getArticleById(id: string): Promise<ArticleRecord | null> {
+  const supabase = getSupabaseServer()
+  const { data, error } = await supabase
+    .from('articles')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle()
+
+  if (error) {
+    console.error('Erro ao buscar artigo:', error)
+    return null
+  }
+
+  return data ?? null
 }
 
 export async function getChallenges(): Promise<ChallengeRecord[]> {
@@ -250,7 +304,7 @@ export async function getEventRegistrationsWithDetails(): Promise<
 
   const [{ data: events }, { data: profiles }] = await Promise.all([
     supabase.from('events').select('id, titulo, data_horario, local_nome, capacidade_maxima').in('id', eventIds),
-    supabase.from('profiles').select('id, nome, email, telefone, empresa_projeto, instagram, cidade_estado, area_principal').in('id', userIds),
+    supabase.from('profiles').select('id, nome, email, telefone, empresa_projeto, empresa_atual, instagram, cidade_estado, area_principal, area_gestao').in('id', userIds),
   ])
 
   const eventsMap = new Map((events ?? []).map((e) => [e.id, e]))
@@ -272,12 +326,65 @@ export async function getEventRegistrationsWithDetails(): Promise<
       user_nome: profile?.nome ?? null,
       user_email: profile?.email ?? null,
       user_telefone: profile?.telefone ?? null,
-      user_empresa: profile?.empresa_projeto ?? null,
+      user_empresa: profile?.empresa_projeto ?? profile?.empresa_atual ?? null,
       user_instagram: profile?.instagram ?? null,
       user_cidade: profile?.cidade_estado ?? null,
-      user_area: profile?.area_principal ?? null,
+      user_area: profile?.area_gestao ?? profile?.area_principal ?? null,
     }
   })
+}
+
+export type UserWithProfile = {
+  id: string
+  nome: string | null
+  email: string | null
+  telefone: string | null
+  cidade_estado: string | null
+  empresa_projeto: string | null
+  empresa_atual: string | null
+  instagram: string | null
+  linkedin: string | null
+  area_principal: string | null
+  area_gestao: string | null
+  posicao_mercado: string | null
+  segmento_negocio: string | null
+  cargo_atual: string | null
+  updated_at: string | null
+}
+
+export async function getAllUsersWithProfiles(): Promise<UserWithProfile[]> {
+  const supabase = getSupabaseAdmin()
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, nome, email, telefone, cidade_estado, empresa_projeto, empresa_atual, instagram, linkedin, area_principal, area_gestao, posicao_mercado, segmento_negocio, cargo_atual, updated_at')
+    .eq('is_complete', true)
+    .neq('is_admin', true)
+    .order('updated_at', { ascending: false })
+    .limit(2000)
+
+  if (error) {
+    console.error('Erro ao buscar usuários:', error)
+    return []
+  }
+
+  return (data ?? []).map((p) => ({
+    id: p.id,
+    nome: p.nome ?? null,
+    email: p.email ?? null,
+    telefone: p.telefone ?? null,
+    cidade_estado: p.cidade_estado ?? null,
+    empresa_projeto: p.empresa_projeto ?? null,
+    empresa_atual: p.empresa_atual ?? null,
+    instagram: p.instagram ?? null,
+    linkedin: p.linkedin ?? null,
+    area_principal: p.area_principal ?? null,
+    area_gestao: p.area_gestao ?? null,
+    posicao_mercado: p.posicao_mercado ?? null,
+    segmento_negocio: p.segmento_negocio ?? null,
+    cargo_atual: p.cargo_atual ?? null,
+    updated_at: p.updated_at ?? null,
+  }))
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {

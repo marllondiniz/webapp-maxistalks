@@ -256,22 +256,28 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
     })
   }
 
-  const normalizedEvents = eventStates
+  const normalizedEvents = useMemo(() => {
+    const now = new Date()
+    return [...eventStates].sort((a, b) => {
+      const aPast = new Date(a.data_horario) < now
+      const bPast = new Date(b.data_horario) < now
+      if (aPast && !bPast) return 1
+      if (!aPast && bPast) return -1
+      return new Date(a.data_horario).getTime() - new Date(b.data_horario).getTime()
+    })
+  }, [eventStates])
 
-  return (
-    <div className="space-y-4">
-      <div className="grid gap-4 md:grid-cols-2">
-        {normalizedEvents.map((event) => {
+  const renderEventCard = (
+    event: (typeof normalizedEvents)[0],
+    cardClass: string
+  ) => {
           const registration = registrations[event.id]
           const isRegistered = Boolean(registration)
           const isPaidEvent = typeof event.preco === 'number' && event.preco > 0
-          
-          // Aplicar desconto de 20% para assinantes em eventos pagos
           const SUBSCRIBER_DISCOUNT = 0.20
           const basePrice = typeof event.preco === 'number' ? event.preco : 0
           const finalPrice =
             isPaidEvent && hasActiveSubscription ? basePrice * (1 - SUBSCRIBER_DISCOUNT) : basePrice
-          
           const priceLabel = isPaidEvent
             ? finalPrice.toLocaleString('pt-BR', {
                 style: 'currency',
@@ -279,7 +285,6 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                 minimumFractionDigits: 2,
               })
             : 'Gratuito'
-          
           const hasDiscount = isPaidEvent && hasActiveSubscription
           const originalPrice =
             isPaidEvent && hasDiscount
@@ -289,23 +294,21 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                   minimumFractionDigits: 2,
                 })
               : null
-
           const isPastEvent = new Date(event.data_horario) < new Date()
           const buttonDisabled =
             isPastEvent ||
             isRegistered ||
             (isPending && activeEventId === event.id)
-
           const isProcessing = isPending && activeEventId === event.id
           const eventBanner = activeBanners.find(banner => banner.event_id === event.id)
           const hasBanner = Boolean(eventBanner)
-        const shortDescription = getShortDescription(event.descricao)
+          const shortDescription = getShortDescription(event.descricao)
 
           return (
             <article
               id={`evento-${event.id}`}
               key={event.id}
-              className="flex h-full flex-col rounded-2xl border border-slate-600/30 bg-slate-800/80 shadow-xl transition hover:border-slate-500/40 hover:-translate-y-1 overflow-hidden"
+              className={cardClass}
             >
               {hasBanner && eventBanner && (
                 <div className="relative w-full">
@@ -454,7 +457,33 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
               </div>
             </article>
           )
-        })}
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Mobile: carrossel horizontal (igual à página principal) */}
+      <div
+        className="scrollbar-hide -mx-5 w-[calc(100%+40px)] overflow-x-auto px-4 py-2 md:hidden"
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
+        <div className="flex w-max gap-4">
+          {normalizedEvents.map((event) =>
+            renderEventCard(
+              event,
+              'flex h-full w-[300px] shrink-0 flex-col rounded-2xl border border-slate-600/30 bg-slate-800/80 shadow-xl transition hover:border-slate-500/40 overflow-hidden'
+            )
+          )}
+        </div>
+      </div>
+
+      {/* Desktop: grid */}
+      <div className="hidden grid-cols-2 gap-4 md:grid">
+        {normalizedEvents.map((event) =>
+          renderEventCard(
+            event,
+            'flex h-full flex-col rounded-2xl border border-slate-600/30 bg-slate-800/80 shadow-xl transition hover:border-slate-500/40 hover:-translate-y-1 overflow-hidden'
+          )
+        )}
       </div>
 
       {/* Modal de ingresso */}

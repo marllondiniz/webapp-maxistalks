@@ -31,6 +31,23 @@ export type ProfileRecord = {
   linkedin?: string | null
   instagram?: string | null
   site?: string | null
+  // MaxisTalks Cadastro Final
+  posicao_mercado?: string | null
+  segmento_negocio?: string | null
+  publico_atende?: string | null
+  faixa_faturamento?: string | null
+  num_colaboradores?: string | null
+  cargo_atual?: string | null
+  area_gestao?: string | null
+  empresa_atual?: string | null
+  tamanho_empresa?: string | null
+  lidera_time?: boolean | null
+  desafios_detalhados?: string[] | null
+  busca_maxistalks?: string[] | null
+  o_que_quer_aprender?: string[] | null
+  maior_dificuldade?: string | null
+  ciente_evento_online?: boolean | null
+  aceite_lgpd?: boolean | null
 }
 
 export type UserRole = 'FREE' | 'SUBSCRIBER'

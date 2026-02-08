@@ -1,4 +1,4 @@
-import { getEvents } from '@/lib/queries'
+import { getEvents, getArticles } from '@/lib/queries'
 import { type DestaqueCard } from './HighlightCardList'
 import { ClubClient } from './ClubClient'
 
@@ -46,7 +46,10 @@ const destaqueCards: DestaqueCard[] = [
 ]
 
 export default async function ClubePage() {
-  const eventos = await getEvents()
+  const [eventos, artigosComunidade] = await Promise.all([
+    getEvents(),
+    getArticles('comunidade'),
+  ])
   const proximoEvento = eventos[0]
 
   const cards = destaqueCards.map((card) => {
@@ -70,7 +73,13 @@ export default async function ClubePage() {
                 .replace('.', '')} • ${proximoEvento.local_nome}`
     : null
 
-  return <ClubClient cards={cards} proximoEventoDesc={proximoEventoDesc} />
+  return (
+    <ClubClient
+      cards={cards}
+      proximoEventoDesc={proximoEventoDesc}
+      artigosComunidade={artigosComunidade}
+    />
+  )
 }
 
 
