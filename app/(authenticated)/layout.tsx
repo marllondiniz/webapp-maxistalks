@@ -176,7 +176,7 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
               <div className="h-10 w-10" />
             </div>
             <div className="flex flex-1 items-center justify-center">
-              <Link href="/">
+              <Link href="/inicio">
                 <Image
                   src="/maxistalks-logo.png"
                   alt="MaxisTalks"
