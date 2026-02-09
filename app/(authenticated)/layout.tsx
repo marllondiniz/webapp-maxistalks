@@ -202,11 +202,15 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
           <div className="absolute bottom-0 left-1/2 h-px w-screen -translate-x-1/2 bg-white/10" aria-hidden />
         </header>
 
-        <main className="flex-1 overflow-y-auto px-5 pb-28 pt-6 md:px-8 md:pb-16 lg:px-12 xl:px-16">
+        <main className="flex-1 overflow-y-auto px-5 pb-28 pt-6 md:px-8 md:pb-24 lg:px-12 xl:px-16">
           <div className="mx-auto w-full max-w-[1867.5px]">{children}</div>
         </main>
 
-        <nav className="fixed inset-x-0 bottom-0 z-30 flex justify-center border-t border-white/10 bg-[#0f172a]/95 backdrop-blur">
+        {/* Bottom nav — mobile e desktop */}
+        <nav
+          className="fixed inset-x-0 bottom-0 z-30 flex justify-center border-t border-white/10 bg-[#0f172a]/95 backdrop-blur"
+          aria-label="Navegação principal"
+        >
           <div className="grid h-20 w-full max-w-[480px] grid-cols-5 md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1867.5px]">
             {navItemsToDisplay.map((item) => {
               const isActive =

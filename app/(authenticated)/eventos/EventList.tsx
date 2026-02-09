@@ -307,14 +307,14 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                           </a>
                         )}
                         {eventBanner?.palestrante_descricao && (
-                          <p className="text-xs text-[#9a9aa2] line-clamp-2">
+                          <p className="text-xs leading-relaxed text-[#9a9aa2]">
                             {eventBanner.palestrante_descricao}
                           </p>
                         )}
                         {eventBanner?.titulo && (
                           <div className="mt-2 rounded-lg border border-slate-600/30 bg-slate-700/30 px-3 py-2">
                             <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Tema da palestra</p>
-                            <p className="mt-0.5 text-sm font-medium text-[#f5f5f5] line-clamp-2">{eventBanner.titulo}</p>
+                            <p className="mt-0.5 text-sm font-medium leading-relaxed text-[#f5f5f5]">{eventBanner.titulo}</p>
                           </div>
                         )}
                       </div>

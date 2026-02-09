@@ -20,15 +20,15 @@ function InicioSkeleton() {
 
 export default function InicioPage() {
   return (
-    <section className="space-y-6">
-      <header className="space-y-2 text-center">
-        <span className="text-xs font-semibold uppercase tracking-[0.3em] text-[#f5f5f5]/80">
+    <section className="space-y-8">
+      <header className="space-y-3 text-center">
+        <span className="inline-block text-xs font-semibold uppercase tracking-[0.3em] text-blue-400/80">
           MaxisTalks
         </span>
-        <h2 className="text-2xl font-bold uppercase tracking-tight text-[#f5f5f5]">
+        <h2 className="text-3xl font-bold uppercase tracking-tight text-[#f5f5f5] sm:text-4xl">
           Bem-vindo de volta
         </h2>
-        <p className="text-sm text-[#c9c9d2]">
+        <p className="mx-auto max-w-lg text-sm leading-relaxed text-slate-400">
           Confira os próximos eventos e palestras, e mergulhe na comunidade.
         </p>
       </header>

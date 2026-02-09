@@ -4,22 +4,9 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { EventPreviewModalLanding, type EventPreviewLanding } from '@/components/EventPreviewModalLanding'
 
-type EventPreview = {
-  id: string
-  titulo: string
-  descricao?: string | null
-  data_horario: string
-  local_nome: string
-  destaque?: boolean | null
-  banner?: {
-    image_url: string
-    titulo: string | null
-    subtitulo: string | null
-    palestrante_instagram?: string | null
-    palestrante_descricao?: string | null
-  } | null
-}
+type EventPreview = EventPreviewLanding
 
 function formatEventDate(iso: string) {
   const d = new Date(iso)
@@ -53,6 +40,7 @@ const stagger = {
 
 export default function MaxisTalksPage() {
   const [events, setEvents] = useState<EventPreview[]>([])
+  const [previewEvent, setPreviewEvent] = useState<EventPreview | null>(null)
 
   useEffect(() => {
     fetch('/api/events', { cache: 'no-store' })
@@ -155,7 +143,11 @@ export default function MaxisTalksPage() {
                       return (
                         <div
                           key={event.id}
-                          className="glass-card group w-[280px] shrink-0 overflow-hidden"
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => setPreviewEvent(event)}
+                          onKeyDown={(e) => e.key === 'Enter' && setPreviewEvent(event)}
+                          className="glass-card group w-[280px] shrink-0 cursor-pointer overflow-hidden"
                         >
                           {event.banner?.image_url ? (
                             <div className="relative aspect-[3/4] overflow-hidden">
@@ -211,7 +203,7 @@ export default function MaxisTalksPage() {
                             </p>
                             <p className="mt-1 font-semibold text-white line-clamp-2">{temaPalestra}</p>
                           </div>
-                          <div className="border-t border-white/[0.05] p-5">
+                          <div className="border-t border-white/[0.05] p-5" onClick={(e) => e.stopPropagation()}>
                             <Link
                               href={isPast ? '#' : '/login?mode=signUp'}
                               className={`block w-full rounded-xl py-3.5 text-center text-sm font-bold uppercase tracking-wider transition ${
@@ -238,9 +230,13 @@ export default function MaxisTalksPage() {
                   return (
                     <motion.div
                       key={event.id}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setPreviewEvent(event)}
+                      onKeyDown={(e) => e.key === 'Enter' && setPreviewEvent(event)}
                       whileHover={{ y: -4 }}
                       transition={{ type: 'spring', stiffness: 300 }}
-                      className="glass-card group overflow-hidden"
+                      className="glass-card group cursor-pointer overflow-hidden"
                     >
                       {/* Foto do palestrante */}
                       {event.banner?.image_url ? (
@@ -303,7 +299,7 @@ export default function MaxisTalksPage() {
                       </div>
 
                       {/* Footer */}
-                      <div className="border-t border-white/[0.05] p-5">
+                      <div className="border-t border-white/[0.05] p-5" onClick={(e) => e.stopPropagation()}>
                         <Link
                           href={isPast ? '#' : '/login?mode=signUp'}
                           className={`block w-full rounded-xl py-3.5 text-center text-sm font-bold uppercase tracking-wider transition ${
@@ -593,6 +589,13 @@ export default function MaxisTalksPage() {
           © {new Date().getFullYear()} MaxisPlus. Todos os direitos reservados.
         </p>
       </footer>
+
+      <EventPreviewModalLanding
+        event={previewEvent}
+        isOpen={!!previewEvent}
+        onClose={() => setPreviewEvent(null)}
+        isPast={previewEvent ? new Date(previewEvent.data_horario) < new Date() : false}
+      />
 
       {/* Scroll to top */}
       <button

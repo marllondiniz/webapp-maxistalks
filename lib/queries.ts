@@ -9,6 +9,7 @@ export type EventRecord = {
   data_horario: string
   local_nome: string
   local_detalhe: string | null
+  localizacao_maps?: string | null
   preco: number | null
   gratuito: boolean | null
   participantes_confirmados: number | null

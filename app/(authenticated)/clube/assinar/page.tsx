@@ -16,6 +16,12 @@ export default function AssinarPage() {
           Palestras práticas, networking qualificado e experiências exclusivas.
         </p>
 
+        <div className="mx-auto mt-6 max-w-md rounded-xl border border-blue-500/20 bg-blue-500/10 p-4">
+          <p className="text-sm font-medium text-blue-300">
+            Em breve você terá acesso completo à comunidade MaxisTalks.
+          </p>
+        </div>
+
         <div className="pt-4">
           <Link
             href="/eventos"
