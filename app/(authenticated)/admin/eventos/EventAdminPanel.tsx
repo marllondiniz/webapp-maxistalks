@@ -4,6 +4,7 @@ import { FormEvent, useMemo, useState } from 'react'
 import { Pencil, Plus, Upload, Image as ImageIcon, Check, Trash2, Info, Lightbulb, Loader2, Save, Calendar } from 'lucide-react'
 import type { EventBannerRecord, EventRecord } from '@/lib/queries'
 import { getSupabaseClient } from '@/lib/supabaseClient'
+import { RichTextEditor } from '@/components/RichTextEditor'
 
 type Props = {
   initialEvents: EventRecord[]
@@ -612,20 +613,24 @@ export function EventAdminPanel({ initialEvents }: Props) {
             />
           </label>
 
-                  <label className="space-y-2">
-                    <span className="text-[11px] font-semibold uppercase text-slate-400">
-                      Conteúdo
-                    </span>
-                    <textarea
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-semibold uppercase text-slate-400">
+                        Conteúdo
+                      </span>
+                      <span className="rounded-md bg-blue-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-blue-400">
+                        Editor de texto
+                      </span>
+                    </div>
+                    <RichTextEditor
                       value={section.conteudo}
-                      onChange={(event) =>
-                        handleSectionChange(section.id, 'conteudo', event.target.value)
-                      }
-                      rows={5}
-                      placeholder="Descreva este bloco. Você pode usar listas, emojis e quebras de linha."
-                      className="w-full rounded-lg border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white placeholder:text-[#5f5f66]"
+                      onChange={(value) => handleSectionChange(section.id, 'conteudo', value)}
+                      placeholder="Escreva o conteúdo deste bloco aqui..."
                     />
-                  </label>
+                    <p className="text-[11px] text-slate-500">
+                      Use a barra de ferramentas acima para formatar. Suporta títulos, listas, citações, links e imagens.
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>

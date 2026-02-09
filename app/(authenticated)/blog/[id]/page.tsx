@@ -76,9 +76,25 @@ export default async function ArticlePage({
       )}
 
       <div className="prose prose-invert max-w-none">
-        <div className="whitespace-pre-wrap text-[15px] leading-relaxed text-[#c9c9d2]">
-          {artigo.conteudo || artigo.resumo || 'Conteúdo em breve.'}
-        </div>
+        <div 
+          className="text-[15px] leading-relaxed text-[#c9c9d2] 
+            [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:text-white [&_h1]:mt-8 [&_h1]:mb-4 [&_h1]:leading-tight
+            [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-white [&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:leading-tight
+            [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-white [&_h3]:mt-5 [&_h3]:mb-2 [&_h3]:leading-tight
+            [&_p]:mb-4 [&_p]:leading-relaxed
+            [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:mb-4 [&_ul]:space-y-2
+            [&_ol]:list-decimal [&_ol]:ml-6 [&_ol]:mb-4 [&_ol]:space-y-2
+            [&_li]:mb-2 [&_li]:leading-relaxed
+            [&_strong]:font-bold [&_strong]:text-white
+            [&_em]:italic
+            [&_u]:underline
+            [&_blockquote]:border-l-4 [&_blockquote]:border-blue-500 [&_blockquote]:pl-4 [&_blockquote]:my-4 [&_blockquote]:italic [&_blockquote]:text-slate-300
+            [&_code]:bg-white/10 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono [&_code]:text-blue-300
+            [&_pre]:bg-black/30 [&_pre]:rounded-lg [&_pre]:p-4 [&_pre]:my-4 [&_pre]:overflow-x-auto [&_pre_code]:bg-transparent [&_pre_code]:p-0
+            [&_a]:text-blue-400 [&_a]:underline [&_a]:hover:text-blue-300 [&_a]:transition-colors
+            [&_img]:rounded-lg [&_img]:my-6 [&_img]:w-full [&_img]:h-auto [&_img]:shadow-lg"
+          dangerouslySetInnerHTML={{ __html: artigo.conteudo || artigo.resumo || '<p>Conteúdo em breve.</p>' }}
+        />
       </div>
 
       <div className="mt-12 border-t border-slate-600/30 pt-6">

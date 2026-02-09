@@ -4,6 +4,7 @@ import { FormEvent, useMemo, useState, useRef } from 'react'
 import { Image as ImageIcon, Upload, X, Pencil, Images, Loader2, Trash2 } from 'lucide-react'
 import type { ArticleRecord, ArticleGalleryRecord } from '@/lib/queries'
 import { getSupabaseClient } from '@/lib/supabaseClient'
+import { RichTextEditor } from '@/components/RichTextEditor'
 
 type Props = {
   initialArticles: ArticleRecord[]
@@ -406,16 +407,24 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
             />
           </label>
 
-          <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">Conteúdo completo (ao clicar em Ler)</span>
-            <textarea
+          <div className="space-y-3 md:col-span-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                Conteúdo completo
+              </label>
+              <span className="rounded-md bg-blue-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-blue-400">
+                Editor de texto
+              </span>
+            </div>
+            <RichTextEditor
               value={form.conteudo}
-              onChange={(e) => setForm((prev) => ({ ...prev, conteudo: e.target.value }))}
-              rows={8}
-              placeholder="O texto completo do artigo que o usuário verá ao clicar em Ler"
-              className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white"
+              onChange={(value) => setForm((prev) => ({ ...prev, conteudo: value }))}
+              placeholder="Escreva o conteúdo completo do artigo aqui..."
             />
-          </label>
+            <p className="text-[11px] text-slate-500">
+              Use a barra de ferramentas acima para formatar. Suporta títulos, listas, citações, links e imagens.
+            </p>
+          </div>
 
           <div className="space-y-2 md:col-span-2">
             <span className="text-xs font-semibold uppercase text-slate-400">Imagem de capa</span>

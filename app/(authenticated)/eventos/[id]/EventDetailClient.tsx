@@ -281,9 +281,10 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
                       {section.titulo}
                     </h3>
                   )}
-                  <div className="whitespace-pre-line text-sm leading-relaxed text-[#c9c9d2]">
-                    {section.conteudo}
-                  </div>
+                  <div 
+                    className="rich-content text-sm leading-relaxed text-[#c9c9d2] [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-[#f5f5f5] [&_h1]:mt-6 [&_h1]:mb-3 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-[#f5f5f5] [&_h2]:mt-5 [&_h2]:mb-2 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:text-[#f5f5f5] [&_h3]:mt-4 [&_h3]:mb-2 [&_p]:mb-3 [&_p]:text-[#c9c9d2] [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:mb-3 [&_ul]:space-y-1 [&_ol]:list-decimal [&_ol]:ml-6 [&_ol]:mb-3 [&_ol]:space-y-1 [&_li]:text-[#c9c9d2] [&_blockquote]:border-l-4 [&_blockquote]:border-blue-500 [&_blockquote]:pl-4 [&_blockquote]:my-3 [&_blockquote]:text-slate-400 [&_blockquote]:italic [&_code]:bg-slate-900/50 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-blue-300 [&_code]:text-xs [&_pre]:bg-slate-900/50 [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:my-3 [&_pre]:overflow-x-auto [&_a]:text-blue-400 [&_a]:underline [&_a]:hover:text-blue-300 [&_strong]:text-[#f5f5f5] [&_strong]:font-semibold [&_img]:rounded-lg [&_img]:my-4 [&_img]:max-w-full"
+                    dangerouslySetInnerHTML={{ __html: section.conteudo }}
+                  />
                 </div>
               ))}
             </div>
