@@ -118,7 +118,7 @@ export default function MaxisTalksPage() {
           {/* CTA */}
           <motion.div variants={fadeUp} className="mb-16 flex flex-col items-center gap-3">
             <Link
-              href="/login"
+              href="/login?mode=signUp"
               className="btn-glow flex items-center gap-2.5 rounded-2xl bg-[#3b82f6] px-10 py-4 text-[15px] font-bold uppercase tracking-wider text-white transition hover:bg-[#2563eb]"
             >
               Criar conta
@@ -213,7 +213,7 @@ export default function MaxisTalksPage() {
                           </div>
                           <div className="border-t border-white/[0.05] p-5">
                             <Link
-                              href={isPast ? '#' : '/login'}
+                              href={isPast ? '#' : '/login?mode=signUp'}
                               className={`block w-full rounded-xl py-3.5 text-center text-sm font-bold uppercase tracking-wider transition ${
                                 isPast
                                   ? 'cursor-default bg-white/[0.06] text-slate-400'
@@ -305,7 +305,7 @@ export default function MaxisTalksPage() {
                       {/* Footer */}
                       <div className="border-t border-white/[0.05] p-5">
                         <Link
-                          href={isPast ? '#' : '/login'}
+                          href={isPast ? '#' : '/login?mode=signUp'}
                           className={`block w-full rounded-xl py-3.5 text-center text-sm font-bold uppercase tracking-wider transition ${
                             isPast
                               ? 'cursor-default bg-white/[0.06] text-slate-400'
@@ -526,7 +526,7 @@ export default function MaxisTalksPage() {
 
             <motion.div variants={fadeUp} className="mt-10">
               <Link
-                href="/login"
+                href="/login?mode=signUp"
                 className="btn-glow inline-flex items-center gap-2.5 rounded-2xl bg-[#3b82f6] px-10 py-4 text-[15px] font-bold uppercase tracking-wider text-white transition hover:bg-[#2563eb]"
               >
                 Criar conta

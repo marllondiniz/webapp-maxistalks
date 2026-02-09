@@ -215,6 +215,9 @@ export function AdminDashboard({ registrations, stats, allUsers, configError }: 
                           {u.email}
                         </p>
                       )}
+                      {u.telefone && (
+                        <p className="mt-0.5 text-xs text-slate-400">{u.telefone}</p>
+                      )}
                       {u.cidade_estado && (
                         <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-400">
                           <MapPin className="h-3 w-3 flex-shrink-0" />
@@ -223,12 +226,18 @@ export function AdminDashboard({ registrations, stats, allUsers, configError }: 
                       )}
                       <p className="mt-2 text-xs text-slate-500">
                         {u.posicao_mercado === 'empreendedor' && (u.empresa_projeto || u.segmento_negocio) && (
-                          <>Empresa: {u.empresa_projeto || '—'} • {u.segmento_negocio || ''}</>
+                          <>Empresa: {u.empresa_projeto || '—'} • Setor: {u.segmento_negocio || '—'} • {u.faixa_faturamento || ''}</>
                         )}
                         {u.posicao_mercado === 'lider' && (u.empresa_atual || u.area_gestao) && (
                           <>{u.cargo_atual || ''} • {u.empresa_atual || '—'} • {u.area_gestao || ''}</>
                         )}
                       </p>
+                      {u.o_que_quer_aprender && u.o_que_quer_aprender.length > 0 && (
+                        <p className="mt-2 text-xs text-slate-300">
+                          <span className="font-medium text-slate-400">Quer aprender:</span>{' '}
+                          {u.o_que_quer_aprender.join(', ')}
+                        </p>
+                      )}
                       <div className="mt-3 flex flex-wrap gap-2">
                         {u.telefone && (
                           <a
@@ -270,12 +279,17 @@ export function AdminDashboard({ registrations, stats, allUsers, configError }: 
                 </div>
 
                 <div className="hidden overflow-x-auto max-h-[480px] overflow-y-auto md:block">
-                  <table className="w-full min-w-[640px] text-sm">
+                  <table className="w-full min-w-[900px] text-sm">
                     <thead className="sticky top-0 bg-[#1e293b] text-left">
                       <tr className="border-b border-white/10">
                         <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Nome</th>
+                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Telefone</th>
                         <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Email</th>
-                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Perfil</th>
+                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Empresa</th>
+                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Faturamento</th>
+                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Setor</th>
+                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Cidade & Estado</th>
+                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Quer aprender</th>
                         <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Contato</th>
                       </tr>
                     </thead>
@@ -284,40 +298,49 @@ export function AdminDashboard({ registrations, stats, allUsers, configError }: 
                         <tr key={u.id} className="border-b border-white/5 hover:bg-white/5 transition">
                           <td className="px-4 py-3 sm:px-5">
                             <p className="font-medium text-white">{u.nome || '—'}</p>
-                            {u.cidade_estado && (
-                              <p className="flex items-center gap-1.5 text-xs text-slate-400">
-                                <MapPin className="h-3 w-3" />
-                                {u.cidade_estado}
-                              </p>
-                            )}
+                          </td>
+                          <td className="px-4 py-3 sm:px-5">
+                            <p className="text-slate-300">{u.telefone || '—'}</p>
                           </td>
                           <td className="px-4 py-3 sm:px-5">
                             <p className="flex items-center gap-1.5 text-slate-300">
-                              <Mail className="h-3.5 w-3.5" />
-                              {u.email || '—'}
+                              <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                              <span className="truncate max-w-[180px]">{u.email || '—'}</span>
                             </p>
                           </td>
                           <td className="px-4 py-3 sm:px-5">
-                            <div className="space-y-0.5 text-slate-300">
-                              {u.posicao_mercado === 'empreendedor' && (
+                            <p className="text-slate-300 max-w-[140px] truncate" title={u.empresa_projeto || u.empresa_atual || undefined}>
+                              {u.empresa_projeto || u.empresa_atual || '—'}
+                            </p>
+                          </td>
+                          <td className="px-4 py-3 sm:px-5">
+                            <p className="text-slate-300 text-xs">{u.faixa_faturamento || '—'}</p>
+                          </td>
+                          <td className="px-4 py-3 sm:px-5">
+                            <p className="text-slate-300 text-xs max-w-[100px] truncate" title={u.segmento_negocio || undefined}>
+                              {u.segmento_negocio || '—'}
+                            </p>
+                          </td>
+                          <td className="px-4 py-3 sm:px-5">
+                            <p className="flex items-center gap-1.5 text-slate-300 text-xs">
+                              {u.cidade_estado ? (
                                 <>
-                                  {u.empresa_projeto && <p>{u.empresa_projeto}</p>}
-                                  {u.segmento_negocio && <p className="text-xs">{u.segmento_negocio}</p>}
+                                  <MapPin className="h-3 w-3 flex-shrink-0" />
+                                  {u.cidade_estado}
                                 </>
+                              ) : (
+                                '—'
                               )}
-                              {u.posicao_mercado === 'lider' && (
-                                <>
-                                  {u.empresa_atual && <p>{u.empresa_atual}</p>}
-                                  {u.area_gestao && <p className="text-xs">{u.area_gestao}</p>}
-                                </>
-                              )}
-                              {!u.posicao_mercado && (u.area_gestao || u.area_principal) && (
-                                <p className="text-xs">{u.area_gestao || u.area_principal}</p>
-                              )}
-                              {!u.posicao_mercado && !u.area_gestao && !u.area_principal && (
-                                <span className="text-slate-500">—</span>
-                              )}
-                            </div>
+                            </p>
+                          </td>
+                          <td className="px-4 py-3 sm:px-5">
+                            {u.o_que_quer_aprender && u.o_que_quer_aprender.length > 0 ? (
+                              <p className="text-slate-300 text-xs max-w-[180px] line-clamp-2" title={u.o_que_quer_aprender.join(', ')}>
+                                {u.o_que_quer_aprender.join(', ')}
+                              </p>
+                            ) : (
+                              <span className="text-slate-500">—</span>
+                            )}
                           </td>
                           <td className="px-4 py-3 sm:px-5">
                             <div className="flex flex-col gap-1">

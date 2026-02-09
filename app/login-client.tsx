@@ -1,13 +1,16 @@
 'use client'
 
 import { FormEvent, useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
+import { Turnstile } from '@marsidev/react-turnstile'
 
 import { Eye, EyeOff } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { translateAuthError } from '@/lib/authErrors'
+
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 
 type AuthMode = 'signIn' | 'signUp' | 'reset'
 
@@ -19,6 +22,14 @@ const MODE_LABEL: Record<AuthMode, string> = {
 
 export default function LoginClient() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const modeParam = searchParams.get('mode')
+
+  const initialMode = useMemo<AuthMode>(() => {
+    if (modeParam === 'signUp' || modeParam === 'cadastro') return 'signUp'
+    if (modeParam === 'reset') return 'reset'
+    return 'signIn'
+  }, [modeParam])
 
   useEffect(() => {
     router.prefetch('/perfil')
@@ -53,7 +64,12 @@ export default function LoginClient() {
     checkSession()
     return () => { isMounted = false }
   }, [router])
-  const [mode, setMode] = useState<AuthMode>('signIn')
+  const [mode, setMode] = useState<AuthMode>(initialMode)
+
+  useEffect(() => {
+    setMode(initialMode)
+  }, [initialMode])
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -61,6 +77,7 @@ export default function LoginClient() {
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
 
   const origin = useMemo(
     () => (typeof window !== 'undefined' ? window.location.origin : ''),
@@ -83,6 +100,11 @@ export default function LoginClient() {
 
     if (mode === 'signUp' && password !== confirmPassword) {
       setFeedback({ type: 'error', text: 'As senhas não conferem.' })
+      return
+    }
+
+    if (mode === 'signUp' && TURNSTILE_SITE_KEY && !turnstileToken) {
+      setFeedback({ type: 'error', text: 'Complete a verificação de segurança para continuar.' })
       return
     }
 
@@ -154,6 +176,23 @@ export default function LoginClient() {
       }
 
       if (mode === 'signUp') {
+        if (TURNSTILE_SITE_KEY && turnstileToken) {
+          const verifyRes = await fetch('/api/auth/verify-turnstile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: turnstileToken }),
+          })
+          const verifyData = await verifyRes.json()
+          if (!verifyData?.success) {
+            setFeedback({
+              type: 'error',
+              text: verifyData?.error || 'Verificação de segurança falhou. Tente novamente.',
+            })
+            setTurnstileToken(null)
+            return
+          }
+        }
+
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -196,6 +235,7 @@ export default function LoginClient() {
         setMode('signIn')
         setPassword('')
         setConfirmPassword('')
+        setTurnstileToken(null)
       }
 
       if (mode === 'reset') {
@@ -227,10 +267,12 @@ export default function LoginClient() {
   const handleModeChange = (newMode: AuthMode) => {
     setFeedback(null)
     setMode(newMode)
-
     if (newMode !== 'signUp') {
+      setTurnstileToken(null)
       setConfirmPassword('')
     }
+    const path = newMode === 'signUp' ? '/login?mode=signUp' : newMode === 'reset' ? '/login?mode=reset' : '/login'
+    router.replace(path, { scroll: false })
   }
 
   const primaryActionLabel = MODE_LABEL[mode]
@@ -336,6 +378,20 @@ export default function LoginClient() {
                   </button>
                 </div>
               </label>
+            )}
+
+            {mode === 'signUp' && TURNSTILE_SITE_KEY && (
+              <div className="flex justify-center">
+                <Turnstile
+                  siteKey={TURNSTILE_SITE_KEY}
+                  onSuccess={(token) => setTurnstileToken(token)}
+                  onExpire={() => setTurnstileToken(null)}
+                  options={{
+                    theme: 'dark',
+                    size: 'normal',
+                  }}
+                />
+              </div>
             )}
 
             {feedback && (

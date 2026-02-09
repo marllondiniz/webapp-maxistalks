@@ -87,18 +87,17 @@ const BUSCA_MAXISTALKS = [
 ]
 
 const O_QUE_QUER_APRENDER = [
-  'Vendas (processo comercial, proposta, follow-up)',
-  'Marketing (posicionamento e demanda)',
-  'Conteúdo (Reels/YouTube/LinkedIn com intenção)',
-  'Tráfego pago (Meta/Google, criativos e funil)',
-  'Automação (WhatsApp, CRM, e-mail, integrações)',
+  'Vendas',
+  'Marketing',
+  'Conteúdo',
+  'Tráfego pago',
+  'Automação',
   'Funil e lançamentos',
-  'Produto / oferta (precificação, pacotes, plano)',
-  'Gestão e processos (rotina, operação, playbooks)',
-  'Time (contratar, treinar, cultura)',
-  'Finanças (margem, CAC/LTV, metas)',
-  'IA para produtividade e marketing',
-  'Networking e parcerias (como gerar negócios de eventos)',
+  'Produto',
+  'Gestão & Time',
+  'Finanças',
+  'IA & Tech',
+  'Networking e parcerias',
 ]
 
 const MAIOR_DIFICULDADE = [
@@ -193,8 +192,8 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
   }, [localPreviewUrl])
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
     if (step === 4) {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
       step4Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }, [step])

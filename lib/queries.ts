@@ -344,12 +344,14 @@ export type UserWithProfile = {
   cidade_estado: string | null
   empresa_projeto: string | null
   empresa_atual: string | null
+  faixa_faturamento: string | null
+  segmento_negocio: string | null
+  o_que_quer_aprender: string[] | null
   instagram: string | null
   linkedin: string | null
   area_principal: string | null
   area_gestao: string | null
   posicao_mercado: string | null
-  segmento_negocio: string | null
   cargo_atual: string | null
   updated_at: string | null
 }
@@ -359,7 +361,7 @@ export async function getAllUsersWithProfiles(): Promise<UserWithProfile[]> {
 
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, nome, email, telefone, cidade_estado, empresa_projeto, empresa_atual, instagram, linkedin, area_principal, area_gestao, posicao_mercado, segmento_negocio, cargo_atual, updated_at')
+    .select('id, nome, email, telefone, cidade_estado, empresa_projeto, empresa_atual, faixa_faturamento, segmento_negocio, o_que_quer_aprender, instagram, linkedin, area_principal, area_gestao, posicao_mercado, cargo_atual, updated_at')
     .eq('is_complete', true)
     .neq('is_admin', true)
     .order('updated_at', { ascending: false })
@@ -378,12 +380,14 @@ export async function getAllUsersWithProfiles(): Promise<UserWithProfile[]> {
     cidade_estado: p.cidade_estado ?? null,
     empresa_projeto: p.empresa_projeto ?? null,
     empresa_atual: p.empresa_atual ?? null,
+    faixa_faturamento: p.faixa_faturamento ?? null,
+    segmento_negocio: p.segmento_negocio ?? null,
+    o_que_quer_aprender: Array.isArray(p.o_que_quer_aprender) ? p.o_que_quer_aprender : null,
     instagram: p.instagram ?? null,
     linkedin: p.linkedin ?? null,
     area_principal: p.area_principal ?? null,
     area_gestao: p.area_gestao ?? null,
     posicao_mercado: p.posicao_mercado ?? null,
-    segmento_negocio: p.segmento_negocio ?? null,
     cargo_atual: p.cargo_atual ?? null,
     updated_at: p.updated_at ?? null,
   }))
