@@ -111,7 +111,7 @@ export default function QuizPage() {
                 Obrigado por preencher o questionário!
               </h1>
               <p className="text-neutral-300 font-space text-lg max-w-2xl">
-                Acompanhe tudo que vai rolar no Coffee Music & Run
+                Acompanhe tudo que vai rolar no Maxis Talks
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <motion.a
@@ -343,7 +343,7 @@ export default function QuizPage() {
                     Corrida e Performance
                   </h2>
                   <p className="text-neutral-400 font-space text-sm text-center md:text-left max-w-2xl">
-                    Agora queremos saber mais sobre seu perfil de corrida. Responda para personalizarmos a experiência no Coffee Music & Run.
+                    Agora queremos saber mais sobre seu perfil de corrida. Responda para personalizarmos a experiência no Maxis Talks.
                   </p>
                 </div>
 
@@ -802,7 +802,7 @@ export default function QuizPage() {
                     Obrigado por preencher o questionário!
                   </h3>
                   <p className="text-neutral-300 font-space">
-                    Acompanhe tudo que vai rolar no Coffee Music & Run
+                    Acompanhe tudo que vai rolar no Maxis Talks
                   </p>
                   <div className="flex flex-col sm:flex-row items-center gap-4">
                     <motion.a

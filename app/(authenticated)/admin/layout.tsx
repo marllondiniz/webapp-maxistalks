@@ -161,10 +161,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Main content */}
         <div className="flex flex-1 flex-col min-h-screen">
-          {/* Banner */}
-          <div className="flex justify-center bg-[#3b82f6] px-4 py-2">
-            <p className="text-sm font-medium text-white">Palco para quem gera valor</p>
-          </div>
           <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/10 bg-[#0f172a]/95 px-4 py-4 backdrop-blur lg:hidden">
             <button
               type="button"

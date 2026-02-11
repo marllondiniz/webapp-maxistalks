@@ -608,7 +608,7 @@ export function EventAdminPanel({ initialEvents }: Props) {
                       type="text"
                       value={section.titulo}
                       onChange={(event) => handleSectionChange(section.id, 'titulo', event.target.value)}
-                      placeholder="Ex: Ingresso Experiência Coffee Music"
+                      placeholder="Ex: Ingresso Experiência Maxis Talks"
                       className="w-full rounded-lg border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white placeholder:text-[#5f5f66]"
             />
           </label>

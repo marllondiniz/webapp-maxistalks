@@ -5,38 +5,17 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { EVENT_DATE_ISO, TICKETS_URL } from '@/lib/constants'
 
 export function Header() {
   const pathname = usePathname()
   const isHomePage = pathname === '/'
 
-  const [timeLeft, setTimeLeft] = useState({
+  const [timeLeft] = useState({
     days: 0,
     hours: 0,
     minutes: 0,
     seconds: 0,
   })
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date().getTime()
-      const distance = EVENT_DATE_ISO - now
-
-      if (distance > 0) {
-        setTimeLeft({
-          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((distance % (1000 * 60)) / 1000),
-        })
-      } else {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 })
-      }
-    }, 1000)
-
-    return () => clearInterval(timer)
-  }, [])
 
   return (
     <motion.header
@@ -99,17 +78,7 @@ export function Header() {
                 </div>
               </div>
 
-              {/* CTA Mobile */}
-              <motion.a
-                href={TICKETS_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 bg-white text-neutral-950 font-orbitron font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-neutral-100 transition-colors whitespace-nowrap"
-              >
-                Quero meu ingresso
-              </motion.a>
+              {/* CTA Mobile removido (fluxo de ingressos legado). */}
             </div>
 
             {/* Desktop: Logo */}
@@ -137,40 +106,7 @@ export function Header() {
               </motion.div>
             </Link>
 
-            {/* Counter - Desktop */}
-            <div className="hidden lg:flex items-center justify-center gap-3 w-auto">
-              <div className="flex items-center gap-3">
-                {[
-                  { label: 'D', value: timeLeft.days },
-                  { label: 'H', value: timeLeft.hours },
-                  { label: 'M', value: timeLeft.minutes },
-                  { label: 'S', value: timeLeft.seconds },
-                ].map((item, index) => (
-                  <div key={item.label} className="flex flex-col items-center">
-                    <div className="bg-neutral-900 border border-white/10 rounded-lg px-3 py-2 min-w-[55px] text-center shadow-lg">
-                      <div className="text-2xl font-orbitron font-bold text-neutral-100">
-                        {String(item.value).padStart(2, '0')}
-                      </div>
-                    </div>
-                    <div className="text-xs text-neutral-400 mt-1 font-space uppercase tracking-wider">
-                      {item.label}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Desktop: CTA */}
-            <motion.a
-              href={TICKETS_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="hidden lg:block px-4 py-2 bg-white text-neutral-950 font-orbitron font-bold text-xs md:text-sm uppercase tracking-wider rounded-xl hover:bg-neutral-100 transition-colors whitespace-nowrap"
-            >
-              Quero meu ingresso
-            </motion.a>
+            {/* Countdown e CTA de ingressos removidos (legado). */}
           </div>
         ) : (
           /* Layout outras páginas: Apenas Logo centralizada */

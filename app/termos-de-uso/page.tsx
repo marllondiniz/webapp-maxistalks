@@ -27,7 +27,7 @@ export default function TermosUsoPage() {
                 1. Aceitação dos Termos
               </h2>
               <p>
-                Ao acessar e utilizar o site do Coffee Music & Run, você concorda em cumprir e estar vinculado a estes Termos de Uso. Se você não concordar com qualquer parte destes termos, não deve utilizar nosso site.
+                Ao acessar e utilizar o site do Maxis Talks, você concorda em cumprir e estar vinculado a estes Termos de Uso. Se você não concordar com qualquer parte destes termos, não deve utilizar nosso site.
               </p>
             </section>
 
@@ -77,7 +77,7 @@ export default function TermosUsoPage() {
                 4. Propriedade Intelectual
               </h2>
               <p>
-                Todo o conteúdo do site, incluindo textos, gráficos, logotipos, ícones, imagens e software, é propriedade do Coffee Music & Run ou de seus fornecedores de conteúdo e está protegido por leis de direitos autorais e outras leis de propriedade intelectual.
+                Todo o conteúdo do site, incluindo textos, gráficos, logotipos, ícones, imagens e software, é propriedade do Maxis Talks ou de seus fornecedores de conteúdo e está protegido por leis de direitos autorais e outras leis de propriedade intelectual.
               </p>
             </section>
 
@@ -86,7 +86,7 @@ export default function TermosUsoPage() {
                 5. Isenção de Responsabilidade
               </h2>
               <p>
-                O Coffee Music & Run não se responsabiliza por:
+                O Maxis Talks não se responsabiliza por:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Interrupções ou erros no funcionamento do site</li>
@@ -101,7 +101,7 @@ export default function TermosUsoPage() {
                 6. Limitação de Responsabilidade
               </h2>
               <p>
-                Na máxima extensão permitida por lei, o Coffee Music & Run não será responsável por quaisquer danos indiretos, incidentais, especiais, consequenciais ou punitivos resultantes do uso ou incapacidade de usar o site ou serviços.
+                Na máxima extensão permitida por lei, o Maxis Talks não será responsável por quaisquer danos indiretos, incidentais, especiais, consequenciais ou punitivos resultantes do uso ou incapacidade de usar o site ou serviços.
               </p>
             </section>
 

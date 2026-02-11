@@ -283,12 +283,7 @@ export default function LoginClient() {
       <div className="pointer-events-none absolute inset-0 hero-glow" />
       <div className="pointer-events-none fixed inset-0 z-50 noise-texture" />
 
-      {/* Banner */}
-      <div className="absolute left-0 right-0 top-0 z-10 flex justify-center bg-gradient-to-r from-[#2563eb] via-[#3b82f6] to-[#2563eb] px-4 py-3">
-        <p className="text-[13px] font-medium tracking-wide text-white/90">Palco para quem gera valor</p>
-      </div>
-
-      <div className="relative z-10 mt-14 w-full max-w-md">
+      <div className="relative z-10 mt-8 w-full max-w-md">
         <Link href="/" className="mb-10 flex justify-center">
           <Image
             src="/maxistalks-logo.png"

@@ -1,6 +1,6 @@
-# Coffee Music x Brizz - Landing Page
+# Maxis Talks - Web App
 
-Landing page moderna e eletrizante para o evento Coffee Music x Brizz, marcado para 13 de dezembro de 2025.
+Aplicação web moderna para a plataforma Maxis Talks.
 
 ## 🚀 Tecnologias
 
@@ -42,7 +42,7 @@ Acesse [http://localhost:3000](http://localhost:3000) para ver a página.
 ## 📝 Estrutura
 
 ```
-coffe-music/
+maxis-talks/
 ├── app/
 │   ├── layout.tsx      # Layout principal com fontes
 │   ├── page.tsx        # Página principal com todos os componentes

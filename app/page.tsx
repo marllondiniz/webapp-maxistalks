@@ -54,13 +54,6 @@ export default function MaxisTalksPage() {
       {/* Global noise overlay */}
       <div className="pointer-events-none fixed inset-0 z-50 noise-texture" />
 
-      {/* Top Banner */}
-      <div className="relative z-10 flex justify-center bg-gradient-to-r from-[#2563eb] via-[#3b82f6] to-[#2563eb] px-4 py-3">
-        <p className="text-[13px] font-medium tracking-wide text-white/90">
-          Palco para quem gera valor
-        </p>
-      </div>
-
       {/* ── DOBRA 1 ── Hero + Spoiler */}
       <section className="hero-glow relative flex min-h-[calc(100vh-48px)] flex-col overflow-hidden">
         {/* Background grid */}
@@ -70,10 +63,10 @@ export default function MaxisTalksPage() {
           variants={stagger}
           initial="hidden"
           animate="show"
-          className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center px-6 py-16 md:py-20"
+          className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center px-6 py-20 md:py-24"
         >
           {/* Logo */}
-          <motion.div variants={fadeUp} className="mb-10">
+          <motion.div variants={fadeUp} className="mb-6 md:mb-8">
             <Image
               src="/maxistalks-logo.png"
               alt="MaxisTalks"
@@ -84,10 +77,21 @@ export default function MaxisTalksPage() {
             />
           </motion.div>
 
+          {/* Tagline + Headline */}
+          <motion.div
+            variants={fadeUp}
+            className="mb-4 flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[11px] md:text-xs text-slate-100 backdrop-blur-md"
+          >
+            <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.9)]" />
+            <span className="font-semibold uppercase tracking-[0.2em] text-slate-300">
+              Palco para quem gera valor
+            </span>
+          </motion.div>
+
           {/* Headline */}
           <motion.h1
             variants={fadeUp}
-            className="mb-5 text-balance text-center font-display text-3xl font-bold leading-[1.15] tracking-tight md:text-5xl lg:text-6xl"
+            className="mb-5 text-balance text-center font-display text-3xl font-bold leading-[1.1] tracking-tight md:text-5xl lg:text-6xl"
           >
             Participe das próximas
             <br />

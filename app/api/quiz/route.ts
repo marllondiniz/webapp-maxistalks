@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     if (process.env.RESEND_API_KEY && process.env.RESEND_NOTIFICATION_EMAIL) {
       try {
         const resend = new Resend(process.env.RESEND_API_KEY)
-        const fromEmail = process.env.RESEND_FROM_EMAIL || 'Coffee Music <no-reply@ritmocertoclub.com.br>'
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'Maxis Talks <no-reply@ritmocertoclub.com.br>'
         
         // Formatar respostas para o email
         const answersText = Object.entries(answers)
