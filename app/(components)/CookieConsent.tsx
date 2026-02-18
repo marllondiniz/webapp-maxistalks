@@ -3,30 +3,33 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
+import { useBrand } from '@/app/(components)/BrandProvider'
+
+const CONSENT_KEY = 'cookie-consent'
+const CONSENT_DATE_KEY = 'cookie-consent-date'
 
 export function CookieConsent() {
+  const brand = useBrand()
   const [showBanner, setShowBanner] = useState(false)
+  const consentKey = `${brand.storageKeyPrefix}-${CONSENT_KEY}`
+  const consentDateKey = `${brand.storageKeyPrefix}-${CONSENT_DATE_KEY}`
 
   useEffect(() => {
-    // Verificar se o usuário já deu consentimento
-    const consent = localStorage.getItem('maxistalks-cookie-consent')
+    const consent = localStorage.getItem(consentKey)
     if (!consent) {
-      // Mostrar banner após um pequeno delay
-      setTimeout(() => {
-        setShowBanner(true)
-      }, 1000)
+      setTimeout(() => setShowBanner(true), 1000)
     }
-  }, [])
+  }, [consentKey])
 
   const handleAccept = () => {
-    localStorage.setItem('maxistalks-cookie-consent', 'accepted')
-    localStorage.setItem('maxistalks-cookie-consent-date', new Date().toISOString())
+    localStorage.setItem(consentKey, 'accepted')
+    localStorage.setItem(consentDateKey, new Date().toISOString())
     setShowBanner(false)
   }
 
   const handleReject = () => {
-    localStorage.setItem('maxistalks-cookie-consent', 'rejected')
-    localStorage.setItem('maxistalks-cookie-consent-date', new Date().toISOString())
+    localStorage.setItem(consentKey, 'rejected')
+    localStorage.setItem(consentDateKey, new Date().toISOString())
     setShowBanner(false)
   }
 
@@ -70,7 +73,7 @@ export function CookieConsent() {
                     onClick={handleAccept}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="btn-glow rounded-xl bg-[#3b82f6] px-6 py-3 font-bold text-sm uppercase tracking-wider text-white transition hover:bg-[#2563eb]"
+                    className="btn-glow rounded-xl bg-[var(--brand-primary)] px-6 py-3 font-bold text-sm uppercase tracking-wider text-white transition hover:bg-[var(--brand-primary-hover)]"
                   >
                     Aceitar
                   </motion.button>

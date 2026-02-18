@@ -12,8 +12,10 @@ export function getSupabaseClient(): SupabaseClient {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
+  const storageKeyPrefix = process.env.NEXT_PUBLIC_STORAGE_KEY_PREFIX || 'maxistalks'
+  const storageKey = `${storageKeyPrefix}-auth`
+
   // Usa placeholders durante o build (ex: Vercel) quando env vars ainda não estão configuradas.
-  // Configure NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY no dashboard da Vercel.
   if (!url || !anonKey) {
     browserClient = createClient(
       'https://placeholder.supabase.co',
@@ -21,7 +23,7 @@ export function getSupabaseClient(): SupabaseClient {
       {
         auth: {
           persistSession: true,
-          storageKey: 'maxistalks-auth',
+          storageKey,
         },
       }
     )
@@ -31,7 +33,7 @@ export function getSupabaseClient(): SupabaseClient {
   browserClient = createClient(url, anonKey, {
     auth: {
       persistSession: true,
-      storageKey: 'maxistalks-auth',
+      storageKey,
     },
   })
 

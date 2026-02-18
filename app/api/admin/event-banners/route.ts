@@ -1,16 +1,17 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin'
+import { getBrandConfigFromRequest } from '@/lib/brand'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const list = searchParams.get('list')
 
   if (list === '1') {
+    const { tenantId } = await getBrandConfigFromRequest(request)
     const supabaseAdmin = getSupabaseAdmin()
-    const { data, error } = await supabaseAdmin
-      .from('event_banners')
-      .select('*')
-      .order('created_at', { ascending: false })
+    let query = supabaseAdmin.from('event_banners').select('*').order('created_at', { ascending: false })
+    if (tenantId) query = query.eq('tenant_id', tenantId)
+    const { data, error } = await query
 
     if (error) {
       console.error('Erro ao listar banners:', error)
@@ -26,9 +27,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
+    const { tenantId } = await getBrandConfigFromRequest(request)
     const supabaseAdmin = getSupabaseAdmin()
 
-    const payload = {
+    const payload: Record<string, unknown> = {
       titulo: body.titulo ?? null,
       subtitulo: body.subtitulo ?? null,
       event_id: body.event_id ?? null,
@@ -38,6 +40,7 @@ export async function POST(request: Request) {
       palestrante_instagram: body.palestrante_instagram ?? null,
       palestrante_descricao: body.palestrante_descricao ?? null,
     }
+    if (tenantId) payload.tenant_id = tenantId
 
     const { data, error } = await supabaseAdmin
       .from('event_banners')
@@ -67,15 +70,13 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'ID do banner é obrigatório.' }, { status: 400 })
     }
 
+    const { tenantId } = await getBrandConfigFromRequest(request)
     const supabaseAdmin = getSupabaseAdmin()
 
     if (activate) {
-      // Buscar o event_id do banner que está sendo ativado
-      const { data: bannerData } = await supabaseAdmin
-        .from('event_banners')
-        .select('event_id')
-        .eq('id', id)
-        .single()
+      let bannerQuery = supabaseAdmin.from('event_banners').select('event_id').eq('id', id)
+      if (tenantId) bannerQuery = bannerQuery.eq('tenant_id', tenantId)
+      const { data: bannerData } = await bannerQuery.single()
 
       // Se o banner tiver um evento associado, desativar outros banners desse mesmo evento
       if (bannerData?.event_id) {
@@ -93,12 +94,9 @@ export async function PUT(request: Request) {
       rest.is_active = true
     }
 
-    const { data, error } = await supabaseAdmin
-      .from('event_banners')
-      .update(rest)
-      .eq('id', id)
-      .select('*')
-      .single()
+    let updateQuery = supabaseAdmin.from('event_banners').update(rest).eq('id', id)
+    if (tenantId) updateQuery = updateQuery.eq('tenant_id', tenantId)
+    const { data, error } = await updateQuery.select('*').single()
 
     if (error) {
       console.error('Erro ao atualizar banner:', error)
@@ -122,8 +120,11 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'ID do banner é obrigatório.' }, { status: 400 })
     }
 
+    const { tenantId } = await getBrandConfigFromRequest(request)
     const supabaseAdmin = getSupabaseAdmin()
-    const { error } = await supabaseAdmin.from('event_banners').delete().eq('id', id)
+    let deleteQuery = supabaseAdmin.from('event_banners').delete().eq('id', id)
+    if (tenantId) deleteQuery = deleteQuery.eq('tenant_id', tenantId)
+    const { error } = await deleteQuery
 
     if (error) {
       console.error('Erro ao excluir banner:', error)

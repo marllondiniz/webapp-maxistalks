@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { EventPreviewModalLanding, type EventPreviewLanding } from '@/components/EventPreviewModalLanding'
+import { useBrand } from '@/app/(components)/BrandProvider'
 
 type EventPreview = EventPreviewLanding
 
@@ -39,6 +40,7 @@ const stagger = {
 }
 
 export default function MaxisTalksPage() {
+  const brand = useBrand()
   const [events, setEvents] = useState<EventPreview[]>([])
   const [previewEvent, setPreviewEvent] = useState<EventPreview | null>(null)
 
@@ -68,8 +70,8 @@ export default function MaxisTalksPage() {
           {/* Logo */}
           <motion.div variants={fadeUp} className="mb-6 md:mb-8">
             <Image
-              src="/maxistalks-logo.png"
-              alt="MaxisTalks"
+              src={brand.logoPath}
+              alt={brand.name}
               width={260}
               height={104}
               className="mx-auto h-auto w-52 md:w-64"
@@ -84,7 +86,7 @@ export default function MaxisTalksPage() {
           >
             <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.9)]" />
             <span className="font-semibold uppercase tracking-[0.2em] text-slate-300">
-              Palco para quem gera valor
+              {brand.tagline}
             </span>
           </motion.div>
 
@@ -95,7 +97,7 @@ export default function MaxisTalksPage() {
           >
             Participe das próximas
             <br />
-            <span className="text-gradient-blue">edições do MaxisTalks</span>
+            <span className="text-gradient-blue">edições do {brand.name}</span>
           </motion.h1>
 
           {/* Sub-headline */}
@@ -111,7 +113,7 @@ export default function MaxisTalksPage() {
           <motion.div variants={fadeUp} className="mb-16 flex flex-col items-center gap-3">
             <Link
               href="/login?mode=signUp"
-              className="btn-glow flex items-center gap-2.5 rounded-2xl bg-[#3b82f6] px-10 py-4 text-[15px] font-bold uppercase tracking-wider text-white transition hover:bg-[#2563eb]"
+              className="btn-glow flex items-center gap-2.5 rounded-2xl bg-[var(--brand-primary)] px-10 py-4 text-[15px] font-bold uppercase tracking-wider text-white transition hover:bg-[var(--brand-primary-hover)]"
             >
               Criar conta
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -213,7 +215,7 @@ export default function MaxisTalksPage() {
                               className={`block w-full rounded-xl py-3.5 text-center text-sm font-bold uppercase tracking-wider transition ${
                                 isPast
                                   ? 'cursor-default bg-white/[0.06] text-slate-400'
-                                  : 'btn-glow bg-[#3b82f6] text-white hover:bg-[#2563eb]'
+                                  : 'btn-glow bg-[var(--brand-primary)] text-white hover:bg-[var(--brand-primary-hover)]'
                               }`}
                             >
                               {isPast ? '✓ Evento realizado' : 'Inscreva-se →'}
@@ -309,7 +311,7 @@ export default function MaxisTalksPage() {
                           className={`block w-full rounded-xl py-3.5 text-center text-sm font-bold uppercase tracking-wider transition ${
                             isPast
                               ? 'cursor-default bg-white/[0.06] text-slate-400'
-                              : 'btn-glow bg-[#3b82f6] text-white hover:bg-[#2563eb]'
+                              : 'btn-glow bg-[var(--brand-primary)] text-white hover:bg-[var(--brand-primary-hover)]'
                           }`}
                         >
                           {isPast ? '✓ Evento realizado' : 'Inscreva-se →'}
@@ -342,7 +344,7 @@ export default function MaxisTalksPage() {
             variants={stagger}
           >
             <motion.h2 variants={fadeUp} className="section-heading">
-              O que é o MaxisTalks
+              O que é o {brand.name}
             </motion.h2>
             <motion.div
               variants={fadeUp}
@@ -350,7 +352,7 @@ export default function MaxisTalksPage() {
             >
               <Image
                 src="/oqueé.avif"
-                alt="O que é o MaxisTalks — evento presencial para convidados selecionados"
+                alt={`O que é o ${brand.name} — evento presencial para convidados selecionados`}
                 width={960}
                 height={540}
                 className="w-full object-cover"
@@ -433,7 +435,7 @@ export default function MaxisTalksPage() {
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="Localização MaxisTalks"
+                  title={`Localização ${brand.name}`}
                   className="h-full w-full"
                 />
               </div>
@@ -465,18 +467,18 @@ export default function MaxisTalksPage() {
             </motion.div>
 
             <motion.h2 variants={fadeUp} className="mb-6 text-center font-display text-2xl font-bold md:text-3xl">
-              Sobre o MaxisTalks
+              Sobre o {brand.name}
             </motion.h2>
 
             <motion.p variants={fadeUp} className="text-center text-base leading-[1.8] text-slate-300 md:text-lg">
-              O <strong className="font-semibold text-white">MaxisTalks</strong> é um evento oficial da{' '}
+              O <strong className="font-semibold text-white">{brand.name}</strong> é um evento oficial da{' '}
               <strong className="font-semibold text-white">MaxisPlus</strong>, um hub estratégico para
               desenvolver negócios digitais escaláveis.
             </motion.p>
 
             <motion.p variants={fadeUp} className="mt-4 text-center text-base leading-[1.8] text-slate-400 md:text-lg">
               Há mais de 20 anos estruturando startups, produtos e operações digitais
-              em múltiplos mercados globais. Através do MaxisTalks, levamos conhecimento
+              em múltiplos mercados globais. Através do {brand.name}, levamos conhecimento
               prático e networking de alto nível para empreendedores que querem escalar.
             </motion.p>
 
@@ -485,7 +487,7 @@ export default function MaxisTalksPage() {
                 href="https://maxis.plus/hub"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-glow inline-flex items-center gap-2 rounded-2xl bg-[#3b82f6] px-8 py-3.5 text-sm font-bold uppercase tracking-wider text-white transition hover:bg-[#2563eb]"
+                className="btn-glow inline-flex items-center gap-2 rounded-2xl bg-[var(--brand-primary)] px-8 py-3.5 text-sm font-bold uppercase tracking-wider text-white transition hover:bg-[var(--brand-primary-hover)]"
               >
                 Conhecer a Maxis
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -527,7 +529,7 @@ export default function MaxisTalksPage() {
             <motion.div variants={fadeUp} className="mt-10">
               <Link
                 href="/login?mode=signUp"
-                className="btn-glow inline-flex items-center gap-2.5 rounded-2xl bg-[#3b82f6] px-10 py-4 text-[15px] font-bold uppercase tracking-wider text-white transition hover:bg-[#2563eb]"
+                className="btn-glow inline-flex items-center gap-2.5 rounded-2xl bg-[var(--brand-primary)] px-10 py-4 text-[15px] font-bold uppercase tracking-wider text-white transition hover:bg-[var(--brand-primary-hover)]"
               >
                 Criar conta
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -604,7 +606,7 @@ export default function MaxisTalksPage() {
       {/* Scroll to top */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed bottom-6 right-6 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-[#3b82f6] text-white shadow-xl transition hover:bg-[#2563eb] hover:scale-105"
+        className="fixed bottom-6 right-6 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--brand-primary)] text-white shadow-xl transition hover:bg-[var(--brand-primary-hover)] hover:scale-105"
         aria-label="Voltar ao topo"
       >
         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

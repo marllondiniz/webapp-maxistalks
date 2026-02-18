@@ -8,6 +8,7 @@ import {
   type EventRecord,
   type ArticleRecord,
 } from '@/lib/queries'
+import { getTenantIdForRequest } from '@/lib/brand'
 import { Calendar, BookOpenText, ChevronRight } from 'lucide-react'
 import { InstagramLink } from '@/components/InstagramLink'
 
@@ -144,10 +145,11 @@ function ConteudoDestaqueCard({ artigo }: { artigo: ArticleRecord }) {
 }
 
 export async function InicioContent() {
+  const tenantId = await getTenantIdForRequest()
   const [eventos, banners, artigosInicio] = await Promise.all([
-    getEvents(),
-    getActiveEventBanners(),
-    getArticles('inicio'),
+    getEvents(tenantId),
+    getActiveEventBanners(tenantId),
+    getArticles('inicio', tenantId),
   ])
 
   const eventosOrdenados = [...eventos].sort(

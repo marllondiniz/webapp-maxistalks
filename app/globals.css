@@ -23,16 +23,16 @@
     text-wrap: balance;
   }
 
-  /* Hero radial glow */
+  /* Hero radial glow (usa --brand-primary) */
   .hero-glow {
     background: 
-      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 40% at 50% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+      radial-gradient(ellipse 80% 60% at 50% 0%, color-mix(in srgb, var(--brand-primary, #3b82f6) 15%, transparent) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 50% 0%, color-mix(in srgb, var(--brand-primary, #3b82f6) 8%, transparent) 0%, transparent 50%);
   }
 
   /* Section separator glow */
   .section-glow {
-    background: radial-gradient(ellipse 60% 30% at 50% 50%, rgba(59, 130, 246, 0.06) 0%, transparent 60%);
+    background: radial-gradient(ellipse 60% 30% at 50% 50%, color-mix(in srgb, var(--brand-primary, #3b82f6) 6%, transparent) 0%, transparent 60%);
   }
 
   /* Card glass effect */
@@ -40,9 +40,9 @@
     @apply rounded-3xl border border-white/[0.06] bg-white/[0.03] shadow-xl backdrop-blur-xl;
   }
 
-  /* Blue gradient text */
+  /* Gradient text (usa --brand-primary) */
   .text-gradient-blue {
-    background: linear-gradient(135deg, #ffffff 0%, #93c5fd 50%, #3b82f6 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #93c5fd 50%, var(--brand-primary, #3b82f6) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -57,7 +57,7 @@
     position: absolute;
     inset: -1px;
     border-radius: inherit;
-    background: linear-gradient(135deg, rgba(59,130,246,0.3) 0%, transparent 50%, rgba(59,130,246,0.15) 100%);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--brand-primary, #3b82f6) 30%, transparent) 0%, transparent 50%, color-mix(in srgb, var(--brand-primary, #3b82f6) 15%, transparent) 100%);
     z-index: -1;
     opacity: 0;
     transition: opacity 0.4s ease;
@@ -66,13 +66,13 @@
     opacity: 1;
   }
 
-  /* Soft pulsing blue glow for CTAs */
+  /* Soft pulsing glow for CTAs (usa --brand-primary) */
   .btn-glow {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 60px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--brand-primary, #3b82f6) 30%, transparent), 0 0 60px color-mix(in srgb, var(--brand-primary, #3b82f6) 10%, transparent);
     transition: box-shadow 0.3s ease, transform 0.2s ease;
   }
   .btn-glow:hover {
-    box-shadow: 0 0 30px rgba(59, 130, 246, 0.5), 0 0 80px rgba(59, 130, 246, 0.2);
+    box-shadow: 0 0 30px color-mix(in srgb, var(--brand-primary, #3b82f6) 50%, transparent), 0 0 80px color-mix(in srgb, var(--brand-primary, #3b82f6) 20%, transparent);
     transform: translateY(-1px);
   }
 
@@ -98,11 +98,11 @@
     z-index: 1;
   }
 
-  /* Animated grid */
+  /* Animated grid (usa --brand-primary) */
   .animated-grid {
     background-image: 
-      linear-gradient(rgba(59, 130, 246, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(59, 130, 246, 0.04) 1px, transparent 1px);
+      linear-gradient(color-mix(in srgb, var(--brand-primary, #3b82f6) 4%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--brand-primary, #3b82f6) 4%, transparent) 1px, transparent 1px);
     background-size: 60px 60px;
     animation: grid-move 30s linear infinite;
   }

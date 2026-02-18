@@ -3,12 +3,13 @@
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useBrand } from '@/app/(components)/BrandProvider'
 
 export function Footer() {
+  const brand = useBrand()
   return (
     <footer className="relative py-4 md:py-6 px-6 md:px-12 border-t border-white/10">
       <div className="max-w-6xl mx-auto">
-        {/* MaxisTalks Logo */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -19,8 +20,8 @@ export function Footer() {
           <Link href="/" className="block">
             <div className="relative h-16 w-auto md:h-20 flex-shrink-0">
               <Image
-                src="/maxistalks-logo.png"
-                alt="MaxisTalks"
+                src={brand.logoPath}
+                alt={brand.name}
                 width={200}
                 height={80}
                 className="object-contain h-full w-auto"
@@ -65,7 +66,7 @@ export function Footer() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-center text-base md:text-lg text-neutral-300 font-space max-w-70ch mx-auto leading-relaxed mb-2 md:mb-3"
         >
-          Palco para quem gera valor. Palestras presenciais com experts do digital.
+          {brand.tagline}. Palestras presenciais com experts do digital.
         </motion.p>
 
         <motion.div
@@ -98,7 +99,7 @@ export function Footer() {
             </a>
           </div>
           <p className="text-sm text-neutral-400 font-space">
-            © 2025 MaxisTalks. Todos os direitos reservados.
+            © {new Date().getFullYear()} {brand.name}. Todos os direitos reservados.
           </p>
         </motion.div>
       </div>

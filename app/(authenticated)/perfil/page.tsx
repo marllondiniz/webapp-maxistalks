@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import type { ProfileRecord } from '@/lib/profile'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { ProfileForm } from './ProfileForm'
+import { ConvidarAmigo } from './ConvidarAmigo'
 
 export default function PerfilPage() {
   const router = useRouter()
@@ -76,6 +77,12 @@ export default function PerfilPage() {
         email={email}
         onProfileUpdated={(updatedProfile) => setProfile(updatedProfile)}
       />
+
+      {profile?.id && (
+        <div className="mt-8">
+          <ConvidarAmigo userId={profile.id} />
+        </div>
+      )}
     </section>
   )
 }

@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { getArticles } from '@/lib/queries'
+import { getTenantIdForRequest } from '@/lib/brand'
 import { Activity, Coffee, Heart, Sparkles, Lightbulb, type LucideIcon } from 'lucide-react'
 
 const CATEGORIAS = [
@@ -36,7 +37,8 @@ export default async function BlogPage({
   searchParams: Promise<{ categoria?: string }>
 }) {
   const { categoria } = await searchParams
-  const artigos = await getArticles('blog')
+  const tenantId = await getTenantIdForRequest()
+  const artigos = await getArticles('blog', tenantId)
 
   const artigosFiltrados =
     categoria && categoria !== 'todos'

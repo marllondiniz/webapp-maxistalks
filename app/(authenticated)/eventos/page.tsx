@@ -1,9 +1,10 @@
 import { getActiveEventBanners, getEvents } from '@/lib/queries'
+import { getTenantIdForRequest } from '@/lib/brand'
 import { EventList } from './EventList'
 
 export default async function EventosPage() {
-  const eventos = await getEvents()
-  const banners = await getActiveEventBanners()
+  const tenantId = await getTenantIdForRequest()
+  const [eventos, banners] = await Promise.all([getEvents(tenantId), getActiveEventBanners(tenantId)])
 
   return (
     <section className="space-y-6">

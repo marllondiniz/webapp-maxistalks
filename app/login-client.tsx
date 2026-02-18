@@ -9,6 +9,7 @@ import { Turnstile } from '@marsidev/react-turnstile'
 import { Eye, EyeOff } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { translateAuthError } from '@/lib/authErrors'
+import { useBrand } from '@/app/(components)/BrandProvider'
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 
@@ -21,6 +22,7 @@ const MODE_LABEL: Record<AuthMode, string> = {
 }
 
 export default function LoginClient() {
+  const brand = useBrand()
   const router = useRouter()
   const searchParams = useSearchParams()
   const modeParam = searchParams.get('mode')
@@ -207,14 +209,17 @@ export default function LoginClient() {
 
         const userId = data.user?.id
         const userEmail = data.user?.email ?? email
+        const refReferrer = searchParams.get('ref')
 
         if (userId && userEmail) {
+          const body: { id: string; email: string; ref?: string } = { id: userId, email: userEmail }
+          if (refReferrer?.trim()) body.ref = refReferrer.trim()
           const response = await fetch('/api/auth/create-profile', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ id: userId, email: userEmail }),
+            body: JSON.stringify(body),
           })
 
           if (!response.ok) {
@@ -286,8 +291,8 @@ export default function LoginClient() {
       <div className="relative z-10 mt-8 w-full max-w-md">
         <Link href="/" className="mb-10 flex justify-center">
           <Image
-            src="/maxistalks-logo.png"
-            alt="MaxisTalks"
+src={brand.logoPath}
+              alt={brand.name}
             width={220}
             height={88}
             className="h-auto w-44"
@@ -303,7 +308,7 @@ export default function LoginClient() {
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-slate-400">
               {mode === 'signIn' && 'Acesse sua conta para gerenciar eventos e conteúdo'}
-              {mode === 'signUp' && 'Junte-se ao MaxisTalks e participe de eventos exclusivos'}
+              {mode === 'signUp' && `Junte-se ao ${brand.name} e participe de eventos exclusivos`}
               {mode === 'reset' && 'Enviaremos instruções de recuperação para seu e-mail'}
             </p>
           </div>
@@ -404,7 +409,7 @@ export default function LoginClient() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-glow flex items-center justify-center gap-2 rounded-xl bg-[#3b82f6] px-4 py-3.5 text-[15px] font-bold text-white transition hover:bg-[#2563eb] disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-glow flex items-center justify-center gap-2 rounded-xl bg-[var(--brand-primary)] px-4 py-3.5 text-[15px] font-bold text-white transition hover:bg-[var(--brand-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? (
                 <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">

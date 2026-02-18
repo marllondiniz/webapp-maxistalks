@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { NextRequest, NextResponse } from 'next/server'
+import { getBrandConfig, getBrandLogoUrl } from '@/lib/brand'
 
 const AUDIENCE_ID =
   process.env.MAXISTALKS_AUDIENCE_ID ||
@@ -54,34 +55,34 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const host = request.headers.get('host') ?? undefined
+    const brand = await getBrandConfig(host)
+    const logoUrl = getBrandLogoUrl(brand)
     const fromEmail =
-      process.env.RESEND_FROM_EMAIL || 'MaxisTalks <no-reply@maxistalks.com>'
-    const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, '') || 'https://maxistalks.com'
-    const imageUrl = `${baseUrl}/maxistalks-joao4.jpeg`
+      process.env.RESEND_FROM_EMAIL || `${brand.name} <no-reply@${new URL(brand.baseUrl).hostname}>`
 
     await resend.emails.send({
       from: fromEmail,
       to: email,
-      subject: 'Você está na lista de espera do MaxisTalks! 🎤',
+      subject: `Você está na lista de espera do ${brand.name}! 🎤`,
       html: `
         <!DOCTYPE html>
         <html>
           <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Lista de espera MaxisTalks</title>
+            <title>Lista de espera ${brand.name}</title>
           </head>
           <body style="font-family: system-ui, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="text-align: center; margin-bottom: 24px;">
-              <img src="${imageUrl}" alt="MaxisTalks" style="max-width: 100%; height: auto; border-radius: 12px;" />
+              <img src="${logoUrl}" alt="${brand.name}" style="max-width: 100%; height: auto; border-radius: 12px;" />
             </div>
             <div style="background: #fafafa; padding: 30px; border-radius: 12px;">
               <h2 style="color: #0a0a0b; margin-top: 0;">Você está na lista! 🎉</h2>
               <p>Olá!</p>
-              <p>Obrigado por se inscrever na lista de espera do <strong>MaxisTalks</strong>.</p>
+              <p>Obrigado por se inscrever na lista de espera do <strong>${brand.name}</strong>.</p>
               <p>Você será avisado em primeira mão quando abrirmos as próximas edições.</p>
-              <p style="margin-top: 30px;">Até breve!<br><strong>Equipe MaxisTalks</strong></p>
+              <p style="margin-top: 30px;">Até breve!<br><strong>Equipe ${brand.name}</strong></p>
             </div>
           </body>
         </html>

@@ -1,25 +1,28 @@
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 import { Suspense } from 'react'
-
+import { getBrandConfig } from '@/lib/brand'
 import LoginClient from '../login-client'
 
-export const metadata: Metadata = {
-  title: 'Área exclusiva | MaxisTalks',
-  description:
-    'Faça login ou crie sua conta para acessar o MaxisTalks: criar eventos, gerenciar conteúdo e palestras.',
-  openGraph: {
-    title: 'Área exclusiva | MaxisTalks',
-    description:
-      'Entre para acessar o painel administrativo do MaxisTalks.',
-    url: 'https://maxistalks.com/login',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Área exclusiva | MaxisTalks',
-    description:
-      'Entre para acessar o painel administrativo do MaxisTalks.',
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const headersList = await headers()
+  const host = headersList.get('host') ?? undefined
+  const brand = await getBrandConfig(host)
+  return {
+    title: `Área exclusiva | ${brand.name}`,
+    description: `Faça login ou crie sua conta para acessar o ${brand.name}: criar eventos, gerenciar conteúdo e palestras.`,
+    openGraph: {
+      title: `Área exclusiva | ${brand.name}`,
+      description: `Entre para acessar o painel administrativo do ${brand.name}.`,
+      url: `${brand.baseUrl}/login`,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `Área exclusiva | ${brand.name}`,
+      description: `Entre para acessar o painel administrativo do ${brand.name}.`,
+    },
+  }
 }
 
 export default function LoginPage() {

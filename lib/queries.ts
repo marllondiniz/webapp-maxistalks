@@ -68,19 +68,16 @@ export type ChallengeProgressRecord = {
   progresso: number | null
 }
 
-export async function getEvents(): Promise<EventRecord[]> {
+export async function getEvents(tenantId?: string | null): Promise<EventRecord[]> {
   const supabase = getSupabaseServer()
-  const { data, error } = await supabase
-    .from('events')
-    .select('*')
-    .order('created_at', { ascending: true, nullsFirst: false })
+  let query = supabase.from('events').select('*').order('created_at', { ascending: true, nullsFirst: false })
+  if (tenantId) query = query.eq('tenant_id', tenantId)
+  const { data, error } = await query
 
   if (error?.code === '42703') {
-    // Coluna created_at não existe - ordena por data_horario (mais antigo primeiro)
-    const { data: fallback, error: err } = await supabase
-      .from('events')
-      .select('*')
-      .order('data_horario', { ascending: true })
+    let fallbackQuery = supabase.from('events').select('*').order('data_horario', { ascending: true })
+    if (tenantId) fallbackQuery = fallbackQuery.eq('tenant_id', tenantId)
+    const { data: fallback, error: err } = await fallbackQuery
     if (err) {
       console.error('Erro ao buscar eventos:', err)
       return []
@@ -96,13 +93,15 @@ export async function getEvents(): Promise<EventRecord[]> {
   return data ?? []
 }
 
-export async function getActiveEventBanners(): Promise<EventBannerRecord[]> {
+export async function getActiveEventBanners(tenantId?: string | null): Promise<EventBannerRecord[]> {
   const supabase = getSupabaseServer()
-  const { data, error } = await supabase
+  let query = supabase
     .from('event_banners')
     .select('*')
     .eq('is_active', true)
     .order('created_at', { ascending: false })
+  if (tenantId) query = query.eq('tenant_id', tenantId)
+  const { data, error } = await query
 
   if (error) {
     console.error('Erro ao buscar banners ativos:', error)
@@ -112,12 +111,11 @@ export async function getActiveEventBanners(): Promise<EventBannerRecord[]> {
   return data ?? []
 }
 
-export async function getEventBanners(): Promise<EventBannerRecord[]> {
+export async function getEventBanners(tenantId?: string | null): Promise<EventBannerRecord[]> {
   const supabase = getSupabaseServer()
-  const { data, error } = await supabase
-    .from('event_banners')
-    .select('*')
-    .order('created_at', { ascending: false })
+  let query = supabase.from('event_banners').select('*').order('created_at', { ascending: false })
+  if (tenantId) query = query.eq('tenant_id', tenantId)
+  const { data, error } = await query
 
   if (error) {
     console.error('Erro ao listar banners:', error)
@@ -146,17 +144,13 @@ export async function getArticleGallery(articleId: string): Promise<ArticleGalle
 
 export type ArticlesFilter = 'blog' | 'inicio' | 'comunidade' | 'geral' | 'all'
 
-export async function getArticles(tipo?: ArticlesFilter): Promise<ArticleRecord[]> {
+export async function getArticles(tipo?: ArticlesFilter, tenantId?: string | null): Promise<ArticleRecord[]> {
   const supabase = getSupabaseServer()
-  let query = supabase
-    .from('articles')
-    .select('*')
-    .order('publicado_em', { ascending: false })
-
+  let query = supabase.from('articles').select('*').order('publicado_em', { ascending: false })
   if (tipo && tipo !== 'all') {
     query = query.or(`tipo_conteudo.eq.${tipo},tipo_conteudo.eq.geral`)
   }
-
+  if (tenantId) query = query.eq('tenant_id', tenantId)
   const { data, error } = await query
 
   if (error) {
@@ -167,13 +161,11 @@ export async function getArticles(tipo?: ArticlesFilter): Promise<ArticleRecord[
   return data ?? []
 }
 
-export async function getArticleById(id: string): Promise<ArticleRecord | null> {
+export async function getArticleById(id: string, tenantId?: string | null): Promise<ArticleRecord | null> {
   const supabase = getSupabaseServer()
-  const { data, error } = await supabase
-    .from('articles')
-    .select('*')
-    .eq('id', id)
-    .maybeSingle()
+  let query = supabase.from('articles').select('*').eq('id', id)
+  if (tenantId) query = query.eq('tenant_id', tenantId)
+  const { data, error } = await query.maybeSingle()
 
   if (error) {
     console.error('Erro ao buscar artigo:', error)
@@ -255,10 +247,21 @@ export type DashboardStats = {
   inscricoesPorEvento: { eventoId: string; titulo: string; total: number }[]
 }
 
-export async function getEventRegistrationsWithDetails(): Promise<
+export async function getEventRegistrationsWithDetails(tenantId?: string | null): Promise<
   EventRegistrationWithDetails[]
 > {
   const supabase = getSupabaseAdmin()
+
+  // Se multi-tenant, restringe a inscrições em eventos do tenant
+  let eventIdsForTenant: string[] | null = null
+  if (tenantId) {
+    const { data: tenantEvents } = await supabase
+      .from('events')
+      .select('id')
+      .eq('tenant_id', tenantId)
+    eventIdsForTenant = (tenantEvents ?? []).map((e) => e.id)
+    if (eventIdsForTenant.length === 0) return []
+  }
 
   // Tenta registered_at primeiro (comum no Supabase); se não existir, tenta created_at
   let registrations: { event_id: string; user_id: string; ticket_url: string | null; created_at?: string }[] = []
@@ -298,6 +301,11 @@ export async function getEventRegistrationsWithDetails(): Promise<
   } else if (errRegistered) {
     console.error('Erro ao buscar inscrições:', errRegistered)
     return []
+  }
+
+  if (tenantId && eventIdsForTenant) {
+    const set = new Set(eventIdsForTenant)
+    registrations = registrations.filter((r) => set.has(r.event_id))
   }
 
   if (!registrations?.length) return []
@@ -357,16 +365,18 @@ export type UserWithProfile = {
   updated_at: string | null
 }
 
-export async function getAllUsersWithProfiles(): Promise<UserWithProfile[]> {
+export async function getAllUsersWithProfiles(tenantId?: string | null): Promise<UserWithProfile[]> {
   const supabase = getSupabaseAdmin()
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('profiles')
     .select('id, nome, email, telefone, cidade_estado, empresa_projeto, empresa_atual, faixa_faturamento, segmento_negocio, o_que_quer_aprender, instagram, linkedin, area_principal, area_gestao, posicao_mercado, cargo_atual, updated_at')
     .eq('is_complete', true)
     .neq('is_admin', true)
     .order('updated_at', { ascending: false })
     .limit(2000)
+  if (tenantId) query = query.eq('tenant_id', tenantId)
+  const { data, error } = await query
 
   if (error) {
     console.error('Erro ao buscar usuários:', error)
@@ -394,8 +404,8 @@ export async function getAllUsersWithProfiles(): Promise<UserWithProfile[]> {
   }))
 }
 
-export async function getDashboardStats(): Promise<DashboardStats> {
-  const registrations = await getEventRegistrationsWithDetails()
+export async function getDashboardStats(tenantId?: string | null): Promise<DashboardStats> {
+  const registrations = await getEventRegistrationsWithDetails(tenantId)
   const uniqueUsers = new Set(registrations.map((r) => r.user_id))
 
   const byEvent = new Map<string, { titulo: string; total: number }>()

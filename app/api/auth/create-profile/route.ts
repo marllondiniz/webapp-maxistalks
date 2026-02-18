@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin'
+import { getBrandConfigFromRequest } from '@/lib/brand'
 
 export async function POST(request: Request) {
   try {
-    const { id, email } = await request.json()
+    const { id, email, ref: refReferrerId } = await request.json()
 
     if (!id || !email) {
       return NextResponse.json(
@@ -12,13 +13,31 @@ export async function POST(request: Request) {
       )
     }
 
+    const { tenantId } = await getBrandConfigFromRequest(request)
     const supabaseAdmin = getSupabaseAdmin()
+
+    const existing = await supabaseAdmin.from('profiles').select('id').eq('id', id).maybeSingle()
+    const isNewProfile = !existing.data
+
+    let invitedByUserId: string | null = null
+    if (isNewProfile && refReferrerId && typeof refReferrerId === 'string') {
+      const referrerId = refReferrerId.trim()
+      if (referrerId && referrerId !== id) {
+        const { data: referrer } = await supabaseAdmin.from('profiles').select('id').eq('id', referrerId).maybeSingle()
+        if (referrer) invitedByUserId = referrer.id
+      }
+    }
+
+    const payload: { id: string; email: string; is_complete: boolean; tenant_id?: string; invited_by_user_id?: string | null } = {
+      id,
+      email,
+      is_complete: false,
+    }
+    if (tenantId) payload.tenant_id = tenantId
+    if (invitedByUserId !== null) payload.invited_by_user_id = invitedByUserId
+
     const { error } = await supabaseAdmin.from('profiles').upsert(
-      {
-        id,
-        email,
-        is_complete: false,
-      },
+      payload,
       { onConflict: 'id' }
     )
 

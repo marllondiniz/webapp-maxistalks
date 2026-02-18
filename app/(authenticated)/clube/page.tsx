@@ -1,4 +1,5 @@
 import { getEvents, getArticles } from '@/lib/queries'
+import { getTenantIdForRequest } from '@/lib/brand'
 import { type DestaqueCard } from './HighlightCardList'
 import { ClubClient } from './ClubClient'
 
@@ -46,9 +47,10 @@ const destaqueCards: DestaqueCard[] = [
 ]
 
 export default async function ClubePage() {
+  const tenantId = await getTenantIdForRequest()
   const [eventos, artigosComunidade] = await Promise.all([
-    getEvents(),
-    getArticles('comunidade'),
+    getEvents(tenantId),
+    getArticles('comunidade', tenantId),
   ])
   const proximoEvento = eventos[0]
 

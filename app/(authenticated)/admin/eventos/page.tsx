@@ -1,8 +1,10 @@
 import { getEvents } from '@/lib/queries'
+import { getTenantIdForRequest } from '@/lib/brand'
 import { EventAdminPanel } from './EventAdminPanel'
 
 export default async function AdminEventosPage() {
-  const eventos = await getEvents()
+  const tenantId = await getTenantIdForRequest()
+  const eventos = await getEvents(tenantId)
 
   return (
     <div className="space-y-8">

@@ -2,8 +2,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getArticleById, getArticleGallery } from '@/lib/queries'
+import { getTenantIdForRequest } from '@/lib/brand'
 import { ChevronLeft } from 'lucide-react'
 import { ArticleGalleryCarousel } from './ArticleGalleryCarousel'
+import { ArticleComments } from './ArticleComments'
 
 export default async function ArticlePage({
   params,
@@ -11,8 +13,9 @@ export default async function ArticlePage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+  const tenantId = await getTenantIdForRequest()
   const [artigo, gallery] = await Promise.all([
-    getArticleById(id),
+    getArticleById(id, tenantId),
     getArticleGallery(id),
   ])
 
@@ -97,7 +100,9 @@ export default async function ArticlePage({
         />
       </div>
 
-      <div className="mt-12 border-t border-slate-600/30 pt-6">
+      <ArticleComments articleId={id} />
+
+      <div className="mt-8 border-t border-slate-600/30 pt-6">
         <Link
           href="/blog"
           className="inline-flex items-center gap-2 rounded-xl border border-slate-600/40 bg-slate-800/80 px-5 py-3 text-sm font-semibold text-[#f5f5f5] transition hover:border-slate-500/50 hover:bg-slate-700/60"

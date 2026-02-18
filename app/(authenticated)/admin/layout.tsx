@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { LayoutDashboard, BarChart3, Calendar, FileText, Trophy, LogOut, Menu, X } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
+import { useBrand } from '@/app/(components)/BrandProvider'
 
 const NAV_LINKS = [
   { href: '/admin', label: 'Visão geral', icon: LayoutDashboard },
@@ -16,6 +17,7 @@ const NAV_LINKS = [
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const brand = useBrand()
   const router = useRouter()
   const pathname = usePathname()
   const supabase = getSupabaseClient()
@@ -73,7 +75,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <p className="text-sm text-slate-400">
             Você precisa de permissão de administrador para acessar esta área.
           </p>
-          <Link href="/" className="text-[#3b82f6] underline hover:text-[#60a5fa]">
+          <Link href="/" className="text-[var(--brand-primary)] underline hover:opacity-90">
             Voltar ao início
           </Link>
         </div>
@@ -85,7 +87,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#0f172a] px-4 text-white">
         <div className="flex items-center gap-3">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#3b82f6] border-t-transparent" />
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--brand-primary)] border-t-transparent" />
           Carregando painel...
         </div>
       </main>
@@ -114,7 +116,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <div className="flex items-center justify-between border-b border-white/10 p-4">
           <Link href="/" onClick={closeSidebar} className="flex-shrink-0">
-            <Image src="/maxistalks-logo.png" alt="MaxisTalks" width={100} height={40} className="h-8 w-auto" />
+            <Image src={brand.logoPath} alt={brand.name} width={100} height={40} className="h-8 w-auto" />
           </Link>
           <button type="button" onClick={closeSidebar} className="rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white lg:hidden" aria-label="Fechar menu">
             <X className="h-5 w-5" />
@@ -172,8 +174,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </button>
             <Link href="/" className="flex-shrink-0">
               <Image
-                src="/maxistalks-logo.png"
-                alt="MaxisTalks"
+                src={brand.logoPath}
+                alt={brand.name}
                 width={100}
                 height={40}
                 className="h-8 w-auto"

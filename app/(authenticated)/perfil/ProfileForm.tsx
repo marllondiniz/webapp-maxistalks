@@ -8,7 +8,7 @@ import {
   FormEvent,
   ChangeEvent,
 } from 'react'
-import { UploadCloud, Check, AlertCircle } from 'lucide-react'
+import { UploadCloud, Check, AlertCircle, ChevronDown, ChevronRight } from 'lucide-react'
 import type { ProfileRecord } from '@/lib/profile'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { useRouter } from 'next/navigation'
@@ -183,6 +183,8 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
 
   const isEmpreendedor = formData.posicao_mercado === 'empreendedor'
   const isLider = formData.posicao_mercado === 'lider'
+  const isEditMode = profile?.is_complete === true
+  const [expandedEditSection, setExpandedEditSection] = useState<number>(1)
 
   useEffect(() => {
     return () => {
@@ -192,11 +194,12 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
   }, [localPreviewUrl])
 
   useEffect(() => {
+    if (isEditMode) return
     window.scrollTo({ top: 0, behavior: 'smooth' })
     if (step === 4) {
       step4Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
-  }, [step])
+  }, [step, isEditMode])
 
   useEffect(() => {
     if (avatarFile) return
@@ -348,7 +351,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
       } as ProfileRecord)
 
       window.dispatchEvent(new CustomEvent('profile-completed'))
-      setSavedSuccess(true)
+      if (!isEditMode) setSavedSuccess(true)
     })
   }
 
@@ -423,24 +426,42 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
       <div className="rounded-xl border border-slate-600/30 bg-slate-800/80 shadow-xl overflow-hidden">
         <div className="border-b border-white/10 bg-slate-900/50 px-4 py-4 sm:px-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-white">MaxisTalks — Cadastro</h2>
-            <span className="text-sm text-slate-400">
-              Etapa {step} de {TOTAL_STEPS}
-            </span>
+            <h2 className="text-lg font-bold text-white">
+              {isEditMode ? 'Editar perfil' : 'MaxisTalks — Cadastro'}
+            </h2>
+            {!isEditMode && (
+              <span className="text-sm text-slate-400">
+                Etapa {step} de {TOTAL_STEPS}
+              </span>
+            )}
           </div>
-          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-700">
-            <div
-              className="h-full rounded-full bg-[#3b82f6] transition-all duration-300"
-              style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
-            />
-          </div>
+          {!isEditMode && (
+            <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-700">
+              <div
+                className="h-full rounded-full bg-[#3b82f6] transition-all duration-300"
+                style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
+              />
+            </div>
+          )}
         </div>
 
         <div className="p-4 sm:p-6">
           {/* Etapa 1: Básico */}
-          {step === 1 && (
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-slate-300">Etapa 1 — Básico</h3>
+          {(step === 1 || isEditMode) && (
+            <div className={isEditMode ? 'rounded-xl border border-slate-600/30 bg-slate-900/30 overflow-hidden' : ''}>
+              {isEditMode && (
+                <button
+                  type="button"
+                  onClick={() => setExpandedEditSection((s) => (s === 1 ? 0 : 1))}
+                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-white hover:bg-white/5 transition"
+                >
+                  Básico
+                  {expandedEditSection === 1 ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />}
+                </button>
+              )}
+              {(!isEditMode || expandedEditSection === 1) && (
+            <div className={`space-y-4 ${isEditMode ? 'border-t border-slate-600/30 px-4 pb-4 pt-3' : ''}`}>
+              {!isEditMode && <h3 className="text-sm font-semibold text-slate-300">Básico</h3>}
               <div className="flex justify-center pb-2">
                 <button
                   type="button"
@@ -521,12 +542,26 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                 />
               </label>
             </div>
+              )}
+            </div>
           )}
 
           {/* Etapa 2: Perfil (segmentação) */}
-          {step === 2 && (
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-slate-300">Etapa 2 — Perfil</h3>
+          {(step === 2 || isEditMode) && (
+            <div className={isEditMode ? 'rounded-xl border border-slate-600/30 bg-slate-900/30 overflow-hidden mt-3' : `space-y-4 ${isEditMode ? 'border-t border-slate-600/30 pt-6 mt-6' : ''}`}>
+              {isEditMode && (
+                <button
+                  type="button"
+                  onClick={() => setExpandedEditSection((s) => (s === 2 ? 0 : 2))}
+                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-white hover:bg-white/5 transition"
+                >
+                  Perfil
+                  {expandedEditSection === 2 ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />}
+                </button>
+              )}
+              {(!isEditMode || expandedEditSection === 2) && (
+            <div className={`space-y-4 ${isEditMode ? 'border-t border-slate-600/30 px-4 pb-4 pt-3' : ''}`}>
+              {!isEditMode && <h3 className="text-sm font-semibold text-slate-300">Perfil</h3>}
               <div>
                 <span className="block text-sm font-medium text-white mb-3">Qual é sua posição no mercado hoje? *</span>
                 <div className="flex gap-3">
@@ -743,12 +778,26 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                 </div>
               )}
             </div>
+              )}
+            </div>
           )}
 
           {/* Etapa 3: Intenção */}
-          {step === 3 && (
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-slate-300">Etapa 3 — Intenção</h3>
+          {(step === 3 || isEditMode) && (
+            <div className={isEditMode ? 'rounded-xl border border-slate-600/30 bg-slate-900/30 overflow-hidden mt-3' : ''}>
+              {isEditMode && (
+                <button
+                  type="button"
+                  onClick={() => setExpandedEditSection((s) => (s === 3 ? 0 : 3))}
+                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-white hover:bg-white/5 transition"
+                >
+                  Intenção
+                  {expandedEditSection === 3 ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />}
+                </button>
+              )}
+              {(!isEditMode || expandedEditSection === 3) && (
+            <div className={`space-y-4 ${isEditMode ? 'border-t border-slate-600/30 px-4 pb-4 pt-3' : ''}`}>
+              {!isEditMode && <h3 className="text-sm font-semibold text-slate-300">Intenção</h3>}
               <div>
                 <span className="block text-sm font-medium text-white mb-3">O que você busca no MaxisTalks? (até 2) *</span>
                 <div className="flex flex-wrap gap-2">
@@ -807,12 +856,26 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                 </div>
               </div>
             </div>
+              )}
+            </div>
           )}
 
           {/* Etapa 4: Finalização */}
-          {step === 4 && (
-            <div ref={step4Ref} className="space-y-4">
-              <h3 className="text-sm font-semibold text-slate-300">Finalização</h3>
+          {(step === 4 || isEditMode) && (
+            <div className={isEditMode ? 'rounded-xl border border-slate-600/30 bg-slate-900/30 overflow-hidden mt-3' : ''}>
+              {isEditMode && (
+                <button
+                  type="button"
+                  onClick={() => setExpandedEditSection((s) => (s === 4 ? 0 : 4))}
+                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-white hover:bg-white/5 transition"
+                >
+                  Finalização
+                  {expandedEditSection === 4 ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />}
+                </button>
+              )}
+              {(!isEditMode || expandedEditSection === 4) && (
+            <div ref={!isEditMode ? step4Ref : undefined} className={`space-y-4 ${isEditMode ? 'border-t border-slate-600/30 px-4 pb-4 pt-3' : ''}`}>
+              {!isEditMode && <h3 className="text-sm font-semibold text-slate-300">Finalização</h3>}
               <label className="flex items-start gap-3 rounded-xl border border-slate-600/40 bg-slate-900/50 px-4 py-3">
                 <input
                   type="checkbox"
@@ -857,40 +920,13 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                 />
               </label>
             </div>
+              )}
+            </div>
           )}
 
           {/* Navegação */}
           <div className="mt-6 flex gap-3">
-            {step > 1 ? (
-              <button
-                type="button"
-                onClick={() => setStep((s) => s - 1)}
-                className="flex-1 rounded-xl border border-white/20 bg-transparent px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/5"
-              >
-                Voltar
-              </button>
-            ) : (
-              <div className="flex-1" />
-            )}
-            {step < TOTAL_STEPS ? (
-              <button
-                type="button"
-                onClick={() => {
-                  if (step === 1 && !canProceedStep1) return
-                  if (step === 2 && !canProceedStep2) return
-                  if (step === 3 && !canProceedStep3) return
-                  setStep((s) => s + 1)
-                }}
-                disabled={
-                  (step === 1 && !canProceedStep1) ||
-                  (step === 2 && !canProceedStep2) ||
-                  (step === 3 && !canProceedStep3)
-                }
-                className="flex-1 rounded-xl bg-[#3b82f6] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2563eb] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Próximo
-              </button>
-            ) : (
+            {isEditMode ? (
               <button
                 type="button"
                 disabled={isPending || !canProceedStep4}
@@ -898,10 +934,55 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                   e.preventDefault()
                   handleSubmit(e as unknown as FormEvent<HTMLFormElement>)
                 }}
-                className="flex-1 rounded-xl bg-[#3b82f6] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2563eb] disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-xl bg-[#3b82f6] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2563eb] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isPending ? 'Salvando...' : 'Finalizar cadastro'}
+                {isPending ? 'Salvando...' : 'Salvar alterações'}
               </button>
+            ) : (
+              <>
+                {step > 1 ? (
+                  <button
+                    type="button"
+                    onClick={() => setStep((s) => s - 1)}
+                    className="flex-1 rounded-xl border border-white/20 bg-transparent px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/5"
+                  >
+                    Voltar
+                  </button>
+                ) : (
+                  <div className="flex-1" />
+                )}
+                {step < TOTAL_STEPS ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (step === 1 && !canProceedStep1) return
+                      if (step === 2 && !canProceedStep2) return
+                      if (step === 3 && !canProceedStep3) return
+                      setStep((s) => s + 1)
+                    }}
+                    disabled={
+                      (step === 1 && !canProceedStep1) ||
+                      (step === 2 && !canProceedStep2) ||
+                      (step === 3 && !canProceedStep3)
+                    }
+                    className="flex-1 rounded-xl bg-[#3b82f6] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2563eb] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Próximo
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={isPending || !canProceedStep4}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      handleSubmit(e as unknown as FormEvent<HTMLFormElement>)
+                    }}
+                    className="flex-1 rounded-xl bg-[#3b82f6] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2563eb] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isPending ? 'Salvando...' : 'Finalizar cadastro'}
+                  </button>
+                )}
+              </>
             )}
           </div>
         </div>

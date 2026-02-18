@@ -1,8 +1,10 @@
 import { getArticles } from '@/lib/queries'
+import { getTenantIdForRequest } from '@/lib/brand'
 import { ArticleAdminPanel } from './ArticleAdminPanel'
 
 export default async function AdminConteudoPage() {
-  const artigos = await getArticles()
+  const tenantId = await getTenantIdForRequest()
+  const artigos = await getArticles('all', tenantId)
 
   return (
     <section className="space-y-8">

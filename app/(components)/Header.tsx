@@ -1,12 +1,14 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useBrand } from '@/app/(components)/BrandProvider'
 
 export function Header() {
+  const brand = useBrand()
   const pathname = usePathname()
   const isHomePage = pathname === '/'
 
@@ -42,8 +44,8 @@ export function Header() {
                 >
                   <div className="relative h-6 sm:h-7">
                     <Image
-                      src="/maxistalks-logo.png"
-                      alt="MaxisTalks"
+                      src={brand.logoPath}
+                      alt={brand.name}
                       width={150}
                       height={75}
                       className="object-contain h-full w-auto"
@@ -93,8 +95,8 @@ export function Header() {
               >
                 <div className="relative h-7 md:h-8">
                   <Image
-                    src="/maxistalks-logo.png"
-                    alt="MaxisTalks"
+                    src={brand.logoPath}
+                    alt={brand.name}
                     width={150}
                     height={75}
                     className="object-contain h-full w-auto"
@@ -122,8 +124,8 @@ export function Header() {
               >
                 <div className="relative h-6 sm:h-7 lg:h-8">
                   <Image
-                    src="/maxistalks-logo.png"
-                    alt="MaxisTalks"
+                    src={brand.logoPath}
+                    alt={brand.name}
                     width={150}
                     height={75}
                     className="object-contain h-full w-auto"

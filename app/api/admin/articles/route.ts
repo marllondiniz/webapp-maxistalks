@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin'
+import { getBrandConfigFromRequest } from '@/lib/brand'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   if (searchParams.get('list') === '1') {
+    const { tenantId } = await getBrandConfigFromRequest(request)
     const supabaseAdmin = getSupabaseAdmin()
-    const { data, error } = await supabaseAdmin
-      .from('articles')
-      .select('*')
-      .order('publicado_em', { ascending: false })
+    let query = supabaseAdmin.from('articles').select('*').order('publicado_em', { ascending: false })
+    if (tenantId) query = query.eq('tenant_id', tenantId)
+    const { data, error } = await query
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
@@ -23,8 +24,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
+    const { tenantId } = await getBrandConfigFromRequest(request)
     const supabaseAdmin = getSupabaseAdmin()
-    const { data, error } = await supabaseAdmin.from('articles').insert(body).select('*').single()
+    const insertPayload = tenantId ? { ...body, tenant_id: tenantId } : body
+    const { data, error } = await supabaseAdmin.from('articles').insert(insertPayload).select('*').single()
 
     if (error) {
       console.error('Erro ao criar artigo:', error)
@@ -48,8 +51,11 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'ID do artigo é obrigatório.' }, { status: 400 })
     }
 
+    const { tenantId } = await getBrandConfigFromRequest(request)
     const supabaseAdmin = getSupabaseAdmin()
-    const { error } = await supabaseAdmin.from('articles').update(rest).eq('id', id)
+    let updateQuery = supabaseAdmin.from('articles').update(rest).eq('id', id)
+    if (tenantId) updateQuery = updateQuery.eq('tenant_id', tenantId)
+    const { error } = await updateQuery
 
     if (error) {
       console.error('Erro ao atualizar artigo:', error)
@@ -73,8 +79,11 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'ID do artigo é obrigatório.' }, { status: 400 })
     }
 
+    const { tenantId } = await getBrandConfigFromRequest(request)
     const supabaseAdmin = getSupabaseAdmin()
-    const { error } = await supabaseAdmin.from('articles').delete().eq('id', id)
+    let deleteQuery = supabaseAdmin.from('articles').delete().eq('id', id)
+    if (tenantId) deleteQuery = deleteQuery.eq('tenant_id', tenantId)
+    const { error } = await deleteQuery
 
     if (error) {
       console.error('Erro ao excluir artigo:', error)

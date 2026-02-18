@@ -1,16 +1,17 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin'
+import { getBrandConfigFromRequest } from '@/lib/brand'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const list = searchParams.get('list')
 
   if (list === '1') {
+    const { tenantId } = await getBrandConfigFromRequest(request)
     const supabaseAdmin = getSupabaseAdmin()
-    const { data, error } = await supabaseAdmin
-      .from('events')
-      .select('*')
-      .order('data_horario', { ascending: true })
+    let query = supabaseAdmin.from('events').select('*').order('data_horario', { ascending: true })
+    if (tenantId) query = query.eq('tenant_id', tenantId)
+    const { data, error } = await query
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
@@ -25,11 +26,13 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
+    const { tenantId } = await getBrandConfigFromRequest(request)
     const supabaseAdmin = getSupabaseAdmin()
+    const insertPayload = tenantId ? { ...body, tenant_id: tenantId } : body
 
     const { data, error } = await supabaseAdmin
       .from('events')
-      .insert(body)
+      .insert(insertPayload)
       .select('*')
       .single()
 
@@ -55,13 +58,11 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'ID do evento é obrigatório.' }, { status: 400 })
     }
 
+    const { tenantId } = await getBrandConfigFromRequest(request)
     const supabaseAdmin = getSupabaseAdmin()
-    const { data, error } = await supabaseAdmin
-      .from('events')
-      .update(rest)
-      .eq('id', id)
-      .select('*')
-      .single()
+    let updateQuery = supabaseAdmin.from('events').update(rest).eq('id', id)
+    if (tenantId) updateQuery = updateQuery.eq('tenant_id', tenantId)
+    const { data, error } = await updateQuery.select('*').single()
 
     if (error) {
       console.error('Erro ao atualizar evento:', error)
@@ -85,8 +86,11 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'ID do evento é obrigatório.' }, { status: 400 })
     }
 
+    const { tenantId } = await getBrandConfigFromRequest(request)
     const supabaseAdmin = getSupabaseAdmin()
-    const { error } = await supabaseAdmin.from('events').delete().eq('id', id)
+    let deleteQuery = supabaseAdmin.from('events').delete().eq('id', id)
+    if (tenantId) deleteQuery = deleteQuery.eq('tenant_id', tenantId)
+    const { error } = await deleteQuery
 
     if (error) {
       console.error('Erro ao excluir evento:', error)

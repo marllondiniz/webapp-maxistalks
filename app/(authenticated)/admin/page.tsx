@@ -1,13 +1,15 @@
 import Link from 'next/link'
 import { getChallenges, getEvents, getDashboardStats } from '@/lib/queries'
+import { getTenantIdForRequest } from '@/lib/brand'
 
 export const dynamic = 'force-dynamic'
 
 export default async function AdminHomePage() {
+  const tenantId = await getTenantIdForRequest()
   const [eventos, desafios, stats] = await Promise.all([
-    getEvents(),
+    getEvents(tenantId),
     getChallenges(),
-    getDashboardStats().catch(() => ({
+    getDashboardStats(tenantId).catch(() => ({
       totalInscricoes: 0,
       totalUsuariosUnicos: 0,
       inscricoesPorEvento: [],

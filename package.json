@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@marsidev/react-turnstile": "^1.4.2",
-    "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.47.6",
     "framer-motion": "^11.3.7",

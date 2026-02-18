@@ -14,6 +14,7 @@ import {
   Trophy,
 } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
+import { useBrand } from '@/app/(components)/BrandProvider'
 
 type NavItem = {
   href: string
@@ -46,7 +47,7 @@ const NAV_ITEMS: NavItem[] = [
     href: '/clube',
     label: 'Comunidade',
     icon: UsersRound,
-    title: 'A comunidade MaxisTalks',
+    title: 'Comunidade', // substituído dinamicamente por useBrand
   },
   {
     href: '/perfil',
@@ -64,6 +65,7 @@ const NAV_ITEMS: NavItem[] = [
 ]
 
 export default function AuthenticatedLayout({ children }: { children: ReactNode }) {
+  const brand = useBrand()
   const router = useRouter()
   const pathname = usePathname()
   const [loggingOut, setLoggingOut] = useState(false)
@@ -71,6 +73,14 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
     'unknown'
   )
   const supabase = useMemo(() => getSupabaseClient(), [])
+
+  const navItemsToShow = useMemo(
+    () =>
+      NAV_ITEMS.map((item) =>
+        item.href === '/clube' ? { ...item, title: `A comunidade ${brand.name}` } : item
+      ),
+    [brand.name]
+  )
 
   useEffect(() => {
     let isMounted = true
@@ -131,20 +141,15 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
   }, [pathname, profileStatus, router])
 
   const activeItem = useMemo(() => {
-    if (!pathname) return NAV_ITEMS[0]
-
-    const found = NAV_ITEMS.find((item) => item.href === pathname)
-    if (found) {
-      return found
-    }
-
-    // Falback: rota não listada, mas dentro do grupo autenticado
-    return NAV_ITEMS[0]
-  }, [pathname])
+    if (!pathname) return navItemsToShow[0]
+    const found = navItemsToShow.find((item) => item.href === pathname)
+    if (found) return found
+    return navItemsToShow[0]
+  }, [pathname, navItemsToShow])
 
   const navItemsToDisplay = useMemo(
-    () => NAV_ITEMS.filter((item) => item.showInNav !== false),
-    []
+    () => navItemsToShow.filter((item) => item.showInNav !== false),
+    [navItemsToShow]
   )
 
   const handleLogout = async () => {
@@ -178,8 +183,8 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
             <div className="flex flex-1 items-center justify-center">
               <Link href="/inicio">
                 <Image
-                  src="/maxistalks-logo.png"
-                  alt="MaxisTalks"
+                  src={brand.logoPath}
+                  alt={brand.name}
                   width={180}
                   height={72}
                   className="h-10 w-auto max-w-[230%] sm:h-12 sm:max-w-none"
@@ -229,7 +234,7 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
                 >
                   <div
                     className={`flex h-10 w-10 items-center justify-center rounded-full transition ${
-                      isActive ? 'bg-[#3b82f6] text-white' : 'bg-transparent text-white'
+                      isActive ? 'bg-[var(--brand-primary)] text-white' : 'bg-transparent text-white'
                     }`}
                   >
                     <Icon size={20} className={isActive ? 'stroke-[2.5]' : 'opacity-80'} />
