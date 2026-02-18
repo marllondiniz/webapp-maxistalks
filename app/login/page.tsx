@@ -4,23 +4,35 @@ import { Suspense } from 'react'
 import { getBrandConfig } from '@/lib/brand'
 import LoginClient from '../login-client'
 
-export async function generateMetadata(): Promise<Metadata> {
+type Props = { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const headersList = await headers()
   const host = headersList.get('host') ?? undefined
   const brand = await getBrandConfig(host)
+  const params = await searchParams
+  const mode = typeof params?.mode === 'string' ? params.mode : undefined
+  const ref = typeof params?.ref === 'string' ? params.ref : undefined
+  const isInvite = mode === 'signUp' || Boolean(ref?.trim())
+
+  const description = isInvite
+    ? `Crie sua conta no ${brand.name} e acesse eventos, conteúdo e palestras com experts do digital.`
+    : `Faça login ou crie sua conta para acessar o ${brand.name}: eventos, conteúdo e palestras.`
+  const title = isInvite ? `Criar conta | ${brand.name}` : `Entrar | ${brand.name}`
+
   return {
-    title: `Área exclusiva | ${brand.name}`,
-    description: `Faça login ou crie sua conta para acessar o ${brand.name}: criar eventos, gerenciar conteúdo e palestras.`,
+    title,
+    description,
     openGraph: {
-      title: `Área exclusiva | ${brand.name}`,
-      description: `Entre para acessar o painel administrativo do ${brand.name}.`,
+      title,
+      description,
       url: `${brand.baseUrl}/login`,
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `Área exclusiva | ${brand.name}`,
-      description: `Entre para acessar o painel administrativo do ${brand.name}.`,
+      title,
+      description,
     },
   }
 }
