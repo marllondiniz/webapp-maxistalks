@@ -71,12 +71,12 @@ export type ChallengeProgressRecord = {
 export async function getEvents(tenantId?: string | null): Promise<EventRecord[]> {
   const supabase = getSupabaseServer()
   let query = supabase.from('events').select('*').order('created_at', { ascending: true, nullsFirst: false })
-  if (tenantId) query = query.eq('tenant_id', tenantId)
+  if (tenantId) query = query.or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
   const { data, error } = await query
 
   if (error?.code === '42703') {
     let fallbackQuery = supabase.from('events').select('*').order('data_horario', { ascending: true })
-    if (tenantId) fallbackQuery = fallbackQuery.eq('tenant_id', tenantId)
+    if (tenantId) fallbackQuery = fallbackQuery.or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
     const { data: fallback, error: err } = await fallbackQuery
     if (err) {
       console.error('Erro ao buscar eventos:', err)
@@ -100,7 +100,7 @@ export async function getActiveEventBanners(tenantId?: string | null): Promise<E
     .select('*')
     .eq('is_active', true)
     .order('created_at', { ascending: false })
-  if (tenantId) query = query.eq('tenant_id', tenantId)
+  if (tenantId) query = query.or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
   const { data, error } = await query
 
   if (error) {
@@ -114,7 +114,7 @@ export async function getActiveEventBanners(tenantId?: string | null): Promise<E
 export async function getEventBanners(tenantId?: string | null): Promise<EventBannerRecord[]> {
   const supabase = getSupabaseServer()
   let query = supabase.from('event_banners').select('*').order('created_at', { ascending: false })
-  if (tenantId) query = query.eq('tenant_id', tenantId)
+  if (tenantId) query = query.or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
   const { data, error } = await query
 
   if (error) {
@@ -252,13 +252,13 @@ export async function getEventRegistrationsWithDetails(tenantId?: string | null)
 > {
   const supabase = getSupabaseAdmin()
 
-  // Se multi-tenant, restringe a inscrições em eventos do tenant
+  // Se multi-tenant, restringe a inscrições em eventos do tenant (inclui tenant_id null = legado)
   let eventIdsForTenant: string[] | null = null
   if (tenantId) {
     const { data: tenantEvents } = await supabase
       .from('events')
       .select('id')
-      .eq('tenant_id', tenantId)
+      .or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
     eventIdsForTenant = (tenantEvents ?? []).map((e) => e.id)
     if (eventIdsForTenant.length === 0) return []
   }

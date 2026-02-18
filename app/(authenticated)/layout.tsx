@@ -11,7 +11,6 @@ import {
   BookOpenText,
   User,
   UsersRound,
-  Trophy,
 } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { useBrand } from '@/app/(components)/BrandProvider'
@@ -54,13 +53,6 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Perfil',
     icon: User,
     title: 'Seu perfil',
-  },
-  {
-    href: '/desafios',
-    label: 'Desafios',
-    icon: Trophy,
-    title: 'Desafios da semana',
-    showInNav: false,
   },
 ]
 

@@ -1,14 +1,13 @@
 import Link from 'next/link'
-import { getChallenges, getEvents, getDashboardStats } from '@/lib/queries'
+import { getEvents, getDashboardStats } from '@/lib/queries'
 import { getTenantIdForRequest } from '@/lib/brand'
 
 export const dynamic = 'force-dynamic'
 
 export default async function AdminHomePage() {
   const tenantId = await getTenantIdForRequest()
-  const [eventos, desafios, stats] = await Promise.all([
+  const [eventos, stats] = await Promise.all([
     getEvents(tenantId),
-    getChallenges(),
     getDashboardStats(tenantId).catch(() => ({
       totalInscricoes: 0,
       totalUsuariosUnicos: 0,
@@ -60,19 +59,6 @@ export default async function AdminHomePage() {
           <h3 className="text-sm font-semibold text-white sm:text-lg">Conteúdo</h3>
           <p className="mt-1 text-xs text-slate-400 sm:text-sm">
             Publicações do blog e dicas para a comunidade.
-          </p>
-          <span className="mt-3 inline-flex text-[10px] font-semibold uppercase tracking-wider text-[#3b82f6] sm:mt-4 sm:text-xs">
-            Gerenciar →
-          </span>
-        </Link>
-
-        <Link
-          href="/admin/desafios"
-          className="rounded-xl border border-white/10 bg-[#1e293b] p-4 shadow-lg transition hover:border-[#3b82f6]/50 hover:bg-[#1e293b]/80 sm:p-5"
-        >
-          <h3 className="text-sm font-semibold text-white sm:text-lg">Desafios</h3>
-          <p className="mt-1 text-xs text-slate-400 sm:text-sm">
-            {desafios.length} desafio(s) ativos esta semana.
           </p>
           <span className="mt-3 inline-flex text-[10px] font-semibold uppercase tracking-wider text-[#3b82f6] sm:mt-4 sm:text-xs">
             Gerenciar →

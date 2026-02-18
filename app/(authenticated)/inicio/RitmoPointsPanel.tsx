@@ -37,16 +37,6 @@ export function RitmoPointsPanel() {
           <div className="mt-2 h-8 w-24 animate-pulse rounded bg-slate-700/60" />
         </div>
 
-        {/* Card Desafio */}
-        <div className="relative overflow-hidden rounded-lg border border-slate-600/30 bg-slate-800/80 p-5 shadow-lg">
-          <div className="absolute right-3 top-3 rounded-full bg-slate-700/60 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#9a9aa2]">
-            Em breve
-          </div>
-          <h3 className="text-base font-semibold uppercase tracking-wide text-[#f5f5f5]">
-            Desafio da Semana
-          </h3>
-          <p className="mt-2 text-sm text-[#c9c9d2]">Novos desafios chegam toda semana.</p>
-        </div>
       </div>
     )
   }
@@ -157,32 +147,6 @@ export function RitmoPointsPanel() {
           className="mt-4 inline-flex text-xs font-semibold uppercase tracking-wider text-[#f5f5f5] transition hover:text-emerald-300"
         >
           Ver ranking
-        </button>
-      </div>
-
-      {/* Card Desafio da Semana */}
-      <div className="relative overflow-hidden rounded-lg border border-slate-600/30 bg-slate-800/80 p-5 shadow-lg">
-        <div className="absolute right-3 top-3">
-          <span className="rounded-full bg-amber-500/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-200 shadow-lg">
-            Em breve
-          </span>
-        </div>
-
-        <h3 className="text-base font-semibold uppercase tracking-wide text-[#f5f5f5]">
-          Desafio da Semana
-        </h3>
-
-        <p className="mt-2 text-sm text-[#c9c9d2]">Novos desafios chegam toda semana.</p>
-        <p className="text-[11px] uppercase tracking-[0.3em] text-[#73737c]">
-          Suas missões aparecerão aqui em breve
-        </p>
-
-        <button
-          type="button"
-          className="mt-4 inline-flex text-xs font-semibold uppercase tracking-wider text-[#f5f5f5] opacity-50"
-          disabled
-        >
-          Ver desafios
         </button>
       </div>
     </div>

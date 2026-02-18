@@ -14,13 +14,13 @@ export async function GET(request: Request) {
       .from('events')
       .select('id, titulo, descricao, data_horario, local_nome, destaque, created_at')
       .order('created_at', { ascending: true, nullsFirst: false })
-    if (tenantId) eventsQuery = eventsQuery.eq('tenant_id', tenantId)
+    if (tenantId) eventsQuery = eventsQuery.or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
 
     let bannersQuery = supabase
       .from('event_banners')
       .select('event_id, image_url, titulo, subtitulo, palestrante_instagram, palestrante_descricao')
       .eq('is_active', true)
-    if (tenantId) bannersQuery = bannersQuery.eq('tenant_id', tenantId)
+    if (tenantId) bannersQuery = bannersQuery.or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
 
     const [{ data: eventsData, error: eventsError }, { data: bannersData, error: bannersError }] =
       await Promise.all([eventsQuery, bannersQuery])
@@ -31,7 +31,7 @@ export async function GET(request: Request) {
         .from('events')
         .select('id, titulo, descricao, data_horario, local_nome, destaque')
         .order('data_horario', { ascending: true })
-      if (tenantId) fallbackQuery = fallbackQuery.eq('tenant_id', tenantId)
+      if (tenantId) fallbackQuery = fallbackQuery.or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
       const { data: fallbackData, error: fallbackError } = await fallbackQuery
       if (fallbackError) {
         console.error('Erro ao buscar eventos:', fallbackError)
