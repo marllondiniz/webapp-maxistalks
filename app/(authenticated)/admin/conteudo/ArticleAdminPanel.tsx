@@ -1,7 +1,7 @@
 'use client'
 
 import { FormEvent, useMemo, useState, useRef } from 'react'
-import { Image as ImageIcon, Upload, X, Pencil, Images, Loader2, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
+import { Image as ImageIcon, Upload, X, Pencil, Images, Loader2, Trash2, ChevronDown, ChevronUp, Send } from 'lucide-react'
 import type { ArticleRecord, ArticleGalleryRecord } from '@/lib/queries'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { RichTextEditor } from '@/components/RichTextEditor'
@@ -65,6 +65,8 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null)
   const [galleryPhotos, setGalleryPhotos] = useState<ArticleGalleryRecord[]>([])
   const [galleryUploading, setGalleryUploading] = useState(false)
+  const [broadcastingId, setBroadcastingId] = useState<string | null>(null)
+  const [broadcastFeedback, setBroadcastFeedback] = useState<{ id: string; msg: string; ok: boolean } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const galleryInputRef = useRef<HTMLInputElement>(null)
 
@@ -301,6 +303,29 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
     }
     setArticles((prev) => prev.filter((article) => article.id !== id))
     setFeedback('Conteúdo removido.')
+  }
+
+  const handleBroadcast = async (articleId: string) => {
+    if (!confirm('Enviar este conteúdo por e-mail para todos os leads da newsletter?')) return
+    setBroadcastingId(articleId)
+    setBroadcastFeedback(null)
+    try {
+      const res = await fetch('/api/admin/broadcast-article', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ articleId }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        setBroadcastFeedback({ id: articleId, msg: json.error || 'Erro ao enviar.', ok: false })
+      } else {
+        setBroadcastFeedback({ id: articleId, msg: 'Newsletter enviada com sucesso!', ok: true })
+      }
+    } catch {
+      setBroadcastFeedback({ id: articleId, msg: 'Erro de conexão. Tente novamente.', ok: false })
+    } finally {
+      setBroadcastingId(null)
+    }
   }
 
   const filteredArticles =
@@ -621,22 +646,42 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
                     </p>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2 self-start md:self-auto">
-                  <button
-                    type="button"
-                    onClick={() => startEdit(article)}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-blue-300 transition hover:bg-blue-500/10"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                    Editar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(article.id)}
-                    className="rounded-full border border-red-500/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-red-300 transition hover:bg-red-500/10"
-                  >
-                    Excluir
-                  </button>
+                <div className="flex flex-col items-end gap-2 self-start md:self-auto">
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => startEdit(article)}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-blue-300 transition hover:bg-blue-500/10"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleBroadcast(article.id)}
+                      disabled={broadcastingId === article.id}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-green-500/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-green-300 transition hover:bg-green-500/10 disabled:opacity-50"
+                    >
+                      {broadcastingId === article.id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Send className="h-3.5 w-3.5" />
+                      )}
+                      {broadcastingId === article.id ? 'Enviando...' : 'Newsletter'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(article.id)}
+                      className="rounded-full border border-red-500/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-red-300 transition hover:bg-red-500/10"
+                    >
+                      Excluir
+                    </button>
+                  </div>
+                  {broadcastFeedback?.id === article.id && (
+                    <p className={`text-xs font-medium ${broadcastFeedback.ok ? 'text-green-400' : 'text-red-400'}`}>
+                      {broadcastFeedback.msg}
+                    </p>
+                  )}
                 </div>
               </div>
             ))}
