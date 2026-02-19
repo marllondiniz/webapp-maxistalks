@@ -12,6 +12,7 @@ import { getTenantIdForRequest } from '@/lib/brand'
 import { Calendar, BookOpenText, ChevronRight } from 'lucide-react'
 import { InstagramLink } from '@/components/InstagramLink'
 
+/** Formata data/hora do evento no fuso de Brasília (evita erro quando o Server Component roda em UTC). */
 function formatEventDate(date: string | null) {
   if (!date) return ''
   return new Intl.DateTimeFormat('pt-BR', {
@@ -19,6 +20,7 @@ function formatEventDate(date: string | null) {
     month: 'short',
     hour: '2-digit',
     minute: '2-digit',
+    timeZone: 'America/Sao_Paulo',
   })
     .format(new Date(date))
     .replace('.', '')
