@@ -203,8 +203,8 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
             alt={event.titulo}
             fill
             sizes="(max-width: 672px) 100vw, 672px"
-            className="object-cover md:object-center"
-            style={{ objectPosition: 'center 30%' }}
+            className="object-cover object-top"
+            style={{ objectPosition: 'center 15%' }}
             priority
           />
         </div>

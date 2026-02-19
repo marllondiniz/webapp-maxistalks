@@ -49,7 +49,7 @@ function EventCard({
           className={`relative shrink-0 overflow-hidden ${
             isDestaque 
               ? 'h-44 w-full md:h-32 md:w-36' 
-              : 'h-32 w-36'
+              : 'w-36 self-stretch'
           }`}
         >
           <Image
@@ -64,7 +64,7 @@ function EventCard({
           )}
         </div>
       ) : (
-        <div className={`relative shrink-0 overflow-hidden ${isDestaque ? 'h-44 w-full md:h-32 md:w-36' : 'h-32 w-36'} flex items-center justify-center bg-gradient-to-br from-blue-500/20 via-blue-600/10 to-slate-700/30`}>
+        <div className={`relative shrink-0 overflow-hidden ${isDestaque ? 'h-44 w-full md:h-32 md:w-36' : 'w-36 self-stretch'} flex items-center justify-center bg-gradient-to-br from-blue-500/20 via-blue-600/10 to-slate-700/30`}>
           <Calendar className="h-12 w-12 text-blue-400/40" />
         </div>
       )}
