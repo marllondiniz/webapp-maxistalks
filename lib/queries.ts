@@ -363,6 +363,7 @@ export type UserWithProfile = {
   posicao_mercado: string | null
   cargo_atual: string | null
   updated_at: string | null
+  invited_by_user_id: string | null
 }
 
 export async function getAllUsersWithProfiles(tenantId?: string | null): Promise<UserWithProfile[]> {
@@ -370,7 +371,7 @@ export async function getAllUsersWithProfiles(tenantId?: string | null): Promise
 
   let query = supabase
     .from('profiles')
-    .select('id, nome, email, telefone, cidade_estado, empresa_projeto, empresa_atual, faixa_faturamento, segmento_negocio, o_que_quer_aprender, instagram, linkedin, area_principal, area_gestao, posicao_mercado, cargo_atual, updated_at')
+    .select('id, nome, email, telefone, cidade_estado, empresa_projeto, empresa_atual, faixa_faturamento, segmento_negocio, o_que_quer_aprender, instagram, linkedin, area_principal, area_gestao, posicao_mercado, cargo_atual, updated_at, invited_by_user_id')
     .eq('is_complete', true)
     .neq('is_admin', true)
     .order('updated_at', { ascending: false })
@@ -401,6 +402,7 @@ export async function getAllUsersWithProfiles(tenantId?: string | null): Promise
     posicao_mercado: p.posicao_mercado ?? null,
     cargo_atual: p.cargo_atual ?? null,
     updated_at: p.updated_at ?? null,
+    invited_by_user_id: p.invited_by_user_id ?? null,
   }))
 }
 
@@ -429,5 +431,150 @@ export async function getDashboardStats(tenantId?: string | null): Promise<Dashb
     totalUsuariosUnicos: uniqueUsers.size,
     inscricoesPorEvento,
   }
+}
+
+export type ReferralStats = {
+  totalReferred: number
+  topReferrers: { referrerId: string; referrerName: string; count: number }[]
+}
+
+export async function getReferralStats(tenantId?: string | null): Promise<ReferralStats> {
+  const supabase = getSupabaseAdmin()
+  let query = supabase
+    .from('profiles')
+    .select('invited_by_user_id')
+    .not('invited_by_user_id', 'is', null)
+  if (tenantId) query = query.eq('tenant_id', tenantId)
+  const { data, error } = await query
+  if (error) {
+    console.error('Erro ao buscar indicações:', error)
+    return { totalReferred: 0, topReferrers: [] }
+  }
+  const rows = (data ?? []) as { invited_by_user_id: string }[]
+  const totalReferred = rows.length
+  const byReferrer = new Map<string, number>()
+  for (const r of rows) {
+    const id = r.invited_by_user_id
+    byReferrer.set(id, (byReferrer.get(id) ?? 0) + 1)
+  }
+  const referrerIds = [...byReferrer.keys()]
+  if (referrerIds.length === 0) {
+    return { totalReferred, topReferrers: [] }
+  }
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, nome')
+    .in('id', referrerIds)
+  const nameMap = new Map((profiles ?? []).map((p: { id: string; nome: string | null }) => [p.id, p.nome ?? '—']))
+  const topReferrers = [...byReferrer.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(([referrerId, count]) => ({
+      referrerId,
+      referrerName: nameMap.get(referrerId) ?? '—',
+      count,
+    }))
+  return { totalReferred, topReferrers }
+}
+
+export type ContentStats = {
+  totalArticles: number
+  byTipo: Record<string, number>
+  lastArticles: { id: string; titulo: string; publicado_em: string | null }[]
+}
+
+export async function getContentStats(tenantId?: string | null): Promise<ContentStats> {
+  const supabase = getSupabaseAdmin()
+  let query = supabase
+    .from('articles')
+    .select('id, titulo, publicado_em, tipo_conteudo')
+    .order('publicado_em', { ascending: false })
+    .limit(500)
+  if (tenantId) query = query.eq('tenant_id', tenantId)
+  const { data, error } = await query
+  if (error) {
+    console.error('Erro ao buscar conteúdo:', error)
+    return { totalArticles: 0, byTipo: {}, lastArticles: [] }
+  }
+  const articles = (data ?? []) as { id: string; titulo: string; publicado_em: string | null; tipo_conteudo: string | null }[]
+  const byTipo: Record<string, number> = {}
+  for (const a of articles) {
+    const t = a.tipo_conteudo ?? 'geral'
+    byTipo[t] = (byTipo[t] ?? 0) + 1
+  }
+  const lastArticles = articles.slice(0, 5).map((a) => ({
+    id: a.id,
+    titulo: a.titulo,
+    publicado_em: a.publicado_em,
+  }))
+  return {
+    totalArticles: articles.length,
+    byTipo,
+    lastArticles,
+  }
+}
+
+export type EventInteressado = {
+  userId: string
+  nome: string | null
+  email: string | null
+  telefone: string | null
+  cidade_estado: string | null
+  empresa: string | null
+  segmento_negocio: string | null
+  posicao_mercado: string | null
+  faixa_faturamento: string | null
+  o_que_quer_aprender: string[] | null
+  instagram: string | null
+  linkedin: string | null
+  interessadoEm: string
+  convidado_selecionado: boolean
+  convite_enviado_em: string | null
+}
+
+export async function getEventInteressados(eventId: string): Promise<EventInteressado[]> {
+  const supabase = getSupabaseAdmin()
+
+  const { data: regs, error } = await supabase
+    .from('event_registrations')
+    .select('user_id, created_at, convidado_selecionado, convite_enviado_em')
+    .eq('event_id', eventId)
+    .order('created_at', { ascending: false })
+
+  if (error || !regs?.length) return []
+
+  const userIds = regs.map((r: { user_id: string }) => r.user_id)
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, nome, email, telefone, cidade_estado, empresa_projeto, empresa_atual, segmento_negocio, posicao_mercado, faixa_faturamento, o_que_quer_aprender, instagram, linkedin')
+    .in('id', userIds)
+
+  const profileMap = new Map((profiles ?? []).map((p: { id: string }) => [p.id, p]))
+
+  return regs.map((r: { user_id: string; created_at: string; convidado_selecionado: boolean | null; convite_enviado_em: string | null }) => {
+    const p = profileMap.get(r.user_id) as {
+      id: string; nome: string | null; email: string | null; telefone: string | null;
+      cidade_estado: string | null; empresa_projeto: string | null; empresa_atual: string | null;
+      segmento_negocio: string | null; posicao_mercado: string | null; faixa_faturamento: string | null;
+      o_que_quer_aprender: string[] | null; instagram: string | null; linkedin: string | null;
+    } | undefined
+    return {
+      userId: r.user_id,
+      nome: p?.nome ?? null,
+      email: p?.email ?? null,
+      telefone: p?.telefone ?? null,
+      cidade_estado: p?.cidade_estado ?? null,
+      empresa: p?.empresa_projeto ?? p?.empresa_atual ?? null,
+      segmento_negocio: p?.segmento_negocio ?? null,
+      posicao_mercado: p?.posicao_mercado ?? null,
+      faixa_faturamento: p?.faixa_faturamento ?? null,
+      o_que_quer_aprender: Array.isArray(p?.o_que_quer_aprender) ? p.o_que_quer_aprender : null,
+      instagram: p?.instagram ?? null,
+      linkedin: p?.linkedin ?? null,
+      interessadoEm: r.created_at,
+      convidado_selecionado: r.convidado_selecionado ?? false,
+      convite_enviado_em: r.convite_enviado_em ?? null,
+    }
+  })
 }
 

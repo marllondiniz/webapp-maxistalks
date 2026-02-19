@@ -1,629 +1,734 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import Link from 'next/link'
 import {
   Users,
   Calendar,
   Building2,
   Mail,
   MapPin,
-  Filter,
   ChevronDown,
   ChevronUp,
   MessageCircle,
+  UserPlus,
+  FileText,
+  CalendarClock,
+  Download,
+  Search,
+  TrendingUp,
+  Award,
+  BarChart3,
+  Layers,
+  ArrowUpRight,
+  Clock,
+  DollarSign,
 } from 'lucide-react'
 import type {
   EventRegistrationWithDetails,
   DashboardStats,
   UserWithProfile,
+  ReferralStats,
+  ContentStats,
 } from '@/lib/queries'
+import type { EventRecord } from '@/lib/queries'
 
 type Props = {
   registrations: EventRegistrationWithDetails[]
   stats: DashboardStats
   allUsers: UserWithProfile[]
+  referralStats: ReferralStats
+  contentStats: ContentStats
+  events: EventRecord[]
   configError?: string | null
 }
 
-function formatDate(value: string) {
-  if (!value) return '-'
-  const d = new Date(value)
-  return d.toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+function formatDate(v: string) {
+  if (!v) return '—'
+  return new Date(v).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+function formatEventDate(v: string) {
+  if (!v) return '—'
+  return new Date(v).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+function formatEventShort(v: string) {
+  if (!v) return '—'
+  const d = new Date(v)
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
 }
 
-function formatEventDate(value: string) {
-  if (!value) return '-'
-  const d = new Date(value)
-  return d.toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+const UFS_BR = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO']
+
+/** Normaliza "Vila Velha", "Vila Velha ES", "Vila Velha / ES", "Guarapari // ES" para formato único "Cidade / UF" ou "Cidade". */
+function normalizeCidadeEstado(value: string | null | undefined): string {
+  if (!value) return ''
+  const raw = value.trim().replace(/\s*\/+\s*\/+\s*/g, ' / ').replace(/\s+/g, ' ').trim()
+  if (!raw) return ''
+  const upper = raw.toUpperCase()
+  for (const uf of UFS_BR) {
+    if (upper.endsWith(' ' + uf) || upper.endsWith('/' + uf) || upper.endsWith(' - ' + uf)) {
+      const cidade = raw.slice(0, raw.length - uf.length).replace(/[\s/\-]+$/g, '').trim()
+      return cidade ? `${cidade} / ${uf}` : uf
+    }
+  }
+  return raw
 }
 
-export function AdminDashboard({ registrations, stats, allUsers, configError }: Props) {
+function ProgressBar({ value, max, color = 'bg-[#3b82f6]' }: { value: number; max: number; color?: string }) {
+  const pct = max > 0 ? Math.min(Math.round((value / max) * 100), 100) : 0
+  return (
+    <div className="flex items-center gap-2">
+      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+        <div className={`h-1.5 rounded-full transition-all ${color}`} style={{ width: `${pct}%` }} />
+      </div>
+      <span className="w-6 flex-shrink-0 text-right text-xs font-semibold text-white">{value}</span>
+    </div>
+  )
+}
+
+function KpiCard({ icon, label, value, sub, color }: {
+  icon: React.ReactNode
+  label: string
+  value: string | number
+  sub?: string
+  color: 'blue' | 'emerald' | 'amber' | 'cyan' | 'violet'
+}) {
+  const cfg = {
+    blue:    { ring: 'border-[#3b82f6]/20',  bg: 'bg-[#3b82f6]/10',    text: 'text-[#3b82f6]' },
+    emerald: { ring: 'border-emerald-500/20', bg: 'bg-emerald-500/10',  text: 'text-emerald-400' },
+    amber:   { ring: 'border-amber-500/20',   bg: 'bg-amber-500/10',    text: 'text-amber-400' },
+    cyan:    { ring: 'border-cyan-500/20',    bg: 'bg-cyan-500/10',     text: 'text-cyan-400' },
+    violet:  { ring: 'border-violet-500/20',  bg: 'bg-violet-500/10',   text: 'text-violet-400' },
+  }[color]
+  return (
+    <div className={`rounded-2xl border ${cfg.ring} bg-[#1e293b] p-4 sm:p-5`}>
+      <div className={`mb-3 inline-flex rounded-xl p-2 ${cfg.bg} ${cfg.text}`}>{icon}</div>
+      <p className="text-2xl font-bold text-white sm:text-3xl">{value}</p>
+      <p className="mt-0.5 text-sm text-slate-400">{label}</p>
+      {sub && <p className="mt-1 text-xs text-slate-500">{sub}</p>}
+    </div>
+  )
+}
+
+function SideWidget({ icon, title, color, children, action }: {
+  icon: React.ReactNode
+  title: string
+  color: string
+  children: React.ReactNode
+  action?: { label: string; href: string }
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-[#1e293b] overflow-hidden">
+      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+        <div className={`flex items-center gap-2.5 ${color}`}>
+          {icon}
+          <h3 className="text-sm font-semibold text-white">{title}</h3>
+        </div>
+        {action && (
+          <Link href={action.href} className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-300 transition">
+            {action.label}<ArrowUpRight className="h-3 w-3" />
+          </Link>
+        )}
+      </div>
+      <div className="p-4">{children}</div>
+    </div>
+  )
+}
+
+export function AdminDashboard({
+  registrations,
+  stats,
+  allUsers,
+  referralStats,
+  contentStats,
+  events,
+  configError,
+}: Props) {
   const [filterEvent, setFilterEvent] = useState<string>('all')
   const [sortBy, setSortBy] = useState<'recent' | 'event' | 'name'>('recent')
-  const [expanded, setExpanded] = useState(true)
+  const [expandedReg, setExpandedReg] = useState(true)
   const [expandedUsers, setExpandedUsers] = useState(true)
-  const [userSortBy, setUserSortBy] = useState<'name' | 'recent'>('recent')
+  const [userSortBy, setUserSortBy] = useState<'name' | 'recent' | 'faturamento'>('recent')
+  const [userSearch, setUserSearch] = useState('')
+  const [userFilterPosicao, setUserFilterPosicao] = useState<string>('all')
+  const [userFilterCidade, setUserFilterCidade] = useState<string>('all')
+  const [userFilterSegmento, setUserFilterSegmento] = useState<string>('all')
+  const [userFilterFaturamento, setUserFilterFaturamento] = useState<string>('all')
 
-  const filtered =
-    filterEvent === 'all'
-      ? registrations
-      : registrations.filter((r) => r.event_id === filterEvent)
+  /* ── memos ──────────────────────────────────────────── */
+  const registrationsCountByUser = useMemo(() => {
+    const m = new Map<string, number>()
+    for (const r of registrations) m.set(r.user_id, (m.get(r.user_id) ?? 0) + 1)
+    return m
+  }, [registrations])
 
-  const sorted = [...filtered].sort((a, b) => {
-    if (sortBy === 'recent') {
-      const timeA = a.created_at ? new Date(a.created_at).getTime() : 0
-      const timeB = b.created_at ? new Date(b.created_at).getTime() : 0
-      return timeB - timeA
-    }
-    if (sortBy === 'event') {
-      return a.event_titulo.localeCompare(b.event_titulo, 'pt-BR')
-    }
-    return (a.user_nome ?? a.user_email ?? '').localeCompare(
-      b.user_nome ?? b.user_email ?? '',
-      'pt-BR'
-    )
-  })
+  const referrerNameById = useMemo(() => {
+    const m = new Map<string, string>()
+    for (const u of allUsers) if (u.nome) m.set(u.id, u.nome)
+    return m
+  }, [allUsers])
 
-  const sortedUsers = [...allUsers].sort((a, b) => {
+  const filteredUsers = useMemo(() => {
+    let list = allUsers
+    const q = userSearch.trim().toLowerCase()
+    if (q) list = list.filter((u) => (u.nome ?? '').toLowerCase().includes(q) || (u.email ?? '').toLowerCase().includes(q))
+    if (userFilterPosicao !== 'all') list = list.filter((u) => (u.posicao_mercado ?? '') === userFilterPosicao)
+    if (userFilterCidade  !== 'all') list = list.filter((u) => normalizeCidadeEstado(u.cidade_estado) === userFilterCidade)
+    if (userFilterSegmento !== 'all') list = list.filter((u) => (u.segmento_negocio ?? '') === userFilterSegmento)
+    if (userFilterFaturamento !== 'all') list = list.filter((u) => (u.faixa_faturamento ?? '') === userFilterFaturamento)
+    return list
+  }, [allUsers, userSearch, userFilterPosicao, userFilterCidade, userFilterSegmento, userFilterFaturamento])
+
+  const FATURAMENTO_ORDER: Record<string, number> = {
+    'Prefiro não informar': 0,
+    'R$0–20k': 1,
+    'R$20k–50k': 2,
+    'R$50k–100k': 3,
+    'R$100k–300k': 4,
+    'R$300k–1M': 5,
+    'R$1M+': 6,
+  }
+  const faturamentoOrder = (faixa: string | null) => (faixa ? (FATURAMENTO_ORDER[faixa] ?? -1) : -1)
+
+  const sortedUsers = useMemo(() => [...filteredUsers].sort((a, b) => {
     if (userSortBy === 'recent') {
-      const timeA = a.updated_at ? new Date(a.updated_at).getTime() : 0
-      const timeB = b.updated_at ? new Date(b.updated_at).getTime() : 0
-      return timeB - timeA
+      return (b.updated_at ? new Date(b.updated_at).getTime() : 0)
+           - (a.updated_at ? new Date(a.updated_at).getTime() : 0)
+    }
+    if (userSortBy === 'faturamento') {
+      const ordA = faturamentoOrder(a.faixa_faturamento)
+      const ordB = faturamentoOrder(b.faixa_faturamento)
+      if (ordB !== ordA) return ordB - ordA
+      return (a.nome ?? a.email ?? '').localeCompare(b.nome ?? b.email ?? '', 'pt-BR')
     }
     return (a.nome ?? a.email ?? '').localeCompare(b.nome ?? b.email ?? '', 'pt-BR')
+  }), [filteredUsers, userSortBy])
+
+  const uniqueCidades   = useMemo(() => {
+    const normalized = allUsers.map((u) => normalizeCidadeEstado(u.cidade_estado)).filter(Boolean) as string[]
+    return [...new Set(normalized)].sort((a, b) => a.localeCompare(b, 'pt-BR'))
+  }, [allUsers])
+  const uniqueSegmentos = useMemo(() => [...new Set(allUsers.map((u) => u.segmento_negocio).filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b, 'pt-BR')), [allUsers])
+  const uniqueFaturamentos = useMemo(() => {
+    const faixas = ['R$0–20k', 'R$20k–50k', 'R$50k–100k', 'R$100k–300k', 'R$300k–1M', 'R$1M+', 'Prefiro não informar']
+    const present = new Set(allUsers.map((u) => u.faixa_faturamento).filter(Boolean) as string[])
+    return faixas.filter((f) => present.has(f))
+  }, [allUsers])
+
+  const topCidades = useMemo(() => {
+    const m = new Map<string, number>()
+    for (const u of allUsers) { const c = normalizeCidadeEstado(u.cidade_estado); if (c) m.set(c, (m.get(c) ?? 0) + 1) }
+    return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6)
+  }, [allUsers])
+
+  const topAprender = useMemo(() => {
+    const m = new Map<string, number>()
+    for (const u of allUsers) for (const item of u.o_que_quer_aprender ?? []) { const k = String(item).trim(); if (k) m.set(k, (m.get(k) ?? 0) + 1) }
+    return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6)
+  }, [allUsers])
+
+  const faturamentoByFaixa = useMemo(() => {
+    const m = new Map<string, number>()
+    for (const u of allUsers) {
+      const f = u.faixa_faturamento?.trim() || 'Não informado'
+      m.set(f, (m.get(f) ?? 0) + 1)
+    }
+    const order = ['R$1M+', 'R$300k–1M', 'R$100k–300k', 'R$50k–100k', 'R$20k–50k', 'R$0–20k', 'Prefiro não informar', 'Não informado']
+    return order.filter((faixa) => m.has(faixa)).map((faixa) => ({ faixa, total: m.get(faixa)! }))
+  }, [allUsers])
+
+  const totalEmpreendedores = allUsers.filter((u) => u.posicao_mercado === 'empreendedor').length
+  const totalLideres        = allUsers.filter((u) => u.posicao_mercado === 'lider').length
+  const mediaEvento         = stats.inscricoesPorEvento.length > 0 ? Math.round(stats.totalInscricoes / stats.inscricoesPorEvento.length) : 0
+
+  const nextEvents = useMemo(() => {
+    const now = new Date().toISOString()
+    return events.filter((e) => e.data_horario >= now).sort((a, b) => (a.data_horario > b.data_horario ? 1 : -1)).slice(0, 5)
+  }, [events])
+  const countByEvent = useMemo(() => new Map(stats.inscricoesPorEvento.map((i) => [i.eventoId, i.total])), [stats])
+
+  const filteredReg = filterEvent === 'all' ? registrations : registrations.filter((r) => r.event_id === filterEvent)
+  const sortedReg   = [...filteredReg].sort((a, b) => {
+    if (sortBy === 'recent') return (b.created_at ? new Date(b.created_at).getTime() : 0) - (a.created_at ? new Date(a.created_at).getTime() : 0)
+    if (sortBy === 'event')  return a.event_titulo.localeCompare(b.event_titulo, 'pt-BR')
+    return (a.user_nome ?? a.user_email ?? '').localeCompare(b.user_nome ?? b.user_email ?? '', 'pt-BR')
   })
 
+  const handleExportUsersCsv = () => {
+    const headers = ['Nome','Email','Telefone','Cidade/Estado','Posição','Empresa/Projeto','Empresa atual','Setor','Faturamento','O que quer aprender','Indicado por','Inscrições em eventos']
+    const rows = sortedUsers.map((u) => [
+      u.nome ?? '', u.email ?? '', u.telefone ?? '', u.cidade_estado ?? '', u.posicao_mercado ?? '',
+      u.empresa_projeto ?? '', u.empresa_atual ?? '', u.segmento_negocio ?? '', u.faixa_faturamento ?? '',
+      (u.o_que_quer_aprender ?? []).join('; '),
+      u.invited_by_user_id ? referrerNameById.get(u.invited_by_user_id) ?? '' : '',
+      String(registrationsCountByUser.get(u.id) ?? 0),
+    ])
+    const csv = [headers.map((h) => `"${h.replace(/"/g, '""')}"`).join(','), ...rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(','))].join('\r\n')
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `usuarios-${new Date().toISOString().slice(0, 10)}.csv`; a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  /* ── render ─────────────────────────────────────────── */
   return (
-    <section className="space-y-4 sm:space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold uppercase tracking-wide text-white sm:text-xl">
-          Dashboard
-        </h2>
-        <p className="mt-1 text-xs text-slate-400 sm:text-sm">
-          Dados de todos os usuários inscritos na plataforma e interesses em eventos.
+    <div className="space-y-6">
+
+      {/* Cabeçalho */}
+      <div className="flex flex-col gap-0.5 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-white">Dashboard</h2>
+          <p className="mt-0.5 text-sm text-slate-400">Visão geral da plataforma — usuários, eventos, conteúdo e indicações.</p>
+        </div>
+        <p className="text-xs text-slate-500 sm:text-right">
+          {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}
         </p>
       </div>
 
       {configError && (
-        <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-amber-200 sm:px-5 sm:py-4">
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-5 py-4 text-amber-200">
           <p className="font-semibold">Configuração necessária</p>
           <p className="mt-1 text-sm">{configError}</p>
-          <p className="mt-2 text-xs text-amber-300/80">
-            Vercel → Project Settings → Environment Variables
-          </p>
+          <p className="mt-2 text-xs text-amber-300/70">Vercel → Project Settings → Environment Variables</p>
         </div>
       )}
 
-      {/* Cards de resumo */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        <div className="rounded-xl border border-white/10 bg-[#1e293b] p-3 sm:p-5">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="rounded-lg bg-[#3b82f6]/20 p-2 sm:p-2.5">
-              <Users className="h-4 w-4 sm:h-5 sm:w-5 text-[#3b82f6]" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs sm:text-sm text-slate-400 truncate">Total de interesses</p>
-              <p className="text-xl sm:text-2xl font-bold text-white">{stats.totalInscricoes}</p>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-xl border border-white/10 bg-[#1e293b] p-3 sm:p-5">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="rounded-lg bg-emerald-500/20 p-2 sm:p-2.5">
-              <Users className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-400" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs sm:text-sm text-slate-400 truncate">Usuários únicos</p>
-              <p className="text-xl sm:text-2xl font-bold text-white">{stats.totalUsuariosUnicos}</p>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-xl border border-white/10 bg-[#1e293b] p-3 sm:p-5">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="rounded-lg bg-amber-500/20 p-2 sm:p-2.5">
-              <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs sm:text-sm text-slate-400 truncate">Eventos com interesses</p>
-              <p className="text-xl sm:text-2xl font-bold text-white">
-                {stats.inscricoesPorEvento.length}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="rounded-xl border border-white/10 bg-[#1e293b] p-3 sm:p-5">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="rounded-lg bg-violet-500/20 p-2 sm:p-2.5">
-              <Users className="h-4 w-4 sm:h-5 sm:w-5 text-violet-400" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs sm:text-sm text-slate-400 truncate">Média por evento</p>
-              <p className="text-xl sm:text-2xl font-bold text-white">
-                {stats.inscricoesPorEvento.length > 0
-                  ? Math.round(
-                      stats.totalInscricoes / stats.inscricoesPorEvento.length
-                    )
-                  : 0}
-              </p>
-            </div>
-          </div>
-        </div>
+        <KpiCard icon={<TrendingUp className="h-5 w-5" />} color="blue"   label="Total de interesses"      value={stats.totalInscricoes}          sub={`${mediaEvento} por evento`} />
+        <KpiCard icon={<Users      className="h-5 w-5" />} color="emerald" label="Usuários na plataforma"  value={allUsers.length}                 sub={`${stats.totalUsuariosUnicos} com interesse`} />
+        <KpiCard icon={<Calendar   className="h-5 w-5" />} color="amber"   label="Eventos com interesses"  value={stats.inscricoesPorEvento.length} sub={`de ${events.length} evento(s)`} />
+        <KpiCard icon={<UserPlus   className="h-5 w-5" />} color="cyan"    label="Usuários indicados"       value={referralStats.totalReferred}     sub={referralStats.topReferrers.length > 0 ? `por ${referralStats.topReferrers.length} indicador(es)` : 'nenhum ainda'} />
       </div>
 
-      {/* Todos os usuários inscritos */}
-      <div className="rounded-xl border border-white/10 bg-[#1e293b] overflow-hidden">
-        <button
-          type="button"
-          onClick={() => setExpandedUsers(!expandedUsers)}
-          className="flex w-full items-center justify-between gap-2 p-4 text-left hover:bg-white/5 transition sm:gap-4 sm:p-5"
-        >
-          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-            <Users className="h-5 w-5 flex-shrink-0 text-slate-400" />
-            <h3 className="truncate font-semibold text-white">Todos os usuários inscritos</h3>
-            <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-medium text-slate-300 flex-shrink-0">
-              {allUsers.length} usuário(s)
-            </span>
-          </div>
-          {expandedUsers ? (
-            <ChevronUp className="h-5 w-5 flex-shrink-0 text-slate-400" />
-          ) : (
-            <ChevronDown className="h-5 w-5 flex-shrink-0 text-slate-400" />
-          )}
-        </button>
+      {/* Layout principal: conteúdo largo + sidebar */}
+      <div className="grid gap-5 xl:grid-cols-[1fr_320px]">
 
-        {expandedUsers && (
-          <div className="border-t border-white/10">
-            <div className="flex flex-wrap items-center gap-2 border-b border-white/10 bg-white/5 px-4 py-3 sm:gap-3 sm:px-5">
-              <select
-                value={userSortBy}
-                onChange={(e) => setUserSortBy(e.target.value as 'name' | 'recent')}
-                className="min-w-0 flex-1 rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:border-[#3b82f6] focus:outline-none focus:ring-1 focus:ring-[#3b82f6] sm:flex-initial"
-              >
-                <option value="recent">Mais recente primeiro</option>
-                <option value="name">Por nome</option>
-              </select>
-            </div>
+        {/* ── COLUNA PRINCIPAL ── */}
+        <div className="min-w-0 space-y-5">
 
-            {sortedUsers.length === 0 ? (
-              <div className="px-4 py-12 text-center text-slate-400 sm:px-5">
-                Nenhum usuário encontrado.
+          {/* Tabela de usuários */}
+          <div className="rounded-2xl border border-white/10 bg-[#1e293b] overflow-hidden">
+            <button type="button" onClick={() => setExpandedUsers(!expandedUsers)}
+              className="flex w-full items-center gap-3 px-5 py-4 text-left hover:bg-white/5 transition">
+              <div className="rounded-xl bg-[#3b82f6]/10 p-2 text-[#3b82f6]"><Users className="h-5 w-5" /></div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white">Usuários inscritos</p>
+                <p className="text-xs text-slate-400">
+                  {sortedUsers.length === allUsers.length ? `${allUsers.length} usuário(s)` : `${sortedUsers.length} de ${allUsers.length}`}
+                </p>
               </div>
-            ) : (
-              <>
-                <div className="space-y-4 p-4 md:hidden max-h-[70vh] overflow-y-auto">
-                  {sortedUsers.map((u) => (
-                    <div
-                      key={u.id}
-                      className="rounded-xl border border-white/10 bg-white/5 p-4"
-                    >
-                      <p className="font-semibold text-white">{u.nome || '—'}</p>
-                      {u.email && (
-                        <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-400">
-                          <Mail className="h-3 w-3 flex-shrink-0" />
-                          {u.email}
-                        </p>
-                      )}
-                      {u.telefone && (
-                        <p className="mt-0.5 text-xs text-slate-400">{u.telefone}</p>
-                      )}
-                      {u.cidade_estado && (
-                        <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-400">
-                          <MapPin className="h-3 w-3 flex-shrink-0" />
-                          {u.cidade_estado}
-                        </p>
-                      )}
-                      <p className="mt-2 text-xs text-slate-500">
-                        {u.posicao_mercado === 'empreendedor' && (u.empresa_projeto || u.segmento_negocio) && (
-                          <>Empresa: {u.empresa_projeto || '—'} • Setor: {u.segmento_negocio || '—'} • {u.faixa_faturamento || ''}</>
-                        )}
-                        {u.posicao_mercado === 'lider' && (u.empresa_atual || u.area_gestao) && (
-                          <>{u.cargo_atual || ''} • {u.empresa_atual || '—'} • {u.area_gestao || ''}</>
-                        )}
-                      </p>
-                      {u.o_que_quer_aprender && u.o_que_quer_aprender.length > 0 && (
-                        <p className="mt-2 text-xs text-slate-300">
-                          <span className="font-medium text-slate-400">Quer aprender:</span>{' '}
-                          {u.o_que_quer_aprender.join(', ')}
-                        </p>
-                      )}
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {u.telefone && (
-                          <a
-                            href={`https://wa.me/55${u.telefone.replace(/\D/g, '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/20 px-3 py-2 text-sm font-medium text-emerald-400"
-                          >
-                            <MessageCircle className="h-4 w-4" />
-                            WhatsApp
-                          </a>
-                        )}
-                        {u.instagram && (
-                          <a
-                            href={`https://instagram.com/${u.instagram.replace('@', '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-[#3b82f6]/20 px-3 py-2 text-sm font-medium text-[#3b82f6]"
-                          >
-                            {u.instagram}
-                          </a>
-                        )}
-                        {u.linkedin && (
-                          <a
-                            href={u.linkedin.startsWith('http') ? u.linkedin : `https://${u.linkedin}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-[#0a66c2]/20 px-3 py-2 text-sm font-medium text-[#0a66c2]"
-                          >
-                            LinkedIn
-                          </a>
-                        )}
-                        {!u.telefone && !u.instagram && !u.linkedin && (
-                          <span className="text-sm text-slate-500">Sem contato</span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+              <Link href="/admin/usuarios" onClick={(e) => e.stopPropagation()}
+                className="mr-2 hidden items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-slate-300 hover:bg-white/5 sm:flex">
+                Ver tudo <ArrowUpRight className="h-3 w-3" />
+              </Link>
+              {expandedUsers ? <ChevronUp className="h-5 w-5 flex-shrink-0 text-slate-400" /> : <ChevronDown className="h-5 w-5 flex-shrink-0 text-slate-400" />}
+            </button>
+
+            {expandedUsers && (
+              <div className="border-t border-white/10">
+                {/* Barra de filtros */}
+                <div className="flex flex-wrap items-center gap-2 border-b border-white/10 bg-white/5 px-4 py-3">
+                  <div className="relative min-w-0 flex-1 sm:max-w-[220px]">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <input type="search" placeholder="Nome ou email..." value={userSearch} onChange={(e) => setUserSearch(e.target.value)}
+                      className="w-full rounded-lg border border-white/10 bg-[#0f172a] py-2 pl-9 pr-3 text-sm text-white placeholder:text-slate-500 focus:border-[#3b82f6] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]" />
+                  </div>
+                  <select value={userFilterPosicao} onChange={(e) => setUserFilterPosicao(e.target.value)}
+                    className="rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none">
+                    <option value="all">Posição: todas</option>
+                    <option value="empreendedor">Empreendedor</option>
+                    <option value="lider">Líder</option>
+                  </select>
+                  <select value={userFilterCidade} onChange={(e) => setUserFilterCidade(e.target.value)}
+                    className="min-w-0 max-w-[160px] rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none">
+                    <option value="all">Cidade: todas</option>
+                    {uniqueCidades.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                  <select value={userFilterSegmento} onChange={(e) => setUserFilterSegmento(e.target.value)}
+                    className="min-w-0 max-w-[140px] rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none">
+                    <option value="all">Setor: todos</option>
+                    {uniqueSegmentos.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                  <select value={userFilterFaturamento} onChange={(e) => setUserFilterFaturamento(e.target.value)}
+                    className="min-w-0 max-w-[160px] rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none">
+                    <option value="all">Faturamento: todos</option>
+                    {uniqueFaturamentos.map((f) => <option key={f} value={f}>{f}</option>)}
+                  </select>
+                  <select value={userSortBy} onChange={(e) => setUserSortBy(e.target.value as 'name' | 'recent' | 'faturamento')}
+                    className="rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none">
+                    <option value="recent">Mais recente</option>
+                    <option value="name">Por nome</option>
+                    <option value="faturamento">Maior faturamento</option>
+                  </select>
+                  <button type="button" onClick={handleExportUsersCsv}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/15 px-3 py-2 text-sm font-medium text-emerald-400 hover:bg-emerald-500/25 transition">
+                    <Download className="h-4 w-4" /> CSV
+                  </button>
                 </div>
 
-                <div className="hidden overflow-x-auto max-h-[480px] overflow-y-auto md:block">
-                  <table className="w-full min-w-[900px] text-sm">
-                    <thead className="sticky top-0 bg-[#1e293b] text-left">
-                      <tr className="border-b border-white/10">
-                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Nome</th>
-                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Telefone</th>
-                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Email</th>
-                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Empresa</th>
-                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Faturamento</th>
-                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Setor</th>
-                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Cidade & Estado</th>
-                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Quer aprender</th>
-                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Contato</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                {sortedUsers.length === 0 ? (
+                  <p className="py-10 text-center text-slate-400 text-sm">Nenhum usuário encontrado.</p>
+                ) : (
+                  <>
+                    {/* Mobile cards */}
+                    <div className="space-y-3 p-4 md:hidden max-h-[60vh] overflow-y-auto">
                       {sortedUsers.map((u) => (
-                        <tr key={u.id} className="border-b border-white/5 hover:bg-white/5 transition">
-                          <td className="px-4 py-3 sm:px-5">
-                            <p className="font-medium text-white">{u.nome || '—'}</p>
-                          </td>
-                          <td className="px-4 py-3 sm:px-5">
-                            <p className="text-slate-300">{u.telefone || '—'}</p>
-                          </td>
-                          <td className="px-4 py-3 sm:px-5">
-                            <p className="flex items-center gap-1.5 text-slate-300">
-                              <Mail className="h-3.5 w-3.5 flex-shrink-0" />
-                              <span className="truncate max-w-[180px]">{u.email || '—'}</span>
-                            </p>
-                          </td>
-                          <td className="px-4 py-3 sm:px-5">
-                            <p className="text-slate-300 max-w-[140px] truncate" title={u.empresa_projeto || u.empresa_atual || undefined}>
-                              {u.empresa_projeto || u.empresa_atual || '—'}
-                            </p>
-                          </td>
-                          <td className="px-4 py-3 sm:px-5">
-                            <p className="text-slate-300 text-xs">{u.faixa_faturamento || '—'}</p>
-                          </td>
-                          <td className="px-4 py-3 sm:px-5">
-                            <p className="text-slate-300 text-xs max-w-[100px] truncate" title={u.segmento_negocio || undefined}>
-                              {u.segmento_negocio || '—'}
-                            </p>
-                          </td>
-                          <td className="px-4 py-3 sm:px-5">
-                            <p className="flex items-center gap-1.5 text-slate-300 text-xs">
-                              {u.cidade_estado ? (
-                                <>
-                                  <MapPin className="h-3 w-3 flex-shrink-0" />
-                                  {u.cidade_estado}
-                                </>
-                              ) : (
-                                '—'
-                              )}
-                            </p>
-                          </td>
-                          <td className="px-4 py-3 sm:px-5">
-                            {u.o_que_quer_aprender && u.o_que_quer_aprender.length > 0 ? (
-                              <p className="text-slate-300 text-xs max-w-[180px] line-clamp-2" title={u.o_que_quer_aprender.join(', ')}>
-                                {u.o_que_quer_aprender.join(', ')}
-                              </p>
-                            ) : (
-                              <span className="text-slate-500">—</span>
+                        <div key={u.id} className="rounded-xl border border-white/10 bg-white/5 p-4">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="font-semibold text-white">{u.nome || '—'}</p>
+                            {u.posicao_mercado && (
+                              <span className={`flex-shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${u.posicao_mercado === 'empreendedor' ? 'bg-[#3b82f6]/15 text-[#3b82f6]' : 'bg-violet-500/15 text-violet-400'}`}>
+                                {u.posicao_mercado}
+                              </span>
                             )}
-                          </td>
-                          <td className="px-4 py-3 sm:px-5">
-                            <div className="flex flex-col gap-1">
-                              {u.telefone && (
-                                <a
-                                  href={`https://wa.me/55${u.telefone.replace(/\D/g, '')}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1.5 text-emerald-400 hover:underline"
-                                >
-                                  <MessageCircle className="h-3.5 w-3.5" />
-                                  WhatsApp
-                                </a>
-                              )}
-                              {u.instagram && (
-                                <a
-                                  href={`https://instagram.com/${u.instagram.replace('@', '')}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1.5 text-[#3b82f6] hover:underline"
-                                >
-                                  {u.instagram}
-                                </a>
-                              )}
-                              {u.linkedin && (
-                                <a
-                                  href={u.linkedin.startsWith('http') ? u.linkedin : `https://${u.linkedin}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1.5 text-[#0a66c2] hover:underline"
-                                >
-                                  LinkedIn
-                                </a>
-                              )}
-                              {!u.telefone && !u.instagram && !u.linkedin && (
-                                <span className="text-slate-500">—</span>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
+                          </div>
+                          {u.email && <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-400"><Mail className="h-3 w-3" />{u.email}</p>}
+                          {u.cidade_estado && <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-400"><MapPin className="h-3 w-3" />{u.cidade_estado}</p>}
+                          {u.faixa_faturamento && (
+                            <p className="mt-0.5 flex items-center gap-1.5 text-xs text-emerald-400/90">
+                              <DollarSign className="h-3 w-3" />{u.faixa_faturamento}
+                            </p>
+                          )}
+                          {(u.invited_by_user_id || (registrationsCountByUser.get(u.id) ?? 0) > 0) && (
+                            <p className="mt-1.5 flex flex-wrap gap-3 text-xs text-slate-400">
+                              {u.invited_by_user_id && <span>Indicado por: <strong className="text-slate-200">{referrerNameById.get(u.invited_by_user_id) ?? '—'}</strong></span>}
+                              {(registrationsCountByUser.get(u.id) ?? 0) > 0 && <span className="rounded-full bg-amber-400/10 px-2 py-0.5 text-amber-300">{registrationsCountByUser.get(u.id)} evento(s)</span>}
+                            </p>
+                          )}
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {u.telefone && <a href={`https://wa.me/55${u.telefone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/15 px-3 py-1.5 text-sm font-medium text-emerald-400"><MessageCircle className="h-3.5 w-3.5" /> WhatsApp</a>}
+                            {u.instagram && <a href={`https://instagram.com/${u.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="rounded-lg bg-[#3b82f6]/15 px-3 py-1.5 text-sm font-medium text-[#3b82f6]">{u.instagram}</a>}
+                          </div>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              </>
+                    </div>
+                    {/* Desktop tabela */}
+                    <div className="hidden overflow-x-auto max-h-[420px] overflow-y-auto md:block">
+                      <table className="w-full min-w-[960px] text-sm">
+                        <thead className="sticky top-0 bg-[#1e293b]">
+                          <tr className="border-b border-white/10 text-left">
+                            <th className="px-5 py-3 font-semibold text-slate-400">Nome</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">Contato</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">Empresa</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">Faturamento</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">Cidade</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">Indicado por</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400 text-center">Eventos</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">Links</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sortedUsers.map((u) => (
+                            <tr key={u.id} className="border-b border-white/5 hover:bg-white/5 transition">
+                              <td className="px-5 py-3">
+                                <p className="font-medium text-white">{u.nome || '—'}</p>
+                                {u.posicao_mercado && (
+                                  <span className={`mt-0.5 inline-block rounded-full px-1.5 py-0.5 text-xs ${u.posicao_mercado === 'empreendedor' ? 'bg-[#3b82f6]/10 text-[#3b82f6]' : 'bg-violet-500/10 text-violet-400'}`}>
+                                    {u.posicao_mercado}
+                                  </span>
+                                )}
+                              </td>
+                              <td className="px-5 py-3">
+                                {u.email && <p className="flex items-center gap-1 text-xs text-slate-300"><Mail className="h-3 w-3" /><span className="max-w-[150px] truncate">{u.email}</span></p>}
+                                {u.telefone && <p className="text-xs text-slate-400">{u.telefone}</p>}
+                              </td>
+                              <td className="px-5 py-3">
+                                <p className="max-w-[120px] truncate text-slate-300 text-sm" title={u.empresa_projeto || u.empresa_atual || undefined}>{u.empresa_projeto || u.empresa_atual || '—'}</p>
+                                <p className="text-xs text-slate-500">{u.segmento_negocio || ''}</p>
+                              </td>
+                              <td className="px-5 py-3">
+                                {u.faixa_faturamento ? (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-medium text-emerald-400" title="Faixa de faturamento">
+                                    <DollarSign className="h-3 w-3" />{u.faixa_faturamento}
+                                  </span>
+                                ) : (
+                                  <span className="text-slate-600">—</span>
+                                )}
+                              </td>
+                              <td className="px-5 py-3 text-xs text-slate-300">{u.cidade_estado || '—'}</td>
+                              <td className="px-5 py-3 text-xs text-slate-400 max-w-[100px] truncate">{u.invited_by_user_id ? referrerNameById.get(u.invited_by_user_id) ?? '—' : '—'}</td>
+                              <td className="px-5 py-3 text-center">
+                                {(registrationsCountByUser.get(u.id) ?? 0) > 0
+                                  ? <span className="rounded-full bg-amber-400/10 px-2 py-0.5 text-xs font-semibold text-amber-300">{registrationsCountByUser.get(u.id)}</span>
+                                  : <span className="text-slate-600">—</span>}
+                              </td>
+                              <td className="px-5 py-3">
+                                <div className="flex flex-col gap-1">
+                                  {u.telefone && <a href={`https://wa.me/55${u.telefone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:underline"><MessageCircle className="h-3 w-3" /> WA</a>}
+                                  {u.instagram && <a href={`https://instagram.com/${u.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-xs text-[#3b82f6] hover:underline truncate max-w-[80px]">{u.instagram}</a>}
+                                  {u.linkedin && <a href={u.linkedin.startsWith('http') ? u.linkedin : `https://${u.linkedin}`} target="_blank" rel="noopener noreferrer" className="text-xs text-[#0a66c2] hover:underline">LinkedIn</a>}
+                                  {!u.telefone && !u.instagram && !u.linkedin && <span className="text-slate-600">—</span>}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                )}
+              </div>
             )}
           </div>
-        )}
-      </div>
 
-      {/* Inscrições por evento */}
-      {stats.inscricoesPorEvento.length > 0 && (
-        <div className="rounded-xl border border-white/10 bg-[#1e293b] p-4 sm:p-5">
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-300 sm:mb-4 sm:text-sm">
-            Interesses por evento
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {stats.inscricoesPorEvento
-              .sort((a, b) => b.total - a.total)
-              .map(({ eventoId, titulo, total }) => (
-                <span
-                  key={eventoId}
-                  className="rounded-lg bg-white/5 px-3 py-1.5 text-sm text-slate-200"
-                >
-                  {titulo}: <strong className="text-white">{total}</strong>
-                </span>
-              ))}
+          {/* Lista de interesses */}
+          <div className="rounded-2xl border border-white/10 bg-[#1e293b] overflow-hidden">
+            <button type="button" onClick={() => setExpandedReg(!expandedReg)}
+              className="flex w-full items-center gap-3 px-5 py-4 text-left hover:bg-white/5 transition">
+              <div className="rounded-xl bg-amber-500/10 p-2 text-amber-400"><Layers className="h-5 w-5" /></div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white">Lista de interesses</p>
+                <p className="text-xs text-slate-400">{registrations.length} registro(s)</p>
+              </div>
+              {expandedReg ? <ChevronUp className="h-5 w-5 flex-shrink-0 text-slate-400" /> : <ChevronDown className="h-5 w-5 flex-shrink-0 text-slate-400" />}
+            </button>
+
+            {expandedReg && (
+              <div className="border-t border-white/10">
+                <div className="flex flex-wrap gap-2 border-b border-white/10 bg-white/5 px-4 py-3">
+                  <select value={filterEvent} onChange={(e) => setFilterEvent(e.target.value)}
+                    className="flex-1 rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none sm:flex-initial">
+                    <option value="all">Todos os eventos</option>
+                    {stats.inscricoesPorEvento.map(({ eventoId, titulo }) => <option key={eventoId} value={eventoId}>{titulo}</option>)}
+                  </select>
+                  <select value={sortBy} onChange={(e) => setSortBy(e.target.value as 'recent' | 'event' | 'name')}
+                    className="flex-1 rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none sm:flex-initial">
+                    <option value="recent">Mais recente</option>
+                    <option value="event">Por evento</option>
+                    <option value="name">Por nome</option>
+                  </select>
+                </div>
+                {sortedReg.length === 0 ? (
+                  <p className="py-10 text-center text-sm text-slate-400">Nenhum interesse encontrado.</p>
+                ) : (
+                  <>
+                    {/* Mobile */}
+                    <div className="space-y-3 p-4 md:hidden max-h-[60vh] overflow-y-auto">
+                      {sortedReg.map((r) => (
+                        <div key={r.id || `${r.event_id}-${r.user_id}`} className="rounded-xl border border-white/10 bg-white/5 p-4">
+                          <p className="mb-1 text-xs text-slate-500">{formatDate(r.created_at)}</p>
+                          <p className="font-semibold text-white">{r.user_nome || '—'}</p>
+                          {r.user_email && <p className="mt-0.5 flex items-center gap-1 text-xs text-slate-400"><Mail className="h-3 w-3" />{r.user_email}</p>}
+                          <div className="mt-2 rounded-lg border border-white/5 bg-white/5 px-3 py-2">
+                            <p className="font-medium text-white text-sm">{r.event_titulo}</p>
+                            <p className="text-xs text-slate-400">{formatEventDate(r.event_data_horario)}</p>
+                          </div>
+                          {r.user_telefone && (
+                            <a href={`https://wa.me/55${r.user_telefone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer"
+                              className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/15 px-3 py-1.5 text-sm font-medium text-emerald-400">
+                              <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
+                            </a>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    {/* Desktop */}
+                    <div className="hidden overflow-x-auto max-h-[420px] overflow-y-auto md:block">
+                      <table className="w-full min-w-[640px] text-sm">
+                        <thead className="sticky top-0 bg-[#1e293b]">
+                          <tr className="border-b border-white/10 text-left">
+                            <th className="px-5 py-3 font-semibold text-slate-400">Data</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">Participante</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">Evento</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">Empresa</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">Contato</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sortedReg.map((r) => (
+                            <tr key={r.id || `${r.event_id}-${r.user_id}`} className="border-b border-white/5 hover:bg-white/5 transition">
+                              <td className="px-5 py-3 text-xs text-slate-400 whitespace-nowrap">{formatDate(r.created_at)}</td>
+                              <td className="px-5 py-3">
+                                <p className="font-medium text-white">{r.user_nome || '—'}</p>
+                                {r.user_email && <p className="flex items-center gap-1 text-xs text-slate-400"><Mail className="h-3 w-3" />{r.user_email}</p>}
+                                {r.user_cidade && <p className="flex items-center gap-1 text-xs text-slate-400"><MapPin className="h-3 w-3" />{r.user_cidade}</p>}
+                              </td>
+                              <td className="px-5 py-3">
+                                <p className="font-medium text-white">{r.event_titulo}</p>
+                                <p className="text-xs text-slate-400">{formatEventDate(r.event_data_horario)}</p>
+                              </td>
+                              <td className="px-5 py-3">
+                                {r.user_empresa && <p className="flex items-center gap-1 text-slate-300 text-sm"><Building2 className="h-3 w-3 flex-shrink-0" />{r.user_empresa}</p>}
+                                {r.user_area && <p className="text-xs text-slate-400">{r.user_area}</p>}
+                              </td>
+                              <td className="px-5 py-3">
+                                <div className="flex flex-col gap-1">
+                                  {r.user_telefone && <a href={`https://wa.me/55${r.user_telefone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:underline"><MessageCircle className="h-3 w-3" /> WhatsApp</a>}
+                                  {r.user_instagram && <a href={`https://instagram.com/${r.user_instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-xs text-[#3b82f6] hover:underline">{r.user_instagram}</a>}
+                                  {!r.user_telefone && !r.user_instagram && <span className="text-slate-600">—</span>}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
-      )}
 
-      {/* Lista de inscrições */}
-      <div className="rounded-xl border border-white/10 bg-[#1e293b] overflow-hidden">
-        <button
-          type="button"
-          onClick={() => setExpanded(!expanded)}
-          className="flex w-full items-center justify-between gap-2 p-4 text-left hover:bg-white/5 transition sm:gap-4 sm:p-5"
-        >
-          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-            <Filter className="h-5 w-5 flex-shrink-0 text-slate-400" />
-            <h3 className="truncate font-semibold text-white">Lista de interesses</h3>
-            <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-medium text-slate-300 flex-shrink-0">
-              {registrations.length} registro(s)
-            </span>
-          </div>
-          {expanded ? (
-            <ChevronUp className="h-5 w-5 flex-shrink-0 text-slate-400" />
-          ) : (
-            <ChevronDown className="h-5 w-5 flex-shrink-0 text-slate-400" />
-          )}
-        </button>
+        {/* ── SIDEBAR DIREITA ── */}
+        <div className="space-y-4 xl:max-h-[calc(100vh-180px)] xl:overflow-y-auto xl:pr-1">
 
-        {expanded && (
-          <div className="border-t border-white/10">
-            {/* Filtros e ordenação */}
-            <div className="flex flex-wrap items-center gap-2 border-b border-white/10 bg-white/5 px-4 py-3 sm:gap-3 sm:px-5">
-              <select
-                value={filterEvent}
-                onChange={(e) => setFilterEvent(e.target.value)}
-                className="min-w-0 flex-1 rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:border-[#3b82f6] focus:outline-none focus:ring-1 focus:ring-[#3b82f6] sm:flex-initial"
-              >
-                <option value="all">Todos os eventos</option>
-                {stats.inscricoesPorEvento.map(({ eventoId, titulo }) => (
-                  <option key={eventoId} value={eventoId}>
-                    {titulo}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as 'recent' | 'event' | 'name')}
-                className="min-w-0 flex-1 rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:border-[#3b82f6] focus:outline-none focus:ring-1 focus:ring-[#3b82f6] sm:flex-initial"
-              >
-                <option value="recent">Mais recente primeiro</option>
-                <option value="event">Por evento</option>
-                <option value="name">Por nome</option>
-              </select>
-            </div>
-
-            {sorted.length === 0 ? (
-              <div className="px-4 py-12 text-center text-slate-400 sm:px-5">
-                Nenhum interesse encontrado.
-              </div>
+          {/* Próximos eventos */}
+          <SideWidget icon={<CalendarClock className="h-4 w-4" />} title="Próximos eventos" color="text-emerald-400"
+            action={{ label: 'Convidados', href: '/admin/convidados' }}>
+            {nextEvents.length === 0 ? (
+              <p className="text-xs text-slate-400">Nenhum evento futuro.</p>
             ) : (
-              <>
-                {/* Layout mobile: cards */}
-                <div className="space-y-4 p-4 md:hidden max-h-[70vh] overflow-y-auto">
-                  {sorted.map((r) => (
-                    <div
-                      key={r.id || `${r.event_id}-${r.user_id}`}
-                      className="rounded-xl border border-white/10 bg-white/5 p-4"
-                    >
-                      <p className="mb-3 text-xs text-slate-500">{formatDate(r.created_at)}</p>
-                      <p className="font-semibold text-white">{r.user_nome || '—'}</p>
-                      {r.user_email && (
-                        <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-400">
-                          <Mail className="h-3 w-3 flex-shrink-0" />
-                          {r.user_email}
-                        </p>
-                      )}
-                      {r.user_cidade && (
-                        <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-400">
-                          <MapPin className="h-3 w-3 flex-shrink-0" />
-                          {r.user_cidade}
-                        </p>
-                      )}
-                      <p className="mt-3 font-medium text-white">{r.event_titulo}</p>
-                      <p className="text-xs text-slate-400">{formatEventDate(r.event_data_horario)}</p>
-                      {r.user_empresa && (
-                        <p className="mt-2 flex items-center gap-1.5 text-sm text-slate-300">
-                          <Building2 className="h-3 w-3 flex-shrink-0" />
-                          {r.user_empresa}
-                        </p>
-                      )}
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {r.user_telefone && (
-                          <a
-                            href={`https://wa.me/55${r.user_telefone.replace(/\D/g, '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/20 px-3 py-2 text-sm font-medium text-emerald-400"
-                          >
-                            <MessageCircle className="h-4 w-4" />
-                            WhatsApp
-                          </a>
-                        )}
-                        {r.user_instagram && (
-                          <a
-                            href={`https://instagram.com/${r.user_instagram.replace('@', '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-[#3b82f6]/20 px-3 py-2 text-sm font-medium text-[#3b82f6]"
-                          >
-                            {r.user_instagram}
-                          </a>
-                        )}
-                        {!r.user_telefone && !r.user_instagram && (
-                          <span className="text-sm text-slate-500">Sem contato</span>
-                        )}
-                      </div>
+              <ul className="space-y-2.5">
+                {nextEvents.map((e) => (
+                  <li key={e.id} className="group rounded-xl border border-white/5 bg-white/5 p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-medium text-white leading-snug">{e.titulo}</p>
+                      <span className="flex-shrink-0 rounded-full bg-white/10 px-2 py-0.5 text-xs font-semibold text-slate-300">
+                        {countByEvent.get(e.id) ?? 0}
+                      </span>
                     </div>
-                  ))}
-                </div>
-
-                {/* Layout desktop: tabela */}
-                <div className="hidden overflow-x-auto max-h-[480px] overflow-y-auto md:block">
-                  <table className="w-full min-w-[640px] text-sm">
-                    <thead className="sticky top-0 bg-[#1e293b] text-left">
-                      <tr className="border-b border-white/10">
-                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Data</th>
-                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Participante</th>
-                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Evento</th>
-                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Empresa</th>
-                        <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Contato / WhatsApp</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sorted.map((r) => (
-                        <tr
-                          key={r.id || `${r.event_id}-${r.user_id}`}
-                          className="border-b border-white/5 hover:bg-white/5 transition"
-                        >
-                          <td className="px-4 py-3 text-slate-300 whitespace-nowrap sm:px-5">
-                            {formatDate(r.created_at)}
-                          </td>
-                          <td className="px-4 py-3 sm:px-5">
-                            <div className="space-y-0.5">
-                              <p className="font-medium text-white">{r.user_nome || '—'}</p>
-                              {r.user_email && (
-                                <p className="flex items-center gap-1.5 text-xs text-slate-400">
-                                  <Mail className="h-3 w-3" />
-                                  {r.user_email}
-                                </p>
-                              )}
-                              {r.user_cidade && (
-                                <p className="flex items-center gap-1.5 text-xs text-slate-400">
-                                  <MapPin className="h-3 w-3" />
-                                  {r.user_cidade}
-                                </p>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 sm:px-5">
-                            <div className="space-y-0.5">
-                              <p className="font-medium text-white">{r.event_titulo}</p>
-                              <p className="text-xs text-slate-400">{formatEventDate(r.event_data_horario)}</p>
-                              <p className="text-xs text-slate-400">{r.event_local}</p>
-                              {r.event_capacidade != null && (
-                                <p className="text-xs text-slate-500">Capacidade: {r.event_capacidade}</p>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 sm:px-5">
-                            <div className="space-y-0.5">
-                              {r.user_empresa && (
-                                <p className="flex items-center gap-1.5 text-slate-300">
-                                  <Building2 className="h-3 w-3" />
-                                  {r.user_empresa}
-                                </p>
-                              )}
-                              {r.user_area && (
-                                <p className="text-xs text-slate-400">{r.user_area}</p>
-                              )}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 sm:px-5">
-                            <div className="flex flex-col gap-1">
-                              {r.user_telefone && (
-                                <a
-                                  href={`https://wa.me/55${r.user_telefone.replace(/\D/g, '')}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1.5 text-emerald-400 hover:underline"
-                                >
-                                  <MessageCircle className="h-3.5 w-3.5" />
-                                  WhatsApp
-                                </a>
-                              )}
-                              {r.user_instagram && (
-                                <a
-                                  href={`https://instagram.com/${r.user_instagram.replace('@', '')}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1.5 text-[#3b82f6] hover:underline"
-                                >
-                                  {r.user_instagram}
-                                </a>
-                              )}
-                              {!r.user_telefone && !r.user_instagram && (
-                                <span className="text-slate-500">—</span>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </>
+                    <p className="mt-1 flex items-center gap-1 text-xs text-slate-500">
+                      <Clock className="h-3 w-3" />{formatEventShort(e.data_horario)}
+                    </p>
+                  </li>
+                ))}
+              </ul>
             )}
-          </div>
-        )}
+          </SideWidget>
+
+          {/* Interesses por evento */}
+          {stats.inscricoesPorEvento.length > 0 && (
+            <SideWidget icon={<BarChart3 className="h-4 w-4" />} title="Interesses por evento" color="text-violet-400">
+              <div className="space-y-2.5">
+                {stats.inscricoesPorEvento.sort((a, b) => b.total - a.total).map(({ eventoId, titulo, total }) => (
+                  <div key={eventoId}>
+                    <div className="mb-0.5 flex items-center justify-between gap-2 text-xs">
+                      <span className="truncate text-slate-300">{titulo}</span>
+                    </div>
+                    <ProgressBar value={total} max={Math.max(...stats.inscricoesPorEvento.map((i) => i.total))} color="bg-violet-500" />
+                  </div>
+                ))}
+              </div>
+            </SideWidget>
+          )}
+
+          {/* Por faixa de faturamento */}
+          {faturamentoByFaixa.length > 0 && (
+            <SideWidget icon={<DollarSign className="h-4 w-4" />} title="Por faturamento" color="text-emerald-400">
+              <p className="mb-2 text-xs text-slate-500">
+                Usuários por faixa de faturamento mensal
+              </p>
+              <div className="space-y-2">
+                {faturamentoByFaixa.map(({ faixa, total }) => (
+                  <div key={faixa}>
+                    <div className="mb-0.5 flex justify-between text-xs">
+                      <span className="truncate text-slate-300">{faixa}</span>
+                      <span className="font-semibold text-emerald-400">{total}</span>
+                    </div>
+                    <ProgressBar value={total} max={Math.max(...faturamentoByFaixa.map((i) => i.total))} color="bg-emerald-500" />
+                  </div>
+                ))}
+              </div>
+            </SideWidget>
+          )}
+
+          {/* Indicações */}
+          <SideWidget icon={<UserPlus className="h-4 w-4" />} title="Indicações" color="text-cyan-400">
+            <p className="mb-3 text-xs text-slate-500">
+              Total indicado: <strong className="text-white">{referralStats.totalReferred}</strong>
+            </p>
+            {referralStats.topReferrers.length > 0 ? (
+              <ul className="space-y-2">
+                {referralStats.topReferrers.slice(0, 5).map((r, i) => (
+                  <li key={r.referrerId} className="flex items-center gap-2">
+                    <span className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold ${i === 0 ? 'bg-amber-400/20 text-amber-400' : 'bg-white/10 text-slate-500'}`}>{i + 1}</span>
+                    <span className="min-w-0 flex-1 truncate text-sm text-slate-300">{r.referrerName}</span>
+                    <span className="rounded-full bg-cyan-500/15 px-2 py-0.5 text-xs font-semibold text-cyan-400">{r.count}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : <p className="text-xs text-slate-500">Nenhuma indicação ainda.</p>}
+          </SideWidget>
+
+          {/* Conteúdo */}
+          <SideWidget icon={<FileText className="h-4 w-4" />} title="Conteúdo" color="text-amber-400"
+            action={{ label: 'Gerenciar', href: '/admin/conteudo' }}>
+            <p className="mb-2 text-xs text-slate-500">
+              <strong className="text-white">{contentStats.totalArticles}</strong> artigo(s)
+            </p>
+            {Object.keys(contentStats.byTipo).length > 0 && (
+              <div className="mb-3 flex flex-wrap gap-1.5">
+                {Object.entries(contentStats.byTipo).map(([tipo, n]) => (
+                  <span key={tipo} className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-xs text-slate-300">{tipo} <strong className="text-white">{n}</strong></span>
+                ))}
+              </div>
+            )}
+            {contentStats.lastArticles.length > 0 && (
+              <ul className="space-y-1.5 text-xs text-slate-400">
+                {contentStats.lastArticles.map((a) => (
+                  <li key={a.id} className="flex items-start gap-1.5">
+                    <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-400" />
+                    <span className="line-clamp-1 flex-1">{a.titulo}</span>
+                    {a.publicado_em && <span className="flex-shrink-0 text-slate-600">{formatDate(a.publicado_em)}</span>}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </SideWidget>
+
+          {/* Perfil da comunidade */}
+          {allUsers.length > 0 && (
+            <SideWidget icon={<Award className="h-4 w-4" />} title="Perfil da comunidade" color="text-violet-400"
+              action={{ label: 'Ver usuários', href: '/admin/usuarios' }}>
+              <div className="space-y-4">
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Posição</p>
+                  <div className="space-y-2">
+                    {totalEmpreendedores > 0 && (
+                      <div>
+                        <div className="mb-0.5 flex justify-between text-xs"><span className="text-slate-400">Empreendedores</span></div>
+                        <ProgressBar value={totalEmpreendedores} max={allUsers.length} color="bg-[#3b82f6]" />
+                      </div>
+                    )}
+                    {totalLideres > 0 && (
+                      <div>
+                        <div className="mb-0.5 flex justify-between text-xs"><span className="text-slate-400">Líderes</span></div>
+                        <ProgressBar value={totalLideres} max={allUsers.length} color="bg-violet-500" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Top cidades</p>
+                  <div className="space-y-1.5">
+                    {topCidades.slice(0, 5).map(([cidade, n]) => (
+                      <div key={cidade}>
+                        <div className="mb-0.5 flex justify-between text-xs text-slate-400"><span className="truncate">{cidade}</span></div>
+                        <ProgressBar value={n} max={topCidades[0]?.[1] ?? 1} color="bg-emerald-500" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Quer aprender</p>
+                  <div className="space-y-1.5">
+                    {topAprender.slice(0, 5).map(([item, n]) => (
+                      <div key={item}>
+                        <div className="mb-0.5 text-xs text-slate-400 truncate" title={item}>{item}</div>
+                        <ProgressBar value={n} max={topAprender[0]?.[1] ?? 1} color="bg-amber-400" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </SideWidget>
+          )}
+
+        </div>
       </div>
-    </section>
+    </div>
   )
 }

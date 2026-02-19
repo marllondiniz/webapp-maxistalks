@@ -6,6 +6,8 @@ import type { ProfileRecord } from '@/lib/profile'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { ProfileForm } from './ProfileForm'
 import { ConvidarAmigo } from './ConvidarAmigo'
+import { MinhasInscricoes } from './MinhasInscricoes'
+import { MinhasIndicacoes } from './MinhasIndicacoes'
 
 export default function PerfilPage() {
   const router = useRouter()
@@ -79,9 +81,14 @@ export default function PerfilPage() {
       />
 
       {profile?.id && (
-        <div className="mt-8">
-          <ConvidarAmigo userId={profile.id} />
-        </div>
+        <>
+          <MinhasInscricoes userId={profile.id} />
+
+          <div className="space-y-4">
+            <MinhasIndicacoes userId={profile.id} />
+            <ConvidarAmigo userId={profile.id} />
+          </div>
+        </>
       )}
     </section>
   )

@@ -1,7 +1,7 @@
 'use client'
 
 import { FormEvent, useMemo, useState, useRef } from 'react'
-import { Image as ImageIcon, Upload, X, Pencil, Images, Loader2, Trash2 } from 'lucide-react'
+import { Image as ImageIcon, Upload, X, Pencil, Images, Loader2, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
 import type { ArticleRecord, ArticleGalleryRecord } from '@/lib/queries'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { RichTextEditor } from '@/components/RichTextEditor'
@@ -61,6 +61,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
   const [feedback, setFeedback] = useState<string | null>(null)
   const [filterTipo, setFilterTipo] = useState<string>('all')
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [isCreatePanelCollapsed, setIsCreatePanelCollapsed] = useState(true)
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null)
   const [galleryPhotos, setGalleryPhotos] = useState<ArticleGalleryRecord[]>([])
   const [galleryUploading, setGalleryUploading] = useState(false)
@@ -104,6 +105,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
 
   const startEdit = async (article: ArticleRecord) => {
     setEditingId(article.id)
+    setIsCreatePanelCollapsed(false)
     setForm({
       titulo: article.titulo,
       autor_handle: article.autor_handle || '@maxistalks',
@@ -133,6 +135,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
 
   const cancelEdit = () => {
     setEditingId(null)
+    setIsCreatePanelCollapsed(true)
     setExistingImageUrl(null)
     setGalleryPhotos([])
     setForm(defaultForm)
@@ -324,17 +327,40 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
                 : 'Crie artigos com imagens e defina onde cada conteúdo aparece no app.'}
             </p>
           </div>
-          {editingId && (
-            <button
-              type="button"
-              onClick={cancelEdit}
-              className="rounded-lg border border-slate-600/40 px-3 py-2 text-sm text-slate-400 transition hover:bg-slate-700/50 hover:text-white"
-            >
-              Cancelar
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {!editingId && (
+              <button
+                type="button"
+                onClick={() => setIsCreatePanelCollapsed((prev) => !prev)}
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold uppercase text-slate-300 transition hover:border-white/20 hover:text-white"
+              >
+                {isCreatePanelCollapsed ? (
+                  <>
+                    <ChevronDown className="h-4 w-4" />
+                    Expandir
+                  </>
+                ) : (
+                  <>
+                    <ChevronUp className="h-4 w-4" />
+                    Minimizar
+                  </>
+                )}
+              </button>
+            )}
+            {editingId && (
+              <button
+                type="button"
+                onClick={cancelEdit}
+                className="rounded-lg border border-slate-600/40 px-3 py-2 text-sm text-slate-400 transition hover:bg-slate-700/50 hover:text-white"
+              >
+                Cancelar
+              </button>
+            )}
+          </div>
         </div>
 
+        {(!isCreatePanelCollapsed || editingId) && (
+        <>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2 md:col-span-2">
             <span className="text-xs font-semibold uppercase text-slate-400">Título *</span>
@@ -547,6 +573,8 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
           <p className={`text-center text-sm ${feedback.includes('Erro') ? 'text-red-400' : 'text-slate-400'}`}>
             {feedback}
           </p>
+        )}
+        </>
         )}
       </form>
 

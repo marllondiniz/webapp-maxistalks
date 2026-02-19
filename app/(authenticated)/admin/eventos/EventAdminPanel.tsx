@@ -1,7 +1,7 @@
 'use client'
 
 import { FormEvent, useMemo, useState } from 'react'
-import { Pencil, Plus, Upload, Image as ImageIcon, Check, Trash2, Info, Lightbulb, Loader2, Save, Calendar } from 'lucide-react'
+import { Pencil, Plus, Upload, Image as ImageIcon, Check, Trash2, Info, Lightbulb, Loader2, Save, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
 import type { EventBannerRecord, EventRecord } from '@/lib/queries'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { RichTextEditor } from '@/components/RichTextEditor'
@@ -155,6 +155,7 @@ export function EventAdminPanel({ initialEvents }: Props) {
   const [feedback, setFeedback] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingBanner, setEditingBanner] = useState<EventBannerRecord | null>(null)
+  const [isCreatePanelCollapsed, setIsCreatePanelCollapsed] = useState(true)
   const supabase = useMemo(() => getSupabaseClient(), [])
 
   const handleChange = (field: keyof FormState, value: string | boolean) => {
@@ -447,6 +448,7 @@ export function EventAdminPanel({ initialEvents }: Props) {
 
   const handleEdit = async (evento: EventRecord) => {
     setEditingId(evento.id)
+    setIsCreatePanelCollapsed(false)
 
     let banner: EventBannerRecord | null = null
 
@@ -503,6 +505,7 @@ export function EventAdminPanel({ initialEvents }: Props) {
     setForm(createDefaultForm())
     setFeedback(null)
     setEditingBanner(null)
+    setIsCreatePanelCollapsed(true)
   }
 
   return (
@@ -522,17 +525,40 @@ export function EventAdminPanel({ initialEvents }: Props) {
                 : 'Preencha os dados do evento'}
             </p>
           </div>
-          {editingId && (
-            <button
-              type="button"
-              onClick={handleCancelEdit}
-              className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold uppercase text-slate-400 transition hover:border-white/20 hover:text-white"
-            >
-              Cancelar
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {!editingId && (
+              <button
+                type="button"
+                onClick={() => setIsCreatePanelCollapsed((prev) => !prev)}
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold uppercase text-slate-300 transition hover:border-white/20 hover:text-white"
+              >
+                {isCreatePanelCollapsed ? (
+                  <>
+                    <ChevronDown className="h-4 w-4" />
+                    Expandir
+                  </>
+                ) : (
+                  <>
+                    <ChevronUp className="h-4 w-4" />
+                    Minimizar
+                  </>
+                )}
+              </button>
+            )}
+            {editingId && (
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className="rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold uppercase text-slate-400 transition hover:border-white/20 hover:text-white"
+              >
+                Cancelar
+              </button>
+            )}
+          </div>
         </div>
 
+        {(!isCreatePanelCollapsed || editingId) && (
+        <>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2">
             <span className="text-xs font-semibold uppercase text-slate-400">Título</span>
@@ -860,6 +886,8 @@ export function EventAdminPanel({ initialEvents }: Props) {
             </>
           )}
         </button>
+        </>
+        )}
       </form>
 
       <section className="space-y-4">

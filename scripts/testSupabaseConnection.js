@@ -1,3 +1,4 @@
+
 /**
  * Script simples para validar a conexão com o Supabase usando a chave anônima.
  * O objetivo é apenas verificar se conseguimos chegar à API do Supabase.

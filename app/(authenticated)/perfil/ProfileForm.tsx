@@ -2,12 +2,14 @@
 
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
   useTransition,
   FormEvent,
   ChangeEvent,
 } from 'react'
+import { createPortal } from 'react-dom'
 import { UploadCloud, Check, AlertCircle, ChevronDown, ChevronRight } from 'lucide-react'
 import type { ProfileRecord } from '@/lib/profile'
 import { getSupabaseClient } from '@/lib/supabaseClient'
@@ -116,6 +118,205 @@ const inputClass =
 
 const TOTAL_STEPS = 4
 
+type SelectOption = { value: string; label: string }
+
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+  placeholder = 'Selecione',
+}: {
+  label?: string
+  value: string
+  onChange: (value: string) => void
+  options: SelectOption[]
+  placeholder?: string
+}) {
+  const [open, setOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [dropdownRect, setDropdownRect] = useState<DOMRect | null>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const selected = options.find((o) => o.value === value)
+
+  const handleOpen = () => {
+    const mobile = window.innerWidth < 640
+    // toggle: se já estiver aberto no mesmo modo, fecha
+    if (open && isMobile === mobile) {
+      setOpen(false)
+      return
+    }
+    setIsMobile(mobile)
+    if (!mobile && triggerRef.current) {
+      setDropdownRect(triggerRef.current.getBoundingClientRect())
+    }
+    setOpen(true)
+  }
+
+  // Fechar ao clicar fora (desktop)
+  useEffect(() => {
+    if (!open || isMobile) return
+    const handler = (e: PointerEvent) => {
+      if (
+        triggerRef.current?.contains(e.target as Node) ||
+        panelRef.current?.contains(e.target as Node)
+      ) return
+      setOpen(false)
+    }
+    const timer = setTimeout(() => document.addEventListener('pointerdown', handler), 80)
+    return () => { clearTimeout(timer); document.removeEventListener('pointerdown', handler) }
+  }, [open, isMobile])
+
+  // Fechar dropdown de select no desktop ao rolar a página
+  useEffect(() => {
+    if (!open || isMobile) return
+    const onScroll = () => setOpen(false)
+    window.addEventListener('scroll', onScroll, true)
+    return () => window.removeEventListener('scroll', onScroll, true)
+  }, [open, isMobile])
+
+  const mobileSheet = (
+    <div
+      style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.6)' }}
+      onPointerDown={() => setOpen(false)}
+    >
+      <div
+        style={{ maxHeight: '70vh', display: 'flex', flexDirection: 'column' }}
+        className="rounded-t-2xl bg-slate-800"
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-slate-700 px-4 py-3">
+          <span className="text-sm font-semibold text-white">{label ?? placeholder}</span>
+          <button type="button" onPointerDown={(e) => { e.stopPropagation(); setOpen(false) }} className="rounded-lg px-3 py-1 text-sm font-medium text-[#3b82f6]">
+            Fechar
+          </button>
+        </div>
+        <div className="overflow-y-auto pb-8">
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onPointerDown={(e) => { e.stopPropagation(); onChange(opt.value); setOpen(false) }}
+              className={`flex w-full items-center justify-between border-b border-slate-700/40 px-4 py-4 text-left text-sm active:bg-white/10 ${opt.value === value ? 'text-[#3b82f6]' : 'text-[#f5f5f5]'}`}
+            >
+              <span>{opt.label}</span>
+              {opt.value === value && <Check className="h-4 w-4 shrink-0" />}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+
+  const desktopDropdown = dropdownRect ? (
+    <div
+      ref={panelRef}
+      style={{
+        position: 'fixed',
+        top: dropdownRect.bottom + 4,
+        left: dropdownRect.left,
+        width: dropdownRect.width,
+        maxHeight: 280,
+        overflowY: 'auto',
+        zIndex: 9999,
+        backgroundColor: '#1e293b',
+        borderRadius: 12,
+        border: '1px solid rgba(100,116,139,0.3)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+      }}
+    >
+      {options.map((opt) => (
+        <button
+          key={opt.value}
+          type="button"
+          onPointerDown={(e) => { e.preventDefault(); onChange(opt.value); setOpen(false) }}
+          style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', textAlign: 'left', fontSize: 14, background: 'none', border: 'none', cursor: 'pointer', color: opt.value === value ? '#3b82f6' : '#f5f5f5' }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.07)' }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
+        >
+          <span>{opt.label}</span>
+          {opt.value === value && <Check style={{ width: 14, height: 14, flexShrink: 0 }} />}
+        </button>
+      ))}
+    </div>
+  ) : null
+
+  return (
+    <>
+      <button
+        ref={triggerRef}
+        type="button"
+        onPointerDown={handleOpen}
+        className={`${inputClass} flex items-center justify-between text-left`}
+      >
+        <span className={selected ? 'text-[#f5f5f5]' : 'text-[#54545b]'}>
+          {selected ? selected.label : placeholder}
+        </span>
+        <ChevronDown className="ml-2 h-4 w-4 shrink-0 text-slate-400" />
+      </button>
+
+      {open && createPortal(isMobile ? mobileSheet : desktopDropdown, document.body)}
+    </>
+  )
+}
+
+const ESTADOS_BR = [
+  { value: 'AC', label: 'Acre' },
+  { value: 'AL', label: 'Alagoas' },
+  { value: 'AP', label: 'Amapá' },
+  { value: 'AM', label: 'Amazonas' },
+  { value: 'BA', label: 'Bahia' },
+  { value: 'CE', label: 'Ceará' },
+  { value: 'DF', label: 'Distrito Federal' },
+  { value: 'ES', label: 'Espírito Santo' },
+  { value: 'GO', label: 'Goiás' },
+  { value: 'MA', label: 'Maranhão' },
+  { value: 'MT', label: 'Mato Grosso' },
+  { value: 'MS', label: 'Mato Grosso do Sul' },
+  { value: 'MG', label: 'Minas Gerais' },
+  { value: 'PA', label: 'Pará' },
+  { value: 'PB', label: 'Paraíba' },
+  { value: 'PR', label: 'Paraná' },
+  { value: 'PE', label: 'Pernambuco' },
+  { value: 'PI', label: 'Piauí' },
+  { value: 'RJ', label: 'Rio de Janeiro' },
+  { value: 'RN', label: 'Rio Grande do Norte' },
+  { value: 'RS', label: 'Rio Grande do Sul' },
+  { value: 'RO', label: 'Rondônia' },
+  { value: 'RR', label: 'Roraima' },
+  { value: 'SC', label: 'Santa Catarina' },
+  { value: 'SP', label: 'São Paulo' },
+  { value: 'SE', label: 'Sergipe' },
+  { value: 'TO', label: 'Tocantins' },
+]
+
+function parseCidadeEstado(value: string | null | undefined): { cidade: string; estado: string } {
+  if (!value) return { cidade: '', estado: '' }
+  const raw = value.trim()
+  if (!raw) return { cidade: '', estado: '' }
+
+  // tenta encontrar um UF conhecido no final do texto (Cidade / UF, Cidade-UF, etc.)
+  const upper = raw.toUpperCase()
+  const ufCodes = ESTADOS_BR.map((e) => e.value)
+  const foundUf = ufCodes.find(
+    (uf) =>
+      upper.endsWith(` ${uf}`) ||
+      upper.endsWith(`/${uf}`) ||
+      upper.endsWith(` - ${uf}`) ||
+      upper.endsWith(`- ${uf}`)
+  )
+  if (foundUf) {
+    const index = upper.lastIndexOf(foundUf)
+    const cidadePart = raw.slice(0, index).replace(/[\s,/\-]+$/g, '').trim()
+    return { cidade: cidadePart, estado: foundUf }
+  }
+
+  // fallback: considera tudo como cidade; remove barras/espacos no final (ex: "Guarapari / /" -> "Guarapari")
+  const cidadeOnly = raw.replace(/\s*\/\s*\/?\s*$/g, '').trim()
+  return { cidade: cidadeOnly, estado: '' }
+}
+
 function formatPhoneBR(value: string): string {
   const digits = value.replace(/\D/g, '').slice(0, 11)
   if (digits.length <= 2) return digits ? `(${digits}` : ''
@@ -136,11 +337,13 @@ function toggleMultiSelect<T>(arr: T[], item: T, max: number): T[] {
 export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormProps) {
   const router = useRouter()
   const [step, setStep] = useState(1)
+  const parsedCidade = parseCidadeEstado(profile?.cidade_estado ?? '')
   const [formData, setFormData] = useState({
     nome: profile?.nome ?? '',
     bio: profile?.bio ?? '',
     telefone: formatPhoneBR(profile?.telefone ?? ''),
-    cidade_estado: profile?.cidade_estado ?? '',
+    cidade: parsedCidade.cidade,
+    estado: parsedCidade.estado,
     linkedin: profile?.linkedin ?? '',
     instagram: profile?.instagram ?? '',
     posicao_mercado: profile?.posicao_mercado ?? '',
@@ -174,6 +377,15 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
   const [savedSuccess, setSavedSuccess] = useState(false)
   const [isPending, startTransition] = useTransition()
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [cidadesDoEstado, setCidadesDoEstado] = useState<string[]>([])
+  const [cidadesLoading, setCidadesLoading] = useState(false)
+  const [cityDropdownOpen, setCityDropdownOpen] = useState(false)
+  const [citySearchQuery, setCitySearchQuery] = useState('')
+  const [cityIsMobile, setCityIsMobile] = useState(false)
+  const [cityTriggerRect, setCityTriggerRect] = useState<DOMRect | null>(null)
+  const cityDropdownRef = useRef<HTMLDivElement | null>(null)
+  const cityTriggerRef = useRef<HTMLButtonElement | null>(null)
+  const cityPanelRef = useRef<HTMLDivElement | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const step4Ref = useRef<HTMLDivElement | null>(null)
   const supabase = getSupabaseClient()
@@ -219,6 +431,62 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
     }
   }, [avatarFile, profile?.avatar_url, supabase])
 
+  // Carrega cidades do estado selecionado (API IBGE)
+  useEffect(() => {
+    if (!formData.estado) {
+      setCidadesDoEstado([])
+      return
+    }
+    let cancelled = false
+    setCidadesLoading(true)
+    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${formData.estado}/municipios`)
+      .then((res) => res.json())
+      .then((data: { nome: string }[]) => {
+        if (cancelled) return
+        const nomes = (data ?? []).map((m) => m.nome).sort((a, b) => a.localeCompare(b, 'pt-BR'))
+        setCidadesDoEstado(nomes)
+      })
+      .catch(() => {
+        if (!cancelled) setCidadesDoEstado([])
+      })
+      .finally(() => {
+        if (!cancelled) setCidadesLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [formData.estado])
+
+  // Fechar dropdown de cidade no desktop ao clicar fora
+  useEffect(() => {
+    if (!cityDropdownOpen || cityIsMobile) return
+    const handler = (e: PointerEvent) => {
+      if (
+        cityTriggerRef.current?.contains(e.target as Node) ||
+        cityPanelRef.current?.contains(e.target as Node)
+      ) return
+      setCityDropdownOpen(false)
+    }
+    const timer = setTimeout(() => document.addEventListener('pointerdown', handler), 80)
+    return () => { clearTimeout(timer); document.removeEventListener('pointerdown', handler) }
+  }, [cityDropdownOpen, cityIsMobile])
+
+  // Fechar dropdown de cidade no desktop ao rolar a página
+  useEffect(() => {
+    if (!cityDropdownOpen || cityIsMobile) return
+    const onScroll = () => setCityDropdownOpen(false)
+    window.addEventListener('scroll', onScroll, true)
+    return () => window.removeEventListener('scroll', onScroll, true)
+  }, [cityDropdownOpen, cityIsMobile])
+
+  const cidadesFiltradas = useMemo(() => {
+    const base = [
+      ...(formData.cidade && !cidadesDoEstado.includes(formData.cidade) ? [formData.cidade] : []),
+      ...cidadesDoEstado,
+    ]
+    if (!citySearchQuery.trim()) return base
+    const q = citySearchQuery.trim().toLowerCase()
+    return base.filter((c) => c.toLowerCase().includes(q))
+  }, [cidadesDoEstado, citySearchQuery, formData.cidade])
+
   const updateField = (key: keyof typeof formData, value: string | boolean | null) => {
     setFormData((prev) => ({ ...prev, [key]: value }))
   }
@@ -228,7 +496,8 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
   const canProceedStep1 =
     formData.nome.trim() &&
     phoneDigits.length >= 10 &&
-    formData.cidade_estado.trim()
+    formData.cidade.trim() &&
+    formData.estado.trim()
 
   const canProceedStep2 = (() => {
     if (!formData.posicao_mercado) return false
@@ -308,7 +577,10 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
         nome: formData.nome.trim() || null,
         bio: formData.bio.trim() || null,
         telefone: formData.telefone.trim() || null,
-        cidade_estado: formData.cidade_estado.trim() || null,
+        cidade_estado:
+          formData.cidade && formData.estado
+            ? `${formData.cidade.trim()} / ${formData.estado.trim()}`
+            : formData.cidade.trim() || null,
         linkedin: formData.linkedin.trim() || null,
         instagram: formData.instagram.trim() || null,
         site: formData.site.trim() || null,
@@ -511,15 +783,146 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                 )}
               </label>
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-white">Cidade/Estado *</span>
-                <input
-                  type="text"
-                  value={formData.cidade_estado}
-                  onChange={(e) => updateField('cidade_estado', e.target.value)}
-                  placeholder="Ex: São Paulo/SP"
-                  className={inputClass}
-                  required
-                />
+                <span className="text-sm font-medium text-white">Localização *</span>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1.2fr]">
+                  <div>
+                    <SelectField
+                      label="Estado (UF)"
+                      placeholder="Estado (UF)"
+                      value={formData.estado}
+                      onChange={(uf) => setFormData((prev) => ({ ...prev, estado: uf, cidade: '' }))}
+                      options={ESTADOS_BR.map((uf) => ({ value: uf.value, label: `${uf.label} (${uf.value})` }))}
+                    />
+                  </div>
+                  <div>
+                    {!formData.estado ? (
+                      <input
+                        type="text"
+                        className={inputClass}
+                        disabled
+                        placeholder="Selecione o estado primeiro"
+                        readOnly
+                      />
+                    ) : cidadesLoading ? (
+                      <input
+                        type="text"
+                        className={inputClass}
+                        disabled
+                        placeholder="Carregando cidades..."
+                        readOnly
+                      />
+                    ) : (
+                      <>
+                        <button
+                          ref={cityTriggerRef}
+                          type="button"
+                          onPointerDown={() => {
+                            const mobile = window.innerWidth < 640
+                            // toggle: se já estiver aberto no mesmo modo, fecha
+                            if (cityDropdownOpen && cityIsMobile === mobile) {
+                              setCityDropdownOpen(false)
+                              return
+                            }
+                            setCityIsMobile(mobile)
+                            if (!mobile && cityTriggerRef.current) {
+                              setCityTriggerRect(cityTriggerRef.current.getBoundingClientRect())
+                            }
+                            setCityDropdownOpen(true)
+                            setCitySearchQuery('')
+                          }}
+                          className={`${inputClass} flex items-center justify-between text-left`}
+                        >
+                          <span className={formData.cidade ? 'text-[#f5f5f5]' : 'text-[#54545b]'}>
+                            {formData.cidade || 'Buscar ou selecionar cidade'}
+                          </span>
+                          <ChevronDown className="ml-2 h-4 w-4 shrink-0 text-slate-400" />
+                        </button>
+                        {cityDropdownOpen && createPortal(
+                          cityIsMobile ? (
+                            /* Mobile: bottom sheet */
+                            <div
+                              style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.6)' }}
+                              onPointerDown={() => setCityDropdownOpen(false)}
+                            >
+                              <div
+                                style={{ maxHeight: '75vh', display: 'flex', flexDirection: 'column' }}
+                                className="rounded-t-2xl bg-slate-800"
+                                onPointerDown={(e) => e.stopPropagation()}
+                              >
+                                <div className="flex items-center justify-between border-b border-slate-700 px-4 py-3">
+                                  <span className="text-sm font-semibold text-white">Cidade</span>
+                                  <button type="button" onPointerDown={(e) => { e.stopPropagation(); setCityDropdownOpen(false) }} className="rounded-lg px-3 py-1 text-sm font-medium text-[#3b82f6]">Fechar</button>
+                                </div>
+                                <div className="border-b border-slate-700 px-4 py-2">
+                                  <input type="text" value={citySearchQuery} onChange={(e) => setCitySearchQuery(e.target.value)} placeholder="Digite para filtrar..." className="w-full rounded-lg bg-slate-700 px-3 py-2.5 text-sm text-white placeholder:text-slate-400 focus:outline-none" autoFocus />
+                                </div>
+                                <div className="overflow-y-auto pb-8">
+                                  {cidadesFiltradas.length === 0 ? (
+                                    <div className="px-4 py-6 text-center text-sm text-slate-400">Nenhuma cidade encontrada</div>
+                                  ) : cidadesFiltradas.map((nome: string) => (
+                                    <button key={nome} type="button"
+                                      onPointerDown={(e) => { e.stopPropagation(); updateField('cidade', nome); setCitySearchQuery(''); setCityDropdownOpen(false) }}
+                                      className={`flex w-full items-center justify-between border-b border-slate-700/40 px-4 py-4 text-left text-sm active:bg-white/10 ${formData.cidade === nome ? 'text-[#3b82f6]' : 'text-[#f5f5f5]'}`}
+                                    >
+                                      <span>{nome}</span>
+                                      {formData.cidade === nome && <Check className="h-4 w-4 shrink-0" />}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          ) : cityTriggerRect ? (
+                            /* Desktop: dropdown posicionado */
+                            <div
+                              ref={cityPanelRef}
+                              style={{
+                                position: 'fixed',
+                                top: cityTriggerRect.bottom + 4,
+                                left: cityTriggerRect.left,
+                                width: cityTriggerRect.width,
+                                maxHeight: 320,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                zIndex: 9999,
+                                backgroundColor: '#1e293b',
+                                borderRadius: 12,
+                                border: '1px solid rgba(100,116,139,0.3)',
+                                boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+                              }}
+                            >
+                              <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(100,116,139,0.3)' }}>
+                                <input
+                                  type="text"
+                                  value={citySearchQuery}
+                                  onChange={(e) => setCitySearchQuery(e.target.value)}
+                                  placeholder="Buscar cidade..."
+                                  autoFocus
+                                  style={{ width: '100%', background: 'rgba(255,255,255,0.07)', border: 'none', borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#f5f5f5', outline: 'none' }}
+                                />
+                              </div>
+                              <div style={{ overflowY: 'auto' }}>
+                                {cidadesFiltradas.length === 0 ? (
+                                  <div style={{ padding: '16px', textAlign: 'center', fontSize: 13, color: '#94a3b8' }}>Nenhuma cidade encontrada</div>
+                                ) : cidadesFiltradas.map((nome: string) => (
+                                  <button key={nome} type="button"
+                                    onPointerDown={(e) => { e.preventDefault(); updateField('cidade', nome); setCitySearchQuery(''); setCityDropdownOpen(false) }}
+                                    style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between', padding: '9px 16px', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', color: formData.cidade === nome ? '#3b82f6' : '#f5f5f5', borderBottom: '1px solid rgba(100,116,139,0.15)' }}
+                                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.07)' }}
+                                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
+                                  >
+                                    <span>{nome}</span>
+                                    {formData.cidade === nome && <Check style={{ width: 14, height: 14, flexShrink: 0 }} />}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          ) : null,
+                          document.body
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
               </label>
               <label className="block space-y-2">
                 <span className="text-sm font-medium text-slate-400">Instagram (opcional)</span>
@@ -614,68 +1017,48 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                   </label>
                   <div>
                     <span className="block text-sm font-medium text-white mb-2">Segmento do negócio *</span>
-                    <select
+                    <SelectField
+                      label="Segmento do negócio"
                       value={formData.segmento_negocio}
-                      onChange={(e) => updateField('segmento_negocio', e.target.value)}
-                      className={inputClass}
-                    >
-                      <option value="">Selecione</option>
-                      {SEGMENTO_NEGOCIO.map((s) => (
-                        <option key={s} value={s}>{s}</option>
-                      ))}
-                    </select>
+                      onChange={(v) => updateField('segmento_negocio', v)}
+                      options={SEGMENTO_NEGOCIO.map((s) => ({ value: s, label: s }))}
+                    />
                   </div>
                   <div>
                     <span className="block text-sm font-medium text-white mb-2">Público que atende *</span>
-                    <select
+                    <SelectField
+                      label="Público que atende"
                       value={formData.publico_atende}
-                      onChange={(e) => updateField('publico_atende', e.target.value)}
-                      className={inputClass}
-                    >
-                      <option value="">Selecione</option>
-                      {PUBLICO_ATENDE.map((o) => (
-                        <option key={o.value} value={o.value}>{o.label}</option>
-                      ))}
-                    </select>
+                      onChange={(v) => updateField('publico_atende', v)}
+                      options={PUBLICO_ATENDE}
+                    />
                   </div>
                   <div>
                     <span className="block text-sm font-medium text-white mb-2">Faixa de faturamento mensal *</span>
-                    <select
+                    <SelectField
+                      label="Faixa de faturamento mensal"
                       value={formData.faixa_faturamento}
-                      onChange={(e) => updateField('faixa_faturamento', e.target.value)}
-                      className={inputClass}
-                    >
-                      <option value="">Selecione</option>
-                      {FAIXA_FATURAMENTO.map((f) => (
-                        <option key={f} value={f}>{f}</option>
-                      ))}
-                    </select>
+                      onChange={(v) => updateField('faixa_faturamento', v)}
+                      options={FAIXA_FATURAMENTO.map((f) => ({ value: f, label: f }))}
+                    />
                   </div>
                   <div>
                     <span className="block text-sm font-medium text-white mb-2">Ticket médio *</span>
-                    <select
+                    <SelectField
+                      label="Ticket médio"
                       value={formData.ticket_medio}
-                      onChange={(e) => updateField('ticket_medio', e.target.value)}
-                      className={inputClass}
-                    >
-                      <option value="">Selecione</option>
-                      {TICKET_MEDIO.map((t) => (
-                        <option key={t.value} value={t.value}>{t.label}</option>
-                      ))}
-                    </select>
+                      onChange={(v) => updateField('ticket_medio', v)}
+                      options={TICKET_MEDIO}
+                    />
                   </div>
                   <div>
                     <span className="block text-sm font-medium text-white mb-2">Nº de colaboradores *</span>
-                    <select
+                    <SelectField
+                      label="Nº de colaboradores"
                       value={formData.num_colaboradores}
-                      onChange={(e) => updateField('num_colaboradores', e.target.value)}
-                      className={inputClass}
-                    >
-                      <option value="">Selecione</option>
-                      {NUM_COLABORADORES.map((n) => (
-                        <option key={n.value} value={n.value}>{n.label}</option>
-                      ))}
-                    </select>
+                      onChange={(v) => updateField('num_colaboradores', v)}
+                      options={NUM_COLABORADORES}
+                    />
                   </div>
                 </div>
               )}
@@ -694,16 +1077,12 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                   </label>
                   <div>
                     <span className="block text-sm font-medium text-white mb-2">Área *</span>
-                    <select
+                    <SelectField
+                      label="Área"
                       value={formData.area_gestao}
-                      onChange={(e) => updateField('area_gestao', e.target.value)}
-                      className={inputClass}
-                    >
-                      <option value="">Selecione</option>
-                      {AREA_GESTAO.map((a) => (
-                        <option key={a} value={a}>{a}</option>
-                      ))}
-                    </select>
+                      onChange={(v) => updateField('area_gestao', v)}
+                      options={AREA_GESTAO.map((a) => ({ value: a, label: a }))}
+                    />
                   </div>
                   <label className="block space-y-2">
                     <span className="text-sm font-medium text-white">Empresa onde trabalha *</span>
@@ -717,16 +1096,12 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                   </label>
                   <div>
                     <span className="block text-sm font-medium text-white mb-2">Tamanho da empresa *</span>
-                    <select
+                    <SelectField
+                      label="Tamanho da empresa"
                       value={formData.tamanho_empresa}
-                      onChange={(e) => updateField('tamanho_empresa', e.target.value)}
-                      className={inputClass}
-                    >
-                      <option value="">Selecione</option>
-                      {TAMANHO_EMPRESA.map((t) => (
-                        <option key={t.value} value={t.value}>{t.label}</option>
-                      ))}
-                    </select>
+                      onChange={(v) => updateField('tamanho_empresa', v)}
+                      options={TAMANHO_EMPRESA}
+                    />
                   </div>
                   <div>
                     <span className="block text-sm font-medium text-white mb-3">Você lidera time? *</span>

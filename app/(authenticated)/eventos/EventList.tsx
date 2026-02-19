@@ -441,14 +441,19 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
         </div>
       </div>
 
-      {/* Desktop: grid 2 colunas, cards mais estreitos */}
-      <div className="hidden md:grid md:grid-cols-2 md:gap-6 md:max-w-2xl md:mx-auto">
-        {normalizedEvents.map((event) =>
-          renderEventCard(
-            event,
-            'flex flex-col rounded-2xl border-l-4 border-l-blue-500/80 border border-slate-600/30 bg-slate-800/90 shadow-xl shadow-black/20 transition hover:border-l-blue-400 hover:border-slate-500/50 hover:shadow-2xl overflow-hidden'
-          )
-        )}
+      {/* Desktop: carrossel horizontal */}
+      <div
+        className="hidden md:block -mx-5 w-[calc(100%+40px)] overflow-x-auto px-4 py-2 scrollbar-hide"
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
+        <div className="flex w-max gap-6 snap-x snap-mandatory">
+          {normalizedEvents.map((event) =>
+            renderEventCard(
+              event,
+              'flex h-full w-[340px] shrink-0 flex-col rounded-2xl border-l-4 border-l-blue-500/80 border border-slate-600/30 bg-slate-800/90 shadow-xl shadow-black/20 transition hover:border-l-blue-400 hover:border-slate-500/50 hover:shadow-2xl overflow-hidden snap-center snap-always'
+            )
+          )}
+        </div>
       </div>
 
       {/* Modal de ingresso */}

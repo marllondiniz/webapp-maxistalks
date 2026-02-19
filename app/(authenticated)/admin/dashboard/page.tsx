@@ -1,5 +1,12 @@
 import { unstable_noStore } from 'next/cache'
-import { getEventRegistrationsWithDetails, getDashboardStats, getAllUsersWithProfiles } from '@/lib/queries'
+import {
+  getEventRegistrationsWithDetails,
+  getDashboardStats,
+  getAllUsersWithProfiles,
+  getReferralStats,
+  getContentStats,
+  getEvents,
+} from '@/lib/queries'
 import { getTenantIdForRequest } from '@/lib/brand'
 import { AdminDashboard } from './AdminDashboard'
 
@@ -15,13 +22,23 @@ export default async function AdminDashboardPage() {
     inscricoesPorEvento: [],
   }
   let allUsers: Awaited<ReturnType<typeof getAllUsersWithProfiles>> = []
+  let referralStats: Awaited<ReturnType<typeof getReferralStats>> = { totalReferred: 0, topReferrers: [] }
+  let contentStats: Awaited<ReturnType<typeof getContentStats>> = {
+    totalArticles: 0,
+    byTipo: {},
+    lastArticles: [],
+  }
+  let events: Awaited<ReturnType<typeof getEvents>> = []
   let configError: string | null = null
 
   try {
-    ;[registrations, stats, allUsers] = await Promise.all([
+    ;[registrations, stats, allUsers, referralStats, contentStats, events] = await Promise.all([
       getEventRegistrationsWithDetails(tenantId),
       getDashboardStats(tenantId),
       getAllUsersWithProfiles(tenantId),
+      getReferralStats(tenantId),
+      getContentStats(tenantId),
+      getEvents(tenantId),
     ])
   } catch (err) {
     console.error('Erro ao carregar dashboard:', err)
@@ -36,6 +53,9 @@ export default async function AdminDashboardPage() {
       registrations={registrations}
       stats={stats}
       allUsers={allUsers}
+      referralStats={referralStats}
+      contentStats={contentStats}
+      events={events}
       configError={configError}
     />
   )
