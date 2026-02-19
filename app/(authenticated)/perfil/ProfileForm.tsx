@@ -261,6 +261,126 @@ function SelectField({
   )
 }
 
+function SearchableSelect({
+  value,
+  onChange,
+  options,
+  placeholder = 'Selecionar',
+  searchPlaceholder = 'Buscar...',
+  emptyText = 'Nenhum resultado',
+  disabled = false,
+  loading = false,
+  loadingText = 'Carregando...',
+}: {
+  value: string
+  onChange: (v: string) => void
+  options: SelectOption[]
+  placeholder?: string
+  searchPlaceholder?: string
+  emptyText?: string
+  disabled?: boolean
+  loading?: boolean
+  loadingText?: string
+}) {
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const containerRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const selected = options.find((o) => o.value === value)
+
+  const filtered = useMemo(() => {
+    if (!query.trim()) return options
+    const q = query.trim().toLowerCase()
+    return options.filter(
+      (o) => o.label.toLowerCase().includes(q) || o.value.toLowerCase().includes(q)
+    )
+  }, [options, query])
+
+  useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => {
+      if (!containerRef.current?.contains(e.target as Node)) {
+        setOpen(false)
+        setQuery('')
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  useEffect(() => {
+    if (open) setTimeout(() => inputRef.current?.focus(), 50)
+  }, [open])
+
+  const triggerLabel = loading
+    ? loadingText
+    : selected
+    ? selected.label
+    : placeholder
+
+  return (
+    <div ref={containerRef} className="relative">
+      <button
+        type="button"
+        disabled={disabled || loading}
+        onClick={() => {
+          if (!disabled && !loading) {
+            setOpen((o) => !o)
+            setQuery('')
+          }
+        }}
+        className={`${inputClass} flex w-full items-center justify-between text-left disabled:cursor-not-allowed disabled:opacity-50`}
+      >
+        <span className={selected ? 'text-[#f5f5f5]' : 'text-[#54545b]'}>
+          {triggerLabel}
+        </span>
+        <ChevronDown
+          className={`ml-2 h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      {open && (
+        <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-xl border border-slate-600/40 bg-slate-800 shadow-2xl shadow-black/50">
+          <div className="border-b border-slate-700/60 p-2">
+            <input
+              ref={inputRef}
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={searchPlaceholder}
+              className="w-full rounded-lg bg-slate-700/80 px-3 py-2.5 text-sm text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500/50"
+            />
+          </div>
+          <div className="max-h-52 overflow-y-auto overscroll-contain">
+            {filtered.length === 0 ? (
+              <p className="px-4 py-5 text-center text-sm text-slate-400">{emptyText}</p>
+            ) : (
+              filtered.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => {
+                    onChange(opt.value)
+                    setOpen(false)
+                    setQuery('')
+                  }}
+                  className={`flex w-full items-center justify-between border-b border-slate-700/30 px-4 py-3 text-left text-sm transition last:border-0 hover:bg-white/5 active:bg-white/10 ${
+                    value === opt.value ? 'font-semibold text-blue-400' : 'text-[#f5f5f5]'
+                  }`}
+                >
+                  <span>{opt.label}</span>
+                  {value === opt.value && <Check className="h-3.5 w-3.5 shrink-0 text-blue-400" />}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 const ESTADOS_BR = [
   { value: 'AC', label: 'Acre' },
   { value: 'AL', label: 'Alagoas' },
@@ -379,13 +499,6 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [cidadesDoEstado, setCidadesDoEstado] = useState<string[]>([])
   const [cidadesLoading, setCidadesLoading] = useState(false)
-  const [cityDropdownOpen, setCityDropdownOpen] = useState(false)
-  const [citySearchQuery, setCitySearchQuery] = useState('')
-  const [cityIsMobile, setCityIsMobile] = useState(false)
-  const [cityTriggerRect, setCityTriggerRect] = useState<DOMRect | null>(null)
-  const cityDropdownRef = useRef<HTMLDivElement | null>(null)
-  const cityTriggerRef = useRef<HTMLButtonElement | null>(null)
-  const cityPanelRef = useRef<HTMLDivElement | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const step4Ref = useRef<HTMLDivElement | null>(null)
   const supabase = getSupabaseClient()
@@ -455,37 +568,10 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
     return () => { cancelled = true }
   }, [formData.estado])
 
-  // Fechar dropdown de cidade no desktop ao clicar fora
-  useEffect(() => {
-    if (!cityDropdownOpen || cityIsMobile) return
-    const handler = (e: PointerEvent) => {
-      if (
-        cityTriggerRef.current?.contains(e.target as Node) ||
-        cityPanelRef.current?.contains(e.target as Node)
-      ) return
-      setCityDropdownOpen(false)
-    }
-    const timer = setTimeout(() => document.addEventListener('pointerdown', handler), 80)
-    return () => { clearTimeout(timer); document.removeEventListener('pointerdown', handler) }
-  }, [cityDropdownOpen, cityIsMobile])
-
-  // Fechar dropdown de cidade no desktop ao rolar a página
-  useEffect(() => {
-    if (!cityDropdownOpen || cityIsMobile) return
-    const onScroll = () => setCityDropdownOpen(false)
-    window.addEventListener('scroll', onScroll, true)
-    return () => window.removeEventListener('scroll', onScroll, true)
-  }, [cityDropdownOpen, cityIsMobile])
-
-  const cidadesFiltradas = useMemo(() => {
-    const base = [
-      ...(formData.cidade && !cidadesDoEstado.includes(formData.cidade) ? [formData.cidade] : []),
-      ...cidadesDoEstado,
-    ]
-    if (!citySearchQuery.trim()) return base
-    const q = citySearchQuery.trim().toLowerCase()
-    return base.filter((c) => c.toLowerCase().includes(q))
-  }, [cidadesDoEstado, citySearchQuery, formData.cidade])
+  const cidadesOptions = useMemo(() => {
+    if (!formData.cidade || cidadesDoEstado.includes(formData.cidade)) return cidadesDoEstado
+    return [formData.cidade, ...cidadesDoEstado]
+  }, [cidadesDoEstado, formData.cidade])
 
   const updateField = (key: keyof typeof formData, value: string | boolean | null) => {
     setFormData((prev) => ({ ...prev, [key]: value }))
@@ -785,143 +871,25 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
               <label className="block space-y-2">
                 <span className="text-sm font-medium text-white">Localização *</span>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1.2fr]">
-                  <div>
-                    <SelectField
-                      label="Estado (UF)"
-                      placeholder="Estado (UF)"
-                      value={formData.estado}
-                      onChange={(uf) => setFormData((prev) => ({ ...prev, estado: uf, cidade: '' }))}
-                      options={ESTADOS_BR.map((uf) => ({ value: uf.value, label: `${uf.label} (${uf.value})` }))}
-                    />
-                  </div>
-                  <div>
-                    {!formData.estado ? (
-                      <input
-                        type="text"
-                        className={inputClass}
-                        disabled
-                        placeholder="Selecione o estado primeiro"
-                        readOnly
-                      />
-                    ) : cidadesLoading ? (
-                      <input
-                        type="text"
-                        className={inputClass}
-                        disabled
-                        placeholder="Carregando cidades..."
-                        readOnly
-                      />
-                    ) : (
-                      <>
-                        <button
-                          ref={cityTriggerRef}
-                          type="button"
-                          onPointerDown={() => {
-                            const mobile = window.innerWidth < 640
-                            // toggle: se já estiver aberto no mesmo modo, fecha
-                            if (cityDropdownOpen && cityIsMobile === mobile) {
-                              setCityDropdownOpen(false)
-                              return
-                            }
-                            setCityIsMobile(mobile)
-                            if (!mobile && cityTriggerRef.current) {
-                              setCityTriggerRect(cityTriggerRef.current.getBoundingClientRect())
-                            }
-                            setCityDropdownOpen(true)
-                            setCitySearchQuery('')
-                          }}
-                          className={`${inputClass} flex items-center justify-between text-left`}
-                        >
-                          <span className={formData.cidade ? 'text-[#f5f5f5]' : 'text-[#54545b]'}>
-                            {formData.cidade || 'Buscar ou selecionar cidade'}
-                          </span>
-                          <ChevronDown className="ml-2 h-4 w-4 shrink-0 text-slate-400" />
-                        </button>
-                        {cityDropdownOpen && createPortal(
-                          cityIsMobile ? (
-                            /* Mobile: bottom sheet */
-                            <div
-                              style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.6)' }}
-                              onPointerDown={() => setCityDropdownOpen(false)}
-                            >
-                              <div
-                                style={{ maxHeight: '75vh', display: 'flex', flexDirection: 'column' }}
-                                className="rounded-t-2xl bg-slate-800"
-                                onPointerDown={(e) => e.stopPropagation()}
-                              >
-                                <div className="flex items-center justify-between border-b border-slate-700 px-4 py-3">
-                                  <span className="text-sm font-semibold text-white">Cidade</span>
-                                  <button type="button" onPointerDown={(e) => { e.stopPropagation(); setCityDropdownOpen(false) }} className="rounded-lg px-3 py-1 text-sm font-medium text-[#3b82f6]">Fechar</button>
-                                </div>
-                                <div className="border-b border-slate-700 px-4 py-2">
-                                  <input type="text" value={citySearchQuery} onChange={(e) => setCitySearchQuery(e.target.value)} placeholder="Digite para filtrar..." className="w-full rounded-lg bg-slate-700 px-3 py-2.5 text-sm text-white placeholder:text-slate-400 focus:outline-none" autoFocus />
-                                </div>
-                                <div className="overflow-y-auto pb-8">
-                                  {cidadesFiltradas.length === 0 ? (
-                                    <div className="px-4 py-6 text-center text-sm text-slate-400">Nenhuma cidade encontrada</div>
-                                  ) : cidadesFiltradas.map((nome: string) => (
-                                    <button key={nome} type="button"
-                                      onPointerDown={(e) => { e.stopPropagation(); updateField('cidade', nome); setCitySearchQuery(''); setCityDropdownOpen(false) }}
-                                      className={`flex w-full items-center justify-between border-b border-slate-700/40 px-4 py-4 text-left text-sm active:bg-white/10 ${formData.cidade === nome ? 'text-[#3b82f6]' : 'text-[#f5f5f5]'}`}
-                                    >
-                                      <span>{nome}</span>
-                                      {formData.cidade === nome && <Check className="h-4 w-4 shrink-0" />}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          ) : cityTriggerRect ? (
-                            /* Desktop: dropdown posicionado */
-                            <div
-                              ref={cityPanelRef}
-                              style={{
-                                position: 'fixed',
-                                top: cityTriggerRect.bottom + 4,
-                                left: cityTriggerRect.left,
-                                width: cityTriggerRect.width,
-                                maxHeight: 320,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                zIndex: 9999,
-                                backgroundColor: '#1e293b',
-                                borderRadius: 12,
-                                border: '1px solid rgba(100,116,139,0.3)',
-                                boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-                              }}
-                            >
-                              <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(100,116,139,0.3)' }}>
-                                <input
-                                  type="text"
-                                  value={citySearchQuery}
-                                  onChange={(e) => setCitySearchQuery(e.target.value)}
-                                  placeholder="Buscar cidade..."
-                                  autoFocus
-                                  style={{ width: '100%', background: 'rgba(255,255,255,0.07)', border: 'none', borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#f5f5f5', outline: 'none' }}
-                                />
-                              </div>
-                              <div style={{ overflowY: 'auto' }}>
-                                {cidadesFiltradas.length === 0 ? (
-                                  <div style={{ padding: '16px', textAlign: 'center', fontSize: 13, color: '#94a3b8' }}>Nenhuma cidade encontrada</div>
-                                ) : cidadesFiltradas.map((nome: string) => (
-                                  <button key={nome} type="button"
-                                    onPointerDown={(e) => { e.preventDefault(); updateField('cidade', nome); setCitySearchQuery(''); setCityDropdownOpen(false) }}
-                                    style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between', padding: '9px 16px', fontSize: 13, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', color: formData.cidade === nome ? '#3b82f6' : '#f5f5f5', borderBottom: '1px solid rgba(100,116,139,0.15)' }}
-                                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(255,255,255,0.07)' }}
-                                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
-                                  >
-                                    <span>{nome}</span>
-                                    {formData.cidade === nome && <Check style={{ width: 14, height: 14, flexShrink: 0 }} />}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          ) : null,
-                          document.body
-                        )}
-                      </>
-                    )}
-                  </div>
+                  <SearchableSelect
+                    value={formData.estado}
+                    onChange={(uf) => setFormData((prev) => ({ ...prev, estado: uf, cidade: '' }))}
+                    options={ESTADOS_BR.map((uf) => ({ value: uf.value, label: `${uf.label} (${uf.value})` }))}
+                    placeholder="Estado (UF)"
+                    searchPlaceholder="Buscar estado..."
+                    emptyText="Estado não encontrado"
+                  />
+                  <SearchableSelect
+                    value={formData.cidade}
+                    onChange={(v) => updateField('cidade', v)}
+                    options={cidadesOptions.map((nome) => ({ value: nome, label: nome }))}
+                    placeholder={!formData.estado ? 'Selecione o estado primeiro' : 'Buscar cidade...'}
+                    searchPlaceholder="Buscar cidade..."
+                    emptyText="Nenhuma cidade encontrada"
+                    disabled={!formData.estado}
+                    loading={cidadesLoading}
+                    loadingText="Carregando cidades..."
+                  />
                 </div>
               </label>
               <label className="block space-y-2">
