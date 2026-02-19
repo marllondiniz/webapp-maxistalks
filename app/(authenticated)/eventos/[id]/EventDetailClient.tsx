@@ -1,10 +1,10 @@
 'use client'
 
-import { useMemo, useState, useTransition } from 'react'
+import { useEffect, useMemo, useState, useTransition } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Calendar, MapPin, Banknote, Map, ChevronLeft } from 'lucide-react'
+import { Calendar, MapPin, Banknote, Map, ChevronLeft, Check } from 'lucide-react'
 import type { EventRecord, EventBannerRecord } from '@/lib/queries'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { useUserRole } from '@/lib/useUserRole'
@@ -59,8 +59,29 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
   const effectiveUserId = profile?.id ?? userId
   const [isPending, startTransition] = useTransition()
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [isRegistered, setIsRegistered] = useState<boolean | null>(null)
 
   const isFreeEvent = !event.preco || event.preco === 0
+
+  // Verificar se o usuário já manifestou interesse (ao carregar e quando o userId estiver disponível)
+  useEffect(() => {
+    if (!effectiveUserId || !event.id) {
+      setIsRegistered(null)
+      return
+    }
+    let cancelled = false
+    const check = async () => {
+      const { data } = await supabase
+        .from('event_registrations')
+        .select('id')
+        .eq('event_id', event.id)
+        .eq('user_id', effectiveUserId)
+        .maybeSingle()
+      if (!cancelled) setIsRegistered(Boolean(data))
+    }
+    check()
+    return () => { cancelled = true }
+  }, [effectiveUserId, event.id])
   const isPaidEvent = !isFreeEvent
 
   const formatDate = (dateString: string) => {
@@ -105,6 +126,7 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
           .single()
 
         if (existingRegistration) {
+          setIsRegistered(true)
           setMessage({ type: 'success', text: 'Você já manifestou interesse! Em breve enviaremos um convite no WhatsApp.' })
           return
         }
@@ -118,6 +140,8 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
           })
 
         if (insertError) throw insertError
+
+        setIsRegistered(true)
 
         // Atualizar contador
         await supabase
@@ -256,19 +280,28 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
           </div>
         )}
 
-        <button
-          onClick={() => !isPastEvent && (isFreeEvent ? handleExpressInterest() : handleBuyTicket())}
-          disabled={isPastEvent || isPending}
-          className="w-full rounded-xl bg-[#f5f5f5] px-6 py-4 text-center text-base font-bold uppercase tracking-wide text-[#0f0f10] transition hover:bg-[#e2e2e2] disabled:cursor-not-allowed disabled:opacity-50 md:text-lg"
-        >
-          {isPending
-            ? 'Enviando...'
-            : isPastEvent
-            ? 'Evento realizado'
-            : isFreeEvent
-            ? 'Tenho interesse em participar'
-            : 'Comprar ingresso'}
-        </button>
+        {isFreeEvent && isRegistered ? (
+          <div className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-6 py-4">
+            <Check className="h-5 w-5 text-emerald-400" />
+            <span className="text-base font-bold uppercase tracking-wide text-emerald-200 md:text-lg">
+              Inscrito
+            </span>
+          </div>
+        ) : (
+          <button
+            onClick={() => !isPastEvent && (isFreeEvent ? handleExpressInterest() : handleBuyTicket())}
+            disabled={isPastEvent || isPending}
+            className="w-full rounded-xl bg-[#f5f5f5] px-6 py-4 text-center text-base font-bold uppercase tracking-wide text-[#0f0f10] transition hover:bg-[#e2e2e2] disabled:cursor-not-allowed disabled:opacity-50 md:text-lg"
+          >
+            {isPending
+              ? 'Enviando...'
+              : isPastEvent
+              ? 'Evento realizado'
+              : isFreeEvent
+              ? 'Tenho interesse em participar'
+              : 'Comprar ingresso'}
+          </button>
+        )}
       </div>
 
       {/* Descrição */}
