@@ -138,21 +138,6 @@ export default async function BlogPage({
           </Link>
         </div>
       )}
-
-      <div className="rounded-xl border border-slate-600/30 bg-slate-800/80 p-6 text-center sm:p-8">
-        <h3 className="text-lg font-bold text-[#f5f5f5]">
-          Quer publicar seu conteúdo aqui?
-        </h3>
-        <p className="mt-2 text-sm text-[#c9c9d2]">
-          Compartilhe seus insights com a comunidade e inspire outros membros.
-        </p>
-        <Link
-          href="/eventos"
-          className="mt-5 inline-block rounded-full bg-[#f5f5f5] px-6 py-3 text-sm font-semibold uppercase tracking-wide text-[#0f0f10] transition hover:brightness-95"
-        >
-          Ver eventos
-        </Link>
-      </div>
     </section>
   )
 }

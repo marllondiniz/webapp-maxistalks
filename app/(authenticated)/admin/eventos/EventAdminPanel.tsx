@@ -1,6 +1,7 @@
 'use client'
 
 import { FormEvent, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Pencil, Plus, Upload, Image as ImageIcon, Check, Trash2, Info, Lightbulb, Loader2, Save, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
 import type { EventBannerRecord, EventRecord } from '@/lib/queries'
 import { getSupabaseClient } from '@/lib/supabaseClient'
@@ -149,6 +150,7 @@ const getDescriptionPreview = (raw: string | null, limit = 160) => {
 }
 
 export function EventAdminPanel({ initialEvents }: Props) {
+  const router = useRouter()
   const [events, setEvents] = useState(initialEvents)
   const [form, setForm] = useState<FormState>(() => createDefaultForm())
   const [loading, setLoading] = useState(false)
@@ -421,11 +423,15 @@ export function EventAdminPanel({ initialEvents }: Props) {
               palestrante_descricao: form.bannerPalestranteDescricao || null,
             }),
           })
+          const bannerResult = await updateResponse.json().catch(() => ({}))
           if (updateResponse.ok) {
             setFeedback((prev) => (prev ? `${prev} Dados do banner atualizados!` : 'Dados do banner atualizados!'))
+          } else {
+            setFeedback(`Evento salvo. Erro ao salvar ajustes do banner: ${bannerResult?.error ?? updateResponse.statusText}`)
           }
         } catch (error) {
           console.error('Erro ao atualizar título/subtítulo do banner:', error)
+          setFeedback('Evento salvo, mas não foi possível salvar os ajustes do banner. Tente editar de novo.')
         }
       }
     }
@@ -434,6 +440,7 @@ export function EventAdminPanel({ initialEvents }: Props) {
     setEditingId(null)
     setEditingBanner(null)
     setLoading(false)
+    router.refresh()
   }
 
   const handleDelete = async (id: string) => {

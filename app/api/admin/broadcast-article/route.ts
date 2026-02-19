@@ -188,7 +188,7 @@ export async function POST(request: Request) {
 
     const resend = new Resend(process.env.RESEND_API_KEY)
 
-    // Listar contatos do segmento (usa o mesmo caminho que e-mails transacionais, que já funcionam)
+    // Listar contatos do segmento
     const allContacts: { email: string; unsubscribed?: boolean }[] = []
     let cursor: string | undefined
     do {
@@ -211,31 +211,97 @@ export async function POST(request: Request) {
     } while (cursor)
 
     const toSend = allContacts.filter((c) => !c.unsubscribed)
-    if (toSend.length === 0) {
+    const uniqueEmails = Array.from(new Map(toSend.map((c) => [c.email.toLowerCase().trim(), c.email])).values())
+
+    if (uniqueEmails.length === 0) {
       return NextResponse.json(
         { error: 'Nenhum contato ativo no segmento. Adicione contatos no Resend.' },
         { status: 400 }
       )
     }
 
+    const { data: alreadySentRows } = await supabaseAdmin
+      .from('article_newsletter_sent')
+      .select('email')
+      .eq('article_id', articleId)
+
+    const alreadySentSet = new Set(
+      (alreadySentRows ?? []).map((r) => (r.email ?? '').toLowerCase().trim())
+    )
+    const toSendNew = uniqueEmails.filter((email) => !alreadySentSet.has(email.toLowerCase().trim()))
+
+    if (toSendNew.length === 0) {
+      return NextResponse.json({
+        success: true,
+        sent: 0,
+        total: uniqueEmails.length,
+        message: 'Todos os contatos já receberam este artigo. Nenhum envio necessário.',
+      })
+    }
+
     const subject = `${icone}${article.titulo}`
+
+    // Batch API: até 100 e-mails por requisição (evita rate limit 2 req/s)
+    const BATCH_SIZE = 100
+    const batches: string[][] = []
+    for (let i = 0; i < toSendNew.length; i += BATCH_SIZE) {
+      batches.push(toSendNew.slice(i, i + BATCH_SIZE))
+    }
 
     let sent = 0
     let lastError: string | null = null
-    for (const contact of toSend) {
-      const { error: sendErr } = await resend.emails.send({
+
+    for (let b = 0; b < batches.length; b++) {
+      const batchEmails = batches[b]
+      const payload = batchEmails.map((email) => ({
         from: fromEmail,
-        to: contact.email,
+        to: email,
         subject,
         html,
-      })
-      if (sendErr) {
-        console.error('Erro ao enviar para', contact.email, sendErr)
-        lastError = typeof sendErr === 'object' && sendErr !== null && 'message' in sendErr
-          ? String((sendErr as { message?: unknown }).message)
-          : 'Erro ao enviar e-mail.'
-      } else {
-        sent++
+      }))
+
+      const maxRetries = 4
+      let retryDelay = 1000
+      const timeWindow = Math.floor(Date.now() / 60000)
+      const idempotencyKey = `newsletter-${articleId}-${timeWindow}-${b}`
+
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        const { data: batchData, error: batchErr } = await resend.batch.send(payload, {
+          batchValidation: 'permissive',
+          idempotencyKey,
+        })
+
+        const statusCode = batchErr && typeof batchErr === 'object' && 'statusCode' in batchErr
+          ? (batchErr as { statusCode?: number }).statusCode
+          : null
+
+        if (statusCode === 429 && attempt < maxRetries) {
+          await new Promise((r) => setTimeout(r, retryDelay))
+          retryDelay *= 2
+          continue
+        }
+
+        if (batchErr) {
+          const msg =
+            typeof batchErr === 'object' && batchErr !== null && 'message' in batchErr
+              ? String((batchErr as { message?: unknown }).message)
+              : 'Erro ao enviar batch.'
+          console.error('Erro batch Resend:', batchErr)
+          lastError = msg
+          break
+        }
+
+        const ids = batchData?.data ?? []
+        sent += ids.length
+        if (Array.isArray((batchData as { errors?: { index: number; message: string }[] })?.errors)) {
+          const errs = (batchData as { errors: { index: number; message: string }[] }).errors
+          errs.forEach((e) => console.error(`Batch índice ${e.index}:`, e.message))
+        }
+        break
+      }
+
+      if (b < batches.length - 1) {
+        await new Promise((r) => setTimeout(r, 600))
       }
     }
 
@@ -243,11 +309,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: lastError }, { status: 500 })
     }
 
+    if (sent > 0) {
+      const insertRows = toSendNew.map((email) => ({
+        article_id: articleId,
+        email: email.toLowerCase().trim(),
+      }))
+      await supabaseAdmin.from('article_newsletter_sent').upsert(insertRows, {
+        onConflict: 'article_id,email',
+        ignoreDuplicates: true,
+      })
+    }
+
     return NextResponse.json({
       success: true,
       sent,
-      total: toSend.length,
-      ...(lastError && sent > 0 ? { warning: `Enviado a ${sent} de ${toSend.length}. ${lastError}` } : {}),
+      total: toSendNew.length,
+      alreadyReceived: alreadySentSet.size,
+      ...(lastError && sent > 0 ? { warning: `Enviado a ${sent} de ${toSendNew.length}. ${lastError}` } : {}),
     })
   } catch (err) {
     console.error('Erro inesperado ao enviar broadcast:', err)

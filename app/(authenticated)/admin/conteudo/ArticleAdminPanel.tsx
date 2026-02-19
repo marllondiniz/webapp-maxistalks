@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useMemo, useState, useRef } from 'react'
+import { FormEvent, useMemo, useState, useRef, useEffect } from 'react'
 import { Image as ImageIcon, Upload, X, Pencil, Images, Loader2, Trash2, ChevronDown, ChevronUp, Send } from 'lucide-react'
 import type { ArticleRecord, ArticleGalleryRecord } from '@/lib/queries'
 import { getSupabaseClient } from '@/lib/supabaseClient'
@@ -67,7 +67,16 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
   const [galleryUploading, setGalleryUploading] = useState(false)
   const [broadcastingId, setBroadcastingId] = useState<string | null>(null)
   const [broadcastFeedback, setBroadcastFeedback] = useState<{ id: string; msg: string; ok: boolean } | null>(null)
+  const [newsletterCooldownUntil, setNewsletterCooldownUntil] = useState<Record<string, number>>({})
+  const [now, setNow] = useState(() => Date.now())
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const hasActive = Object.values(newsletterCooldownUntil).some((until) => until > Date.now())
+    if (!hasActive) return
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [newsletterCooldownUntil])
   const galleryInputRef = useRef<HTMLInputElement>(null)
 
   const supabase = useMemo(() => getSupabaseClient(), [])
@@ -305,7 +314,14 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
     setFeedback('Conteúdo removido.')
   }
 
+  const NEWSLETTER_COOLDOWN_MS = 15_000
+
   const handleBroadcast = async (articleId: string) => {
+    if (newsletterCooldownUntil[articleId] != null && now < newsletterCooldownUntil[articleId]) {
+      const secs = Math.ceil((newsletterCooldownUntil[articleId] - now) / 1000)
+      setBroadcastFeedback({ id: articleId, msg: `Aguarde ${secs}s para reenviar.`, ok: false })
+      return
+    }
     if (!confirm('Enviar este conteúdo por e-mail para todos os leads da newsletter?')) return
     setBroadcastingId(articleId)
     setBroadcastFeedback(null)
@@ -319,7 +335,15 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
       if (!res.ok) {
         setBroadcastFeedback({ id: articleId, msg: json.error || 'Erro ao enviar.', ok: false })
       } else {
-        setBroadcastFeedback({ id: articleId, msg: 'Newsletter enviada com sucesso!', ok: true })
+        const successMsg =
+          json.message ||
+          (json.sent > 0
+            ? `Enviado para ${json.sent} contato(s).${json.alreadyReceived ? ` (${json.alreadyReceived} já tinham recebido)` : ''}`
+            : 'Newsletter enviada com sucesso!')
+        setBroadcastFeedback({ id: articleId, msg: successMsg, ok: true })
+        if (json.sent > 0) {
+          setNewsletterCooldownUntil((prev) => ({ ...prev, [articleId]: Date.now() + NEWSLETTER_COOLDOWN_MS }))
+        }
       }
     } catch {
       setBroadcastFeedback({ id: articleId, msg: 'Erro de conexão. Tente novamente.', ok: false })
@@ -659,15 +683,22 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
                     <button
                       type="button"
                       onClick={() => handleBroadcast(article.id)}
-                      disabled={broadcastingId === article.id}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-green-500/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-green-300 transition hover:bg-green-500/10 disabled:opacity-50"
+                      disabled={
+                        broadcastingId === article.id ||
+                        (newsletterCooldownUntil[article.id] != null && now < newsletterCooldownUntil[article.id])
+                      }
+                      className="inline-flex items-center gap-1.5 rounded-full border border-green-500/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-green-300 transition hover:bg-green-500/10 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {broadcastingId === article.id ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       ) : (
                         <Send className="h-3.5 w-3.5" />
                       )}
-                      {broadcastingId === article.id ? 'Enviando...' : 'Newsletter'}
+                      {broadcastingId === article.id
+                        ? 'Enviando...'
+                        : newsletterCooldownUntil[article.id] != null && now < newsletterCooldownUntil[article.id]
+                          ? `Aguarde ${Math.ceil((newsletterCooldownUntil[article.id] - now) / 1000)}s`
+                          : 'Newsletter'}
                     </button>
                     <button
                       type="button"
