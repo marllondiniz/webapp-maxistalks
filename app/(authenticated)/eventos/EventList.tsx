@@ -275,63 +275,63 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                 </div>
               )}
 
-              <div className="flex flex-col gap-4 p-4 sm:p-5 md:p-6">
-                <header className="space-y-2">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
+              <div className="flex w-full min-w-0 flex-col items-center text-center gap-3 pt-4 px-4 pb-3 sm:pt-5 sm:px-5 sm:pb-4 md:pt-6 md:px-6 md:pb-5">
+                <header className="w-full space-y-1.5">
+                  <div className="flex w-full min-w-0 flex-col items-center gap-3">
+                    <div className="flex flex-col items-center gap-1.5">
                       <span className="inline-flex items-center rounded-full bg-blue-500/20 border border-blue-500/30 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-blue-300">
                         Evento
                       </span>
-                      <div className="mt-2 space-y-1">
-                        <Link href={`/eventos/${event.id}`}>
-                          {eventBanner?.subtitulo && (
-                            <h3 className="text-xl font-bold tracking-tight text-[#f5f5f5] transition hover:text-white sm:text-2xl">
-                              {eventBanner.subtitulo}
-                            </h3>
-                          )}
-                          {!eventBanner && (
-                            <h3 className="text-xl font-bold tracking-tight text-[#f5f5f5] transition hover:text-white">
-                              {event.titulo}
-                            </h3>
-                          )}
-                        </Link>
-                        {eventBanner?.palestrante_instagram && (
-                          <a
-                            href={`https://instagram.com/${eventBanner.palestrante_instagram.replace(/^@/, '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="inline-block text-xs font-semibold text-blue-300 transition hover:text-blue-200"
-                          >
-                            @{eventBanner.palestrante_instagram.replace(/^@/, '')}
-                          </a>
-                        )}
-                        {eventBanner?.palestrante_descricao && (
-                          <p className="text-xs leading-relaxed text-[#9a9aa2]">
-                            {eventBanner.palestrante_descricao}
-                          </p>
-                        )}
-                        {eventBanner?.titulo && (
-                          <div className="mt-2 rounded-lg border border-slate-600/30 bg-slate-700/30 px-3 py-2">
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Tema da palestra</p>
-                            <p className="mt-0.5 text-sm font-medium leading-relaxed text-[#f5f5f5]">{eventBanner.titulo}</p>
-                          </div>
-                        )}
+                      <div className="space-y-0.5 text-sm leading-tight text-[#c9c9d2]">
+                        <p>{new Date(event.data_horario).toLocaleDateString('pt-BR')}</p>
+                        <p className="font-semibold">
+                          {new Date(event.data_horario).toLocaleTimeString('pt-BR', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </p>
                       </div>
                     </div>
-                    <div className="text-right text-sm text-[#c9c9d2]">
-                      <p>{new Date(event.data_horario).toLocaleDateString('pt-BR')}</p>
-                      <p className="font-semibold">
-                        {new Date(event.data_horario).toLocaleTimeString('pt-BR', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </p>
+                    <div className="mt-1.5 flex w-full min-w-0 flex-col items-center space-y-1">
+                      <Link href={`/eventos/${event.id}`}>
+                        {eventBanner?.subtitulo && (
+                          <h3 className="text-xl font-bold tracking-tight text-[#f5f5f5] transition hover:text-white sm:text-2xl">
+                            {eventBanner.subtitulo}
+                          </h3>
+                        )}
+                        {!eventBanner && (
+                          <h3 className="text-xl font-bold tracking-tight text-[#f5f5f5] transition hover:text-white">
+                            {event.titulo}
+                          </h3>
+                        )}
+                      </Link>
+                      {eventBanner?.palestrante_instagram && (
+                        <a
+                          href={`https://instagram.com/${eventBanner.palestrante_instagram.replace(/^@/, '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="inline-block text-xs font-semibold text-blue-300 transition hover:text-blue-200"
+                        >
+                          @{eventBanner.palestrante_instagram.replace(/^@/, '')}
+                        </a>
+                      )}
+                      {eventBanner?.palestrante_descricao && (
+                        <p className="text-xs leading-relaxed text-[#9a9aa2]">
+                          {eventBanner.palestrante_descricao}
+                        </p>
+                      )}
+                      {eventBanner?.titulo && (
+                        <div className="mt-1 w-full min-w-0 rounded-lg border border-slate-600/30 bg-slate-700/30 px-3 py-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Tema da palestra</p>
+                          <p className="mt-0.5 text-sm font-medium leading-relaxed text-[#f5f5f5]">{eventBanner.titulo}</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </header>
 
-                <div className="space-y-3 text-sm text-[#d6d6de]">
+                <div className="space-y-2 text-sm text-[#d6d6de]">
                   <div>
                     <p>
                       <span className="font-semibold text-[#f5f5f5]">Inscrição:</span>{' '}
@@ -343,7 +343,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                       </span>
                     </p>
                     {hasDiscount && (
-                      <p className="mt-1 flex items-center gap-1.5 text-xs text-emerald-300">
+                      <p className="mt-1 flex items-center justify-center gap-1.5 text-xs text-emerald-300">
                         <PartyPopper className="h-3.5 w-3.5 shrink-0" />
                         Desconto exclusivo para assinantes MaxisTalks
                       </p>
@@ -351,10 +351,10 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                   </div>
                 </div>
 
-                <div className="mt-auto space-y-3">
+                <div className="mt-auto flex w-full min-w-0 flex-col items-center space-y-2">
                 {messages[event.id] && (
                   <div
-                    className={`rounded-2xl border px-4 py-3 text-sm font-medium ${
+                    className={`w-full rounded-2xl border px-4 py-3 text-center text-sm font-medium ${
                       messages[event.id]?.type === 'success'
                         ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200'
                         : 'border-red-500/40 bg-red-500/10 text-red-200'
@@ -364,9 +364,9 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                   </div>
                 )}
 
-                <div className="flex flex-col gap-2 sm:flex-row">
+                <div className="flex w-full min-w-0 flex-col items-center gap-2 sm:flex-row sm:justify-center">
                   {isRegistered ? (
-                    <span className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-emerald-200">
+                    <span className="flex w-full min-w-0 items-center justify-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-emerald-200">
                       <Check className="h-4 w-4 shrink-0" />
                       Inscrito
                     </span>
@@ -384,7 +384,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                           },
                         }))
                       }
-                      className={`inline-flex flex-1 items-center justify-center rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-wide transition ${
+                      className={`flex min-w-0 flex-1 items-center justify-center rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-wide transition ${
                         isPastEvent
                           ? 'cursor-not-allowed border border-slate-600/40 bg-slate-800 text-[#5f5f66] opacity-60'
                           : 'bg-[#f5f5f5] text-[#0f0f10] hover:brightness-95'
@@ -397,7 +397,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                       type="button"
                       onClick={() => !isPastEvent && handleExpressInterest(event.id)}
                       disabled={buttonDisabled}
-                      className={`inline-flex flex-1 items-center justify-center rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-wide transition ${
+                      className={`flex min-w-0 flex-1 items-center justify-center rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-wide transition ${
                         buttonDisabled
                           ? 'cursor-not-allowed border border-slate-600/40 bg-slate-800 text-[#5f5f66] opacity-60'
                           : 'bg-[#f5f5f5] text-[#0f0f10] hover:brightness-95'
@@ -414,7 +414,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
 
                 <Link
                   href={`/eventos/${event.id}`}
-                  className="inline-flex w-full items-center justify-center rounded-full border border-slate-600/30 bg-slate-800 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-[#f5f5f5] transition hover:border-slate-500/40 hover:bg-slate-700/50"
+                  className="flex w-full min-w-0 items-center justify-center rounded-full border border-slate-600/30 bg-slate-800 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-[#f5f5f5] transition hover:border-slate-500/40 hover:bg-slate-700/50"
                 >
                   Saiba mais
                 </Link>
