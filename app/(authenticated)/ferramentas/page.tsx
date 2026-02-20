@@ -1,8 +1,7 @@
 import { unstable_noStore } from 'next/cache'
 import { getTools, getActiveLiveSession } from '@/lib/queries'
 import { getTenantIdForRequest } from '@/lib/brand'
-import { Wrench, Youtube, FileDown, AlertCircle } from 'lucide-react'
-import { PainForm } from './PainForm'
+import { Wrench, Youtube, FileDown } from 'lucide-react'
 import { LiveSessionBanner } from './LiveSessionBanner'
 
 export const dynamic = 'force-dynamic'
@@ -132,21 +131,6 @@ export default async function FerramentasPage() {
         </section>
       )}
 
-      {/* Registrar dor */}
-      <section className="space-y-4">
-        <div>
-          <h2 className="flex items-center gap-2 text-base font-bold uppercase tracking-wider text-slate-300">
-            <AlertCircle className="h-4 w-4 text-amber-400" />
-            Registrar meu desafio
-          </h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Compartilhe seu maior desafio. Isso nos ajuda a criar conteúdos e ferramentas mais relevantes para você.
-          </p>
-        </div>
-        <div className="rounded-2xl border border-slate-600/30 bg-slate-800/80 p-4">
-          <PainForm tenantId={tenantId} />
-        </div>
-      </section>
     </div>
   )
 }

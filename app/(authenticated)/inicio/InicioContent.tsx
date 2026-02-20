@@ -9,8 +9,9 @@ import {
   type ArticleRecord,
 } from '@/lib/queries'
 import { getTenantIdForRequest } from '@/lib/brand'
-import { Calendar, BookOpenText, ChevronRight } from 'lucide-react'
+import { Calendar, BookOpenText, ChevronRight, AlertCircle } from 'lucide-react'
 import { InstagramLink } from '@/components/InstagramLink'
+import { PainForm } from '../ferramentas/PainForm'
 
 /** Formata data/hora do evento no fuso de Brasília (evita erro quando o Server Component roda em UTC). */
 function formatEventDate(date: string | null) {
@@ -235,6 +236,22 @@ export async function InicioContent() {
           </div>
         </div>
       )}
+
+      {/* Registrar desafio */}
+      <div className="pb-4">
+        <div className="mb-3">
+          <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">
+            <AlertCircle className="h-3.5 w-3.5 text-amber-400" />
+            Registrar meu desafio
+          </h3>
+          <p className="mt-1 text-sm text-slate-500">
+            Compartilhe seu maior desafio. Isso nos ajuda a criar conteúdos e ferramentas mais relevantes para você.
+          </p>
+        </div>
+        <div className="rounded-xl border border-slate-600/30 bg-slate-800/80 p-4">
+          <PainForm tenantId={tenantId} />
+        </div>
+      </div>
     </div>
   )
 }
