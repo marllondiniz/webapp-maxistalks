@@ -1,8 +1,9 @@
 import { unstable_noStore } from 'next/cache'
 import { getTools, getActiveLiveSession } from '@/lib/queries'
 import { getTenantIdForRequest } from '@/lib/brand'
-import { Wrench, Youtube, FileDown, Radio, AlertCircle } from 'lucide-react'
+import { Wrench, Youtube, FileDown, AlertCircle } from 'lucide-react'
 import { PainForm } from './PainForm'
+import { LiveSessionBanner } from './LiveSessionBanner'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,34 +41,7 @@ export default async function FerramentasPage() {
       </div>
 
       {/* Ao vivo */}
-      {liveSession && (
-        <section>
-          <div className="flex items-center gap-2 mb-4">
-            <span className="flex items-center gap-1.5">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-500" />
-              </span>
-              <span className="text-xs font-bold uppercase tracking-widest text-red-400">Ao vivo</span>
-            </span>
-          </div>
-          <a
-            href={liveSession.youtube_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center gap-4 rounded-2xl border border-red-500/30 bg-red-500/10 px-5 py-4 transition hover:border-red-500/60 hover:bg-red-500/15"
-          >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-500/20">
-              <Radio className="h-6 w-6 text-red-400" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-white">{liveSession.titulo ?? 'Evento ao vivo'}</p>
-              <p className="mt-0.5 text-sm text-red-300/80">Clique para assistir no YouTube</p>
-            </div>
-            <Youtube className="h-5 w-5 shrink-0 text-red-400 transition group-hover:scale-110" />
-          </a>
-        </section>
-      )}
+      {liveSession && <LiveSessionBanner session={liveSession} />}
 
       {/* Ferramentas — sem conteúdo */}
       {tools.length === 0 && (
