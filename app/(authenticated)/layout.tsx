@@ -10,7 +10,7 @@ import {
   CalendarDays,
   BookOpenText,
   User,
-  UsersRound,
+  Wrench,
 } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { useBrand } from '@/app/(components)/BrandProvider'
@@ -43,10 +43,10 @@ const NAV_ITEMS: NavItem[] = [
     title: 'Artigos e inspirações',
   },
   {
-    href: '/clube',
-    label: 'Comunidade',
-    icon: UsersRound,
-    title: 'Comunidade', // substituído dinamicamente por useBrand
+    href: '/ferramentas',
+    label: 'Ferramentas',
+    icon: Wrench,
+    title: 'Ferramentas e recursos',
   },
   {
     href: '/perfil',
@@ -66,13 +66,7 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
   )
   const supabase = useMemo(() => getSupabaseClient(), [])
 
-  const navItemsToShow = useMemo(
-    () =>
-      NAV_ITEMS.map((item) =>
-        item.href === '/clube' ? { ...item, title: `A comunidade ${brand.name}` } : item
-      ),
-    [brand.name]
-  )
+  const navItemsToShow = useMemo(() => NAV_ITEMS, [])
 
   useEffect(() => {
     let isMounted = true

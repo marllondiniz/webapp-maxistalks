@@ -68,6 +68,69 @@ export type ChallengeProgressRecord = {
   progresso: number | null
 }
 
+export type ToolRecord = {
+  id: string
+  tenant_id: string | null
+  titulo: string
+  descricao: string | null
+  youtube_url: string | null
+  pdf_url: string | null
+  pdf_nome: string | null
+  ordem: number | null
+  ativo: boolean | null
+  created_at: string
+}
+
+export type UserPainRecord = {
+  id: string
+  user_id: string
+  tenant_id: string | null
+  dor: string
+  created_at: string
+}
+
+export type LiveSessionRecord = {
+  id: string
+  tenant_id: string | null
+  titulo: string | null
+  youtube_url: string
+  ativo: boolean | null
+  created_at: string
+}
+
+export async function getTools(tenantId?: string | null): Promise<ToolRecord[]> {
+  const supabase = getSupabaseAdmin()
+  let query = supabase
+    .from('tools')
+    .select('*')
+    .eq('ativo', true)
+    .order('ordem', { ascending: true })
+  if (tenantId) query = query.or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
+  const { data, error } = await query
+  if (error) {
+    console.error('Erro ao buscar ferramentas:', error)
+    return []
+  }
+  return data ?? []
+}
+
+export async function getActiveLiveSession(tenantId?: string | null): Promise<LiveSessionRecord | null> {
+  const supabase = getSupabaseAdmin()
+  let query = supabase
+    .from('live_sessions')
+    .select('*')
+    .eq('ativo', true)
+    .order('created_at', { ascending: false })
+    .limit(1)
+  if (tenantId) query = query.or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
+  const { data, error } = await query
+  if (error) {
+    console.error('Erro ao buscar sessão ao vivo:', error)
+    return null
+  }
+  return data?.[0] ?? null
+}
+
 export async function getEvents(tenantId?: string | null): Promise<EventRecord[]> {
   const supabase = getSupabaseServer()
   let query = supabase.from('events').select('*').order('created_at', { ascending: true, nullsFirst: false })
