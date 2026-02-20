@@ -115,19 +115,26 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
         tenant_id: tenantId,
       }
 
+      const wasEditing = Boolean(editingToolId)
       if (editingToolId) {
-        const { error } = await supabase.from('tools').update(payload).eq('id', editingToolId)
+        const { data: updatedRow, error } = await supabase
+          .from('tools')
+          .update(payload)
+          .eq('id', editingToolId)
+          .select()
+          .single()
         if (error) { setToolFeedback('Erro ao atualizar.'); return }
+        setTools((prev) => prev.map((t) => (t.id === editingToolId ? (updatedRow as ToolRecord) : t)))
       } else {
         const { error } = await supabase.from('tools').insert(payload)
         if (error) { setToolFeedback('Erro ao criar.'); return }
+        await loadTools()
       }
 
       setShowToolForm(false)
       setEditingToolId(null)
       setFormTool(emptyTool)
-      await loadTools()
-      setToolFeedback(editingToolId ? 'Ferramenta atualizada!' : 'Ferramenta criada!')
+      setToolFeedback(wasEditing ? 'Ferramenta atualizada!' : 'Ferramenta criada!')
       setTimeout(() => setToolFeedback(null), 3000)
     })
   }

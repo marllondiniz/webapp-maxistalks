@@ -1,9 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Youtube, FileDown, ChevronRight } from 'lucide-react'
 import type { ToolRecord } from '@/lib/queries'
 import { ToolModal } from './ToolModal'
+
+const FILTROS_TEMA = [
+  { value: 'all', label: 'Todos' },
+  { value: 'aula', label: 'Aulas' },
+  { value: 'ferramenta', label: 'Ferramentas' },
+] as const
 
 function getYoutubeThumb(url: string): string | null {
   const patterns = [
@@ -25,7 +31,7 @@ function ToolCard({ tool, onClick }: { tool: ToolRecord; onClick: () => void }) 
   return (
     <button
       onClick={onClick}
-      className="group flex w-full items-stretch overflow-hidden rounded-2xl border border-slate-600/30 bg-slate-800/80 text-left shadow-lg transition hover:border-slate-500/50 hover:bg-slate-800 active:scale-[0.99]"
+      className="group flex w-full items-stretch overflow-hidden rounded-2xl border border-slate-600/30 bg-slate-800/80 text-center shadow-lg transition hover:border-slate-500/50 hover:bg-slate-800 active:scale-[0.99]"
     >
       {/* Thumbnail ou ícone */}
       <div className="relative flex h-auto w-28 shrink-0 items-center justify-center overflow-hidden bg-slate-900 sm:w-36">
@@ -64,7 +70,7 @@ function ToolCard({ tool, onClick }: { tool: ToolRecord; onClick: () => void }) 
       </div>
 
       {/* Conteúdo */}
-      <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 px-4 py-4">
+      <div className="flex min-w-0 flex-1 flex-col items-center justify-center gap-1 px-4 py-4 text-center">
         <p className="font-bold leading-snug text-white line-clamp-2">{tool.titulo}</p>
         {tool.descricao && (
           <p className="text-sm text-slate-400 line-clamp-2 leading-relaxed">{tool.descricao}</p>
@@ -81,13 +87,60 @@ function ToolCard({ tool, onClick }: { tool: ToolRecord; onClick: () => void }) 
 
 export function ToolList({ tools }: { tools: ToolRecord[] }) {
   const [selected, setSelected] = useState<ToolRecord | null>(null)
+  const [filterTema, setFilterTema] = useState<string>('all')
+
+  const filteredTools = useMemo(() => {
+    if (filterTema === 'all') return tools
+    if (filterTema === 'aula') return tools.filter((t) => t.youtube_url)
+    if (filterTema === 'ferramenta') return tools.filter((t) => t.pdf_url)
+    return tools
+  }, [tools, filterTema])
+
+  const countLabel =
+    filterTema === 'aula'
+      ? filteredTools.length === 1
+        ? 'aula'
+        : 'aulas'
+      : filteredTools.length === 1
+        ? 'ferramenta'
+        : 'ferramentas'
 
   return (
     <>
+      <div className="flex flex-wrap justify-center gap-2">
+        {FILTROS_TEMA.map((f) => {
+          const isActive = filterTema === f.value
+          return (
+            <button
+              key={f.value}
+              type="button"
+              onClick={() => setFilterTema(f.value)}
+              className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-wide transition ${
+                isActive
+                  ? 'border border-blue-400/40 bg-blue-500/20 text-blue-200'
+                  : 'border border-slate-600/40 bg-slate-800/80 text-slate-300 hover:border-slate-500/50 hover:bg-slate-700/60 hover:text-slate-200'
+              }`}
+            >
+              {f.label}
+            </button>
+          )
+        })}
+      </div>
+
+      <p className="text-center text-sm text-slate-400">
+        {filteredTools.length} {countLabel}
+      </p>
+
       <div className="space-y-3">
-        {tools.map((tool) => (
-          <ToolCard key={tool.id} tool={tool} onClick={() => setSelected(tool)} />
-        ))}
+        {filteredTools.length === 0 ? (
+          <p className="rounded-2xl border border-slate-600/30 bg-slate-800/50 px-6 py-8 text-center text-sm text-slate-400">
+            {filterTema === 'aula' ? 'Nenhuma aula neste filtro.' : 'Nenhuma ferramenta neste filtro.'}
+          </p>
+        ) : (
+          filteredTools.map((tool) => (
+            <ToolCard key={tool.id} tool={tool} onClick={() => setSelected(tool)} />
+          ))
+        )}
       </div>
 
       {selected && (

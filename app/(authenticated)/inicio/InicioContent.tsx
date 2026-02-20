@@ -4,6 +4,7 @@ import {
   getActiveEventBanners,
   getEvents,
   getArticles,
+  getActiveLiveSession,
   type EventBannerRecord,
   type EventRecord,
   type ArticleRecord,
@@ -12,6 +13,7 @@ import { getTenantIdForRequest } from '@/lib/brand'
 import { Calendar, BookOpenText, ChevronRight, AlertCircle } from 'lucide-react'
 import { InstagramLink } from '@/components/InstagramLink'
 import { PainForm } from '../ferramentas/PainForm'
+import { LiveSessionBanner } from '../ferramentas/LiveSessionBanner'
 
 /** Formata data/hora do evento no fuso de Brasília (evita erro quando o Server Component roda em UTC). */
 function formatEventDate(date: string | null) {
@@ -149,10 +151,11 @@ function ConteudoDestaqueCard({ artigo }: { artigo: ArticleRecord }) {
 
 export async function InicioContent() {
   const tenantId = await getTenantIdForRequest()
-  const [eventos, banners, artigosInicio] = await Promise.all([
+  const [eventos, banners, artigosInicio, liveSession] = await Promise.all([
     getEvents(tenantId),
     getActiveEventBanners(tenantId),
     getArticles('inicio', tenantId),
+    getActiveLiveSession(tenantId),
   ])
 
   const eventosOrdenados = [...eventos].sort(
@@ -168,6 +171,9 @@ export async function InicioContent() {
 
   return (
     <div className="space-y-8">
+      {/* Ao vivo */}
+      {liveSession && <LiveSessionBanner session={liveSession} />}
+
       {/* Próximos eventos - único bloco */}
       {eventosOrdenados.length > 0 ? (
         <div className="pb-4">

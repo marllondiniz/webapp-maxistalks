@@ -3,7 +3,6 @@ import { getTools, getActiveLiveSession } from '@/lib/queries'
 import { getTenantIdForRequest } from '@/lib/brand'
 import { Wrench } from 'lucide-react'
 import { LiveSessionBanner } from './LiveSessionBanner'
-import { FerramentasRefresh } from './FerramentasRefresh'
 import { ToolList } from './ToolList'
 
 export const dynamic = 'force-dynamic'
@@ -19,10 +18,8 @@ export default async function FerramentasPage() {
 
   return (
     <div className="space-y-10">
-      <FerramentasRefresh />
-
       {/* Header */}
-      <div>
+      <div className="text-center">
         <h1 className="text-2xl font-bold text-white sm:text-3xl">Ferramentas</h1>
         <p className="mt-1 text-sm text-slate-400">
           Recursos, materiais e conteúdos para acelerar o seu negócio.
