@@ -12,6 +12,7 @@
     "@marsidev/react-turnstile": "^1.4.2",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.47.6",
+    "@vercel/analytics": "^1.6.1",
     "framer-motion": "^11.3.7",
     "googleapis": "^164.1.0",
     "lucide-react": "^0.447.0",
