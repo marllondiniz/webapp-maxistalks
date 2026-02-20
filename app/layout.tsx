@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { Inter, DM_Sans } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/next'
 import { getBrandConfig, getBrandOgImageUrl } from '@/lib/brand'
 import './globals.css'
 import { CookieConsent } from './(components)/CookieConsent'
@@ -92,6 +93,7 @@ export default async function RootLayout({
         <BrandProvider brand={brand}>
           {children}
           <CookieConsent />
+          <Analytics />
         </BrandProvider>
       </body>
     </html>
