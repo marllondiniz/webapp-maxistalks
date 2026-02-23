@@ -10,6 +10,7 @@ const ALLOWED_FIELDS = [
   'map_embed_url', 'map_link_url',
   'about_logo_url', 'about_short_text', 'about_long_text',
   'about_button_label', 'about_button_url',
+  'what_is_heading', 'what_is_image_url',
   'footer_logo_url', 'instagram_url', 'youtube_url', 'footer_copyright_name',
 ] as const
 
@@ -65,6 +66,7 @@ export async function GET(request: NextRequest) {
         primary_color, primary_color_hover, support_email, base_url, storage_key_prefix,
         address_line1, address_line2, address_cep, local_subheading, map_embed_url, map_link_url,
         about_logo_url, about_short_text, about_long_text, about_button_label, about_button_url,
+        what_is_heading, what_is_image_url,
         footer_logo_url, instagram_url, youtube_url, footer_copyright_name`)
       .eq('domain', domain)
       .maybeSingle()

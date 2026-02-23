@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Save, Loader2, CheckCircle, AlertCircle, Globe, MapPin, Info, Layout, Upload, X, ChevronDown, ChevronUp } from 'lucide-react'
+import { Save, Loader2, CheckCircle, AlertCircle, Globe, MapPin, Info, Layout, Upload, X, ChevronDown, ChevronUp, ImageIcon } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 
 const TENANT_BUCKET = 'event-banners'
@@ -27,6 +27,8 @@ type TenantData = {
   about_long_text: string
   about_button_label: string
   about_button_url: string
+  what_is_heading: string
+  what_is_image_url: string
   footer_logo_url: string
   instagram_url: string
   youtube_url: string
@@ -40,6 +42,7 @@ const EMPTY: TenantData = {
   map_embed_url: '', map_link_url: '',
   about_logo_url: '', about_short_text: '', about_long_text: '',
   about_button_label: '', about_button_url: '',
+  what_is_heading: '', what_is_image_url: '',
   footer_logo_url: '', instagram_url: '', youtube_url: '', footer_copyright_name: '',
 }
 
@@ -302,6 +305,8 @@ export default function CustomizacaoPanel() {
             about_long_text: normalize(tenant.about_long_text),
             about_button_label: normalize(tenant.about_button_label),
             about_button_url: normalize(tenant.about_button_url),
+            what_is_heading: normalize(tenant.what_is_heading),
+            what_is_image_url: normalize(tenant.what_is_image_url),
             footer_logo_url: normalize(tenant.footer_logo_url),
             instagram_url: normalize(tenant.instagram_url),
             youtube_url: normalize(tenant.youtube_url),
@@ -435,6 +440,27 @@ export default function CustomizacaoPanel() {
                   <Field label="E-mail de suporte" name="support_email" value={form.support_email} onChange={handleChange} placeholder="contato@minhaempresa.com" />
                   <ColorField label="Cor primária" name="primary_color" value={form.primary_color} onChange={handleChange} hint="Cor dos botões e destaques" />
                   <ColorField label="Cor primária hover" name="primary_color_hover" value={form.primary_color_hover} onChange={handleChange} hint="Cor ao passar o mouse" />
+                </Section>
+
+                {/* Seção "O que é" */}
+                <Section icon={ImageIcon} title="Seção 'O que é'">
+                  <Field
+                    label="Título da seção"
+                    name="what_is_heading"
+                    value={form.what_is_heading}
+                    onChange={handleChange}
+                    placeholder="O que é o (Nome do evento)?"
+                    hint="Ex.: O que é o MaxisTalks? — use o nome do seu evento no lugar de (Nome do evento)"
+                  />
+                  <div className="sm:col-span-2">
+                    <ImageUploadField
+                      label="Imagem da seção 'O que é'"
+                      name="what_is_image_url"
+                      value={form.what_is_image_url}
+                      onChange={handleChange}
+                      hint="Clique em 'Fazer upload' para enviar a imagem (não digite URL). Se vazio, usa a imagem padrão. Máx. 2MB."
+                    />
+                  </div>
                 </Section>
 
                 {/* Local / Endereço */}

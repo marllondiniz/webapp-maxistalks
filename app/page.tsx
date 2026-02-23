@@ -340,14 +340,14 @@ export default function MaxisTalksPage() {
             variants={stagger}
           >
             <motion.h2 variants={fadeUp} className="section-heading">
-              O que é o {brand.name}
+              {brand.whatIsHeading || `O que é o ${brand.name}?`}
             </motion.h2>
             <motion.div
               variants={fadeUp}
               className="mt-10 overflow-hidden rounded-3xl border border-white/[0.06] shadow-2xl"
             >
               <Image
-                src="/oqueé.avif"
+                src={brand.whatIsImageUrl || '/oqueé.avif'}
                 alt={`O que é o ${brand.name} — evento presencial para convidados selecionados`}
                 width={960}
                 height={540}

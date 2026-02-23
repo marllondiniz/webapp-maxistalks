@@ -47,6 +47,8 @@ export function useBrand(): BrandConfig {
       aboutLongText: null,
       aboutButtonLabel: null,
       aboutButtonUrl: null,
+      whatIsHeading: null,
+      whatIsImageUrl: null,
       footerLogoUrl: null,
       instagramUrl: null,
       youtubeUrl: null,

@@ -29,6 +29,9 @@ export type BrandConfig = {
   aboutLongText: string | null
   aboutButtonLabel: string | null
   aboutButtonUrl: string | null
+  // Landing page — Seção "O que é"
+  whatIsHeading: string | null
+  whatIsImageUrl: string | null
   // Landing page — Footer
   footerLogoUrl: string | null
   instagramUrl: string | null
@@ -59,6 +62,8 @@ const DEFAULT_BRAND: BrandConfig = {
   aboutLongText: null,
   aboutButtonLabel: null,
   aboutButtonUrl: null,
+  whatIsHeading: null,
+  whatIsImageUrl: null,
   footerLogoUrl: null,
   instagramUrl: null,
   youtubeUrl: null,
@@ -95,6 +100,8 @@ export function getBrandFromEnv(): BrandConfig {
     aboutLongText: null,
     aboutButtonLabel: null,
     aboutButtonUrl: null,
+    whatIsHeading: null,
+    whatIsImageUrl: null,
     footerLogoUrl: null,
     instagramUrl: null,
     youtubeUrl: null,
@@ -129,6 +136,7 @@ export async function getTenantByDomain(host: string): Promise<BrandConfig | nul
         primary_color, primary_color_hover, support_email, base_url, storage_key_prefix,
         address_line1, address_line2, address_cep, local_subheading, map_embed_url, map_link_url,
         about_logo_url, about_short_text, about_long_text, about_button_label, about_button_url,
+        what_is_heading, what_is_image_url,
         footer_logo_url, instagram_url, youtube_url, footer_copyright_name`)
       .eq('domain', domain)
       .maybeSingle()
@@ -161,6 +169,8 @@ export async function getTenantByDomain(host: string): Promise<BrandConfig | nul
       aboutLongText: data.about_long_text ?? null,
       aboutButtonLabel: data.about_button_label ?? null,
       aboutButtonUrl: data.about_button_url ?? null,
+      whatIsHeading: data.what_is_heading ?? null,
+      whatIsImageUrl: data.what_is_image_url ?? null,
       footerLogoUrl: data.footer_logo_url ?? null,
       instagramUrl: data.instagram_url ?? null,
       youtubeUrl: data.youtube_url ?? null,
