@@ -620,6 +620,7 @@
     "statSent": "Enviados",
     "statNoPhone": "Sem telefone",
     "searchPlaceholder": "Buscar nome, email ou telefone...",
+    "filterLabel": "Filtrar lista",
     "filterAll": "Todos ({count})",
     "filterSelected": "Selecionados ({count})",
     "filterSent": "Enviados ({count})",

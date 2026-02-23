@@ -236,16 +236,27 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
                   className="w-full rounded-xl border border-white/10 bg-[#0f172a] py-2 pl-9 pr-3 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value as typeof filterStatus)}
-                className="rounded-xl border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none"
-              >
-                <option value="all">{t('filterAll', { count: interessados.length })}</option>
-                <option value="selecionados">{t('filterSelected', { count: stats.selecionados })}</option>
-                <option value="enviados">{t('filterSent', { count: stats.enviados })}</option>
-                <option value="pendentes">{t('filterPending')}</option>
-              </select>
+              <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label={t('filterLabel')}>
+                {[
+                  { value: 'all' as const, label: t('filterAll', { count: interessados.length }) },
+                  { value: 'enviados' as const, label: t('filterSent', { count: stats.enviados }) },
+                  { value: 'pendentes' as const, label: t('filterPending') },
+                  { value: 'selecionados' as const, label: t('filterSelected', { count: stats.selecionados }) },
+                ].map(({ value, label }) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setFilterStatus(value)}
+                    className={`rounded-xl border px-3 py-2 text-sm font-medium transition shrink-0 ${
+                      filterStatus === value
+                        ? 'border-emerald-500 bg-emerald-500/20 text-emerald-400'
+                        : 'border-white/10 bg-[#0f172a] text-slate-300 hover:bg-white/5 hover:border-white/20'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
               <button
                 type="button"
                 onClick={allFilteredSelected ? deselectAll : selectAll}

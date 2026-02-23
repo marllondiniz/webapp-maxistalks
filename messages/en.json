@@ -584,6 +584,7 @@
     "statSent": "Sent",
     "statNoPhone": "No phone",
     "searchPlaceholder": "Search name, email or phone...",
+    "filterLabel": "Filter list",
     "filterAll": "All ({count})",
     "filterSelected": "Selected ({count})",
     "filterSent": "Sent ({count})",
