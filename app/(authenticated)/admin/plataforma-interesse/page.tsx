@@ -2,12 +2,11 @@ import { unstable_noStore } from 'next/cache'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getPlataformaLeads } from '@/lib/queries'
-import { getTenantIdForRequest } from '@/lib/brand'
+import { getTenantIdForRequest, getBrandForRequest } from '@/lib/brand'
 import { getTranslations } from 'next-intl/server'
 import { normalizePhoneForWhatsApp } from '@/lib/phone'
 import { MessageCircle, Mail, Calendar, ExternalLink, Building2, MessageSquare } from 'lucide-react'
 import { LeadAtendidoCell } from './LeadAtendidoCell'
-import { isPlataformaSalesEnabled } from '@/lib/plataformaSales'
 
 export const dynamic = 'force-dynamic'
 
@@ -41,7 +40,8 @@ function PlanBadge({ plano }: { plano: string | null }) {
 
 export default async function AdminPlataformaInteressePage() {
   unstable_noStore()
-  if (!isPlataformaSalesEnabled()) {
+  const brand = await getBrandForRequest()
+  if (!brand.enablePlataformaSales) {
     redirect('/admin')
   }
   const t = await getTranslations('AdminPlataformaLeads')

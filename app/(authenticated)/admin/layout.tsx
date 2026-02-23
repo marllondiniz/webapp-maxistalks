@@ -1,10 +1,10 @@
-import { isPlataformaSalesEnabled } from '@/lib/plataformaSales'
+import { getBrandForRequest } from '@/lib/brand'
 import { AdminLayoutClient } from './AdminLayoutClient'
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const plataformaSalesEnabled = isPlataformaSalesEnabled()
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const brand = await getBrandForRequest()
   return (
-    <AdminLayoutClient plataformaSalesEnabled={plataformaSalesEnabled}>
+    <AdminLayoutClient plataformaSalesEnabled={brand.enablePlataformaSales}>
       {children}
     </AdminLayoutClient>
   )

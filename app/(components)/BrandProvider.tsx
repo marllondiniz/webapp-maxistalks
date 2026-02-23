@@ -36,6 +36,9 @@ export function useBrand(): BrandConfig {
       baseUrl: (process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://maxistalks.com').replace(/\/$/, ''),
       storageKeyPrefix: process.env.NEXT_PUBLIC_STORAGE_KEY_PREFIX || 'maxistalks',
       tenantId: null,
+      enablePlataformaSales:
+        process.env.NEXT_PUBLIC_ENABLE_PLATAFORMA_SALES === 'true' ||
+        process.env.NEXT_PUBLIC_ENABLE_PLATAFORMA_SALES === '1',
       addressLine1: null,
       addressLine2: null,
       addressCep: null,

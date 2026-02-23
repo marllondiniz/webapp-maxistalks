@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin'
 import { getBrandConfigFromRequest } from '@/lib/brand'
-import { isPlataformaSalesEnabled } from '@/lib/plataformaSales'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,15 +8,15 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export async function POST(request: NextRequest) {
   try {
-    if (!isPlataformaSalesEnabled()) {
+    const { brand, tenantId } = await getBrandConfigFromRequest(request)
+    if (!brand.enablePlataformaSales) {
       return NextResponse.json(
         { error: 'Funcionalidade indisponível neste ambiente.' },
         { status: 403 }
       )
     }
-    const { tenantId } = await getBrandConfigFromRequest(request)
-    const body = await request.json()
 
+    const body = await request.json()
     const nome = typeof body.nome === 'string' ? body.nome.trim() : ''
     const email = typeof body.email === 'string' ? body.email.trim() : ''
     const telefone = typeof body.telefone === 'string' ? body.telefone.trim() || null : null

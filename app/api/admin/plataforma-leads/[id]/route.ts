@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin'
 import { getBrandConfigFromRequest } from '@/lib/brand'
 import { createClient } from '@supabase/supabase-js'
-import { isPlataformaSalesEnabled } from '@/lib/plataformaSales'
 
 export const dynamic = 'force-dynamic'
 
@@ -43,7 +42,8 @@ export async function PATCH(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!isPlataformaSalesEnabled()) {
+    const { brand, tenantId: brandTenantId } = await getBrandConfigFromRequest(request)
+    if (!brand.enablePlataformaSales) {
       return NextResponse.json({ error: 'Funcionalidade indisponível neste ambiente' }, { status: 403 })
     }
     const userId = await checkAdmin(request)
@@ -62,7 +62,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'atendido (boolean) é obrigatório' }, { status: 400 })
     }
 
-    const { tenantId } = await getBrandConfigFromRequest(request)
+    const tenantId = brandTenantId
     const supabase = getSupabaseAdmin()
     let query = supabase
       .from('plataforma_leads')

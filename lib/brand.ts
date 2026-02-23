@@ -16,6 +16,8 @@ export type BrandConfig = {
   storageKeyPrefix: string
   /** UUID do tenant no banco (null quando vem de env ou tenant não encontrado). */
   tenantId: string | null
+  /** Se true, este tenant/deploy pode ver e usar a venda da plataforma (/plataforma e Interesses no admin). */
+  enablePlataformaSales: boolean
   // Landing page — Local/Endereço
   addressLine1: string | null
   addressLine2: string | null
@@ -51,6 +53,7 @@ const DEFAULT_BRAND: BrandConfig = {
   baseUrl: 'https://maxistalks.com',
   storageKeyPrefix: 'maxistalks',
   tenantId: null,
+  enablePlataformaSales: false,
   addressLine1: null,
   addressLine2: null,
   addressCep: null,
@@ -89,6 +92,11 @@ export function getBrandFromEnv(): BrandConfig {
     baseUrl,
     storageKeyPrefix: process.env.NEXT_PUBLIC_STORAGE_KEY_PREFIX || DEFAULT_BRAND.storageKeyPrefix,
     tenantId: null,
+    enablePlataformaSales:
+      process.env.ENABLE_PLATAFORMA_SALES === 'true' ||
+      process.env.ENABLE_PLATAFORMA_SALES === '1' ||
+      process.env.NEXT_PUBLIC_ENABLE_PLATAFORMA_SALES === 'true' ||
+      process.env.NEXT_PUBLIC_ENABLE_PLATAFORMA_SALES === '1',
     addressLine1: null,
     addressLine2: null,
     addressCep: null,
@@ -134,6 +142,7 @@ export async function getTenantByDomain(host: string): Promise<BrandConfig | nul
       .from('tenants')
       .select(`id, name, tagline, logo_url, favicon_url, og_image_url,
         primary_color, primary_color_hover, support_email, base_url, storage_key_prefix,
+        enable_plataforma_sales,
         address_line1, address_line2, address_cep, local_subheading, map_embed_url, map_link_url,
         about_logo_url, about_short_text, about_long_text, about_button_label, about_button_url,
         what_is_heading, what_is_image_url,
@@ -158,6 +167,7 @@ export async function getTenantByDomain(host: string): Promise<BrandConfig | nul
       baseUrl: data.base_url ?? DEFAULT_BRAND.baseUrl,
       storageKeyPrefix: data.storage_key_prefix ?? DEFAULT_BRAND.storageKeyPrefix,
       tenantId: data.id ?? null,
+      enablePlataformaSales: data.enable_plataforma_sales === true,
       addressLine1: data.address_line1 ?? null,
       addressLine2: data.address_line2 ?? null,
       addressCep: data.address_cep ?? null,
@@ -214,6 +224,17 @@ export async function getTenantIdForRequest(): Promise<string | null> {
   const host = headersList.get('host') ?? undefined
   const brand = await getBrandConfig(host)
   return brand.tenantId
+}
+
+/**
+ * Helper para Server Components: obtém a config de marca (brand) da requisição atual (via headers).
+ * Use quando precisar de enablePlataformaSales ou outros campos da brand no servidor.
+ */
+export async function getBrandForRequest(): Promise<BrandConfig> {
+  const { headers } = await import('next/headers')
+  const headersList = await headers()
+  const host = headersList.get('host') ?? undefined
+  return getBrandConfig(host)
 }
 
 /**

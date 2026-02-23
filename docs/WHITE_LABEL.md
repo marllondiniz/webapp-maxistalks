@@ -23,7 +23,9 @@ Coloque o logo (e favicon/og se quiser) na pasta `public/`. Sem configurar nada,
 
 ## Venda da plataforma white-label (só para donos)
 
-A página pública `/plataforma` (formulário de interesse em comprar o sistema) e a área no admin **Interesses /plataforma** são voltadas **apenas para o deploy dos donos do produto**. Nos deploys dos clientes que já compraram o white-label, essa funcionalidade não deve aparecer.
+A página pública `/plataforma` (formulário de interesse em comprar o sistema) e a área no admin **Interesses /plataforma** são voltadas **apenas para o(s) dono(s) do produto**. Nos clientes que já compraram o white-label, essa funcionalidade não deve aparecer.
+
+### Single-tenant (um deploy por cliente)
 
 Controle por variável de ambiente:
 
@@ -32,8 +34,17 @@ Controle por variável de ambiente:
 | `ENABLE_PLATAFORMA_SALES` | **(Recomendado no Vercel)** Habilita página `/plataforma` e seção "Interesses /plataforma" no admin. Lido no servidor em tempo de execução. | No deploy dos donos: `true` ou `1`. Nos clientes: não defina ou `false`. |
 | `NEXT_PUBLIC_ENABLE_PLATAFORMA_SALES` | Mesmo efeito, mas embutido no build. | Use se preferir; após adicionar no Vercel é necessário **fazer um novo deploy** para o valor aparecer. |
 
-- **Deploy dos donos (Vercel):** defina **`ENABLE_PLATAFORMA_SALES=true`** (sem `NEXT_PUBLIC_`). O servidor lê essa variável em toda requisição, então o menu do admin terá a seção "White-label" e o link "Interesses /plataforma" após o deploy. Alternativamente use `NEXT_PUBLIC_ENABLE_PLATAFORMA_SALES=true` e garanta que um **novo deploy** foi feito depois de salvar a variável.
-- **Deploy dos clientes:** não defina nenhuma das duas ou defina `false`. O menu não mostra a seção White-label, não há card de leads, `/admin/plataforma-interesse` redireciona para `/admin`, `/plataforma` redireciona para `/` e as APIs de leads retornam 403.
+- **Deploy dos donos (Vercel):** defina **`ENABLE_PLATAFORMA_SALES=true`**. O menu do admin terá a seção "White-label" e o link "Interesses /plataforma".
+- **Deploy dos clientes:** não defina nenhuma das duas ou defina `false`. O menu não mostra a seção White-label, `/plataforma` redireciona para `/` e as APIs de leads retornam 403.
+
+### Multi-tenant (vários domínios no mesmo deploy)
+
+No multi-tenant, o controle é **por tenant** na tabela `tenants`: a coluna **`enable_plataforma_sales`** (boolean) define se aquele domínio (marca) é “dono” e pode ver/usar a venda da plataforma.
+
+- **Tenant dono (ex.: maxistalks.com):** no banco, `enable_plataforma_sales = true`. Esse domínio vê o menu "White-label", o card e a página `/plataforma`, e as APIs de leads funcionam.
+- **Tenant cliente (ex.: cliente.com):** `enable_plataforma_sales = false` (padrão). Esse domínio não vê a seção, `/plataforma` redireciona para `/` e as APIs retornam 403.
+
+A migration `20260223130000_add_tenants_enable_plataforma_sales.sql` adiciona a coluna e já deixa `true` para o tenant `maxistalks.com`. Para novos clientes em `tenants`, não altere ou defina `enable_plataforma_sales = false`.
 
 ## Multi-tenant (banco de dados)
 
@@ -88,6 +99,7 @@ INSERT INTO tenants (
 | `support_email` | text | E-mail de contato |
 | `base_url` | text | URL base do site |
 | `storage_key_prefix` | text | Prefixo para localStorage |
+| `enable_plataforma_sales` | boolean | Se true, este tenant (dono) vê /plataforma e Interesses no admin. Para clientes: false (padrão). |
 | `created_at` / `updated_at` | timestamptz | Metadados |
 
 A migration já insere o tenant padrão para `maxistalks.com`. Para desenvolvimento em `localhost`, cadastre um tenant com `domain = 'localhost'` ou use as variáveis de ambiente.

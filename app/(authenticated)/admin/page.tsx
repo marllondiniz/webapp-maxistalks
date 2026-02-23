@@ -1,15 +1,15 @@
 import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { getEvents, getDashboardStats, getPlataformaLeads } from '@/lib/queries'
-import { getTenantIdForRequest } from '@/lib/brand'
-import { isPlataformaSalesEnabled } from '@/lib/plataformaSales'
+import { getTenantIdForRequest, getBrandForRequest } from '@/lib/brand'
 
 export const dynamic = 'force-dynamic'
 
 export default async function AdminHomePage() {
   const t = await getTranslations('AdminHome')
   const tenantId = await getTenantIdForRequest()
-  const plataformaEnabled = isPlataformaSalesEnabled()
+  const brand = await getBrandForRequest()
+  const plataformaEnabled = brand.enablePlataformaSales
   const [eventos, stats, plataformaLeads] = await Promise.all([
     getEvents(tenantId),
     getDashboardStats(tenantId).catch(() => ({

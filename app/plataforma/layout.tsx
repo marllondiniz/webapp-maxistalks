@@ -2,8 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { getBrandConfig } from '@/lib/brand'
-import { isPlataformaSalesEnabled } from '@/lib/plataformaSales'
+import { getBrandConfig, getBrandForRequest } from '@/lib/brand'
 
 /** Metadata apenas da rota /plataforma. Não altera as demais páginas do site (MaxisTalks). */
 export async function generateMetadata(): Promise<Metadata> {
@@ -47,12 +46,13 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-export default function PlataformaLayout({
+export default async function PlataformaLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  if (!isPlataformaSalesEnabled()) {
+  const brand = await getBrandForRequest()
+  if (!brand.enablePlataformaSales) {
     redirect('/')
   }
   return <>{children}</>
