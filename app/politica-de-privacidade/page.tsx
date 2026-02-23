@@ -170,7 +170,7 @@ export default function PoliticaPrivacidadePage() {
                 </a>
               </p>
               <p className="mt-2">
-                Endereço: Rua Aluysio Simões, nº 338, CEP 29050-632, Vitória - ES
+                Endereço: R. Ten. Mário Francisco Brito, 854–998, Enseada do Suá – Vitória/ES, CEP 29055-100
               </p>
             </section>
           </div>

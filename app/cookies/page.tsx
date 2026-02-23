@@ -125,6 +125,9 @@ export default function CookiesPage() {
                   @maxisplus
                 </a>
               </p>
+              <p className="mt-2">
+                Endereço: R. Ten. Mário Francisco Brito, 854–998, Enseada do Suá – Vitória/ES, CEP 29055-100
+              </p>
             </section>
           </div>
         </div>
