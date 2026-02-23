@@ -42,7 +42,7 @@ export default function CookiesPage() {
                 <li>Garantir o funcionamento adequado do site</li>
                 <li>Melhorar a experiência do usuário</li>
                 <li>Analisar como os visitantes utilizam nosso site</li>
-                <li>Personalizar conteúdo e anúncios</li>
+                <li>Personalizar conteúdo e preferências</li>
               </ul>
             </section>
 
@@ -114,10 +114,16 @@ export default function CookiesPage() {
                 7. Contato
               </h2>
               <p>
-                Se você tiver dúvidas sobre nossa Política de Cookies, entre em contato conosco através do nosso Instagram{' '}
+                E-mail:{' '}
+                <a href="mailto:contato@maxistalks.com" className="text-white hover:text-neutral-300 underline">
+                  contato@maxistalks.com
+                </a>
+              </p>
+              <p className="mt-2">
+                Instagram:{' '}
                 <a href="https://www.instagram.com/maxisplus" target="_blank" rel="noopener noreferrer" className="text-white hover:text-neutral-300 underline">
                   @maxisplus
-                </a>.
+                </a>
               </p>
             </section>
           </div>

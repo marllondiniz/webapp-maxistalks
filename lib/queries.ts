@@ -54,20 +54,6 @@ export type ArticleRecord = {
   tipo_conteudo: string | null
 }
 
-export type ChallengeRecord = {
-  id: string
-  titulo: string
-  descricao: string | null
-  progresso_padrao: number | null
-  ordem: number | null
-  semana_referencia: string | null
-}
-
-export type ChallengeProgressRecord = {
-  challenge_id: string
-  progresso: number | null
-}
-
 export type ToolRecord = {
   id: string
   tenant_id: string | null
@@ -236,36 +222,6 @@ export async function getArticleById(id: string, tenantId?: string | null): Prom
   }
 
   return data ?? null
-}
-
-export async function getChallenges(): Promise<ChallengeRecord[]> {
-  const supabase = getSupabaseServer()
-  const { data, error } = await supabase
-    .from('challenges')
-    .select('*')
-    .order('ordem', { ascending: true })
-
-  if (error) {
-    console.error('Erro ao buscar desafios:', error)
-    return []
-  }
-
-  return data ?? []
-}
-
-export async function getChallengeProgress(userId: string): Promise<ChallengeProgressRecord[]> {
-  const supabase = getSupabaseServer()
-  const { data, error } = await supabase
-    .from('challenge_progress')
-    .select('challenge_id, progresso')
-    .eq('user_id', userId)
-
-  if (error) {
-    console.error('Erro ao buscar progresso de desafios:', error)
-    return []
-  }
-
-  return data ?? []
 }
 
 export async function getProfile(userId: string): Promise<ProfileRecord | null> {

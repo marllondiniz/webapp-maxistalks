@@ -27,7 +27,7 @@ export default function TermosUsoPage() {
                 1. Aceitação dos Termos
               </h2>
               <p>
-                Ao acessar e utilizar o site do Maxis Talks, você concorda em cumprir e estar vinculado a estes Termos de Uso. Se você não concordar com qualquer parte destes termos, não deve utilizar nosso site.
+                Ao acessar e utilizar o site do MaxisTalks, você concorda em cumprir e estar vinculado a estes Termos de Uso. Se você não concordar com qualquer parte destes termos, não deve utilizar nosso site.
               </p>
             </section>
 
@@ -77,7 +77,7 @@ export default function TermosUsoPage() {
                 4. Propriedade Intelectual
               </h2>
               <p>
-                Todo o conteúdo do site, incluindo textos, gráficos, logotipos, ícones, imagens e software, é propriedade do Maxis Talks ou de seus fornecedores de conteúdo e está protegido por leis de direitos autorais e outras leis de propriedade intelectual.
+                Todo o conteúdo do site, incluindo textos, gráficos, logotipos, ícones, imagens e software, é propriedade do MaxisTalks ou de seus fornecedores de conteúdo e está protegido por leis de direitos autorais e outras leis de propriedade intelectual.
               </p>
             </section>
 
@@ -86,7 +86,7 @@ export default function TermosUsoPage() {
                 5. Isenção de Responsabilidade
               </h2>
               <p>
-                O Maxis Talks não se responsabiliza por:
+                O MaxisTalks não se responsabiliza por:
               </p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Interrupções ou erros no funcionamento do site</li>
@@ -101,7 +101,7 @@ export default function TermosUsoPage() {
                 6. Limitação de Responsabilidade
               </h2>
               <p>
-                Na máxima extensão permitida por lei, o Maxis Talks não será responsável por quaisquer danos indiretos, incidentais, especiais, consequenciais ou punitivos resultantes do uso ou incapacidade de usar o site ou serviços.
+                Na máxima extensão permitida por lei, o MaxisTalks não será responsável por quaisquer danos indiretos, incidentais, especiais, consequenciais ou punitivos resultantes do uso ou incapacidade de usar o site ou serviços.
               </p>
             </section>
 
@@ -203,8 +203,8 @@ export default function TermosUsoPage() {
               </p>
               <p className="mb-4">
                 8.5.3. Para assuntos relacionados aos seus dados pessoais como solicitar acesso, correção, atualização, limitação, exclusão ou outras informações previstas na Lei nº 13.709/2018, o CEDENTE poderá entrar em contato com a CESSIONÁRIA pelo e-mail:{' '}
-                <a href="mailto:victormezadri@hotmail.com" className="text-white hover:text-neutral-300 underline">
-                  victormezadri@hotmail.com
+                <a href="mailto:contato@maxistalks.com" className="text-white hover:text-neutral-300 underline">
+                  contato@maxistalks.com
                 </a>.
               </p>
 
@@ -256,8 +256,8 @@ export default function TermosUsoPage() {
               </h2>
               <p>
                 Se você tiver dúvidas sobre estes Termos de Uso, entre em contato conosco através do nosso Instagram{' '}
-                <a href="https://www.instagram.com/coffeemusicand_/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-neutral-300 underline">
-                  @coffeemusicand_
+                <a href="https://www.instagram.com/maxisplus" target="_blank" rel="noopener noreferrer" className="text-white hover:text-neutral-300 underline">
+                  @maxisplus
                 </a>.
               </p>
             </section>
