@@ -224,52 +224,42 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
         {/* Lista de interessados */}
         <div className="rounded-2xl border border-white/10 bg-[#1e293b] overflow-hidden">
           {/* Toolbar */}
-          <div className="border-b border-white/10 bg-white/5 p-4 space-y-3">
+          <div className="border-b border-white/10 bg-white/5 px-3 py-2">
             <div className="flex flex-wrap items-center gap-2">
-              <div className="relative flex-1 min-w-0 sm:max-w-[260px]">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <div className="relative flex-1 min-w-0 sm:max-w-[200px]">
+                <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
                 <input
                   type="search"
                   placeholder={t('searchPlaceholder')}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-[#0f172a] py-2 pl-9 pr-3 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="w-full rounded-lg border border-white/10 bg-[#0f172a] py-1.5 pl-8 pr-2 text-xs text-white placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
-              <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label={t('filterLabel')}>
-                {[
-                  { value: 'all' as const, label: t('filterAll', { count: interessados.length }) },
-                  { value: 'enviados' as const, label: t('filterSent', { count: stats.enviados }) },
-                  { value: 'pendentes' as const, label: t('filterPending') },
-                  { value: 'selecionados' as const, label: t('filterSelected', { count: stats.selecionados }) },
-                ].map(({ value, label }) => (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => setFilterStatus(value)}
-                    className={`rounded-xl border px-3 py-2 text-sm font-medium transition shrink-0 ${
-                      filterStatus === value
-                        ? 'border-emerald-500 bg-emerald-500/20 text-emerald-400'
-                        : 'border-white/10 bg-[#0f172a] text-slate-300 hover:bg-white/5 hover:border-white/20'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value as typeof filterStatus)}
+                aria-label={t('filterLabel')}
+                className="rounded-lg border border-white/10 bg-[#0f172a] pl-2.5 pr-7 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
+              >
+                <option value="all">{t('filterAll', { count: interessados.length })}</option>
+                <option value="enviados">{t('filterSent', { count: stats.enviados })}</option>
+                <option value="pendentes">{t('filterPending')}</option>
+                <option value="selecionados">{t('filterSelected', { count: stats.selecionados })}</option>
+              </select>
               <button
                 type="button"
                 onClick={allFilteredSelected ? deselectAll : selectAll}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-slate-300 hover:bg-white/5 transition"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-[#0f172a] px-2.5 py-1.5 text-xs text-slate-300 hover:bg-white/5 transition shrink-0"
               >
                 {allFilteredSelected
-                  ? <><Square className="h-4 w-4" /> {t('deselectAll')}</>
-                  : <><CheckSquare className="h-4 w-4 text-emerald-400" /> {t('selectAll')}</>}
+                  ? <><Square className="h-3.5 w-3.5" /> {t('deselectAll')}</>
+                  : <><CheckSquare className="h-3.5 w-3.5 text-emerald-400" /> {t('selectAll')}</>}
               </button>
+              <span className="text-[11px] text-slate-500 ml-auto shrink-0">
+                {t('results', { count: filtered.length, selected: selected.size })}
+              </span>
             </div>
-            <p className="text-xs text-slate-500">
-              {t('results', { count: filtered.length, selected: selected.size })}
-            </p>
           </div>
 
           {/* Lista */}
