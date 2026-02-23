@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Save, Loader2, CheckCircle, AlertCircle, Globe, MapPin, Info, Layout, Upload, X } from 'lucide-react'
+import { Save, Loader2, CheckCircle, AlertCircle, Globe, MapPin, Info, Layout, Upload, X, ChevronDown, ChevronUp } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 
 const TENANT_BUCKET = 'event-banners'
@@ -263,6 +263,7 @@ export default function CustomizacaoPanel() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState(true)
 
   useEffect(() => {
     const load = async () => {
@@ -369,107 +370,137 @@ export default function CustomizacaoPanel() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Customização da Página</h1>
-        <p className="mt-1 text-sm text-slate-400">
-          Configure a identidade visual e as informações da página principal desta empresa.
-        </p>
-      </div>
-
-      {feedback && (
-        <div
-          className={`mb-6 flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium ${
-            feedback.type === 'success'
-              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-              : 'bg-red-500/10 text-red-400 border border-red-500/20'
-          }`}
-        >
-          {feedback.type === 'success' ? (
-            <CheckCircle className="h-4 w-4 shrink-0" />
-          ) : (
-            <AlertCircle className="h-4 w-4 shrink-0" />
-          )}
-          {feedback.text}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-
-        {/* Marca */}
-        <Section icon={Globe} title="Marca">
-          <Field label="Nome da marca" name="name" value={form.name} onChange={handleChange} placeholder="Minha Empresa" />
-          <Field label="Tagline / Slogan" name="tagline" value={form.tagline} onChange={handleChange} placeholder="Palco para quem gera valor" />
-          <ImageUploadField label="Logo principal" name="logo_url" value={form.logo_url} onChange={handleChange} hint="PNG, JPG ou WEBP — máx. 2MB" />
-          <ImageUploadField label="Favicon" name="favicon_url" value={form.favicon_url} onChange={handleChange} hint="ICO, PNG ou SVG — máx. 2MB" />
-          <div className="sm:col-span-2">
-            <Field label="Imagem Open Graph (redes sociais)" name="og_image_url" value={form.og_image_url} onChange={handleChange} placeholder="/og.png ou https://..." hint="URL ou path em public/" />
+    <div className="space-y-8">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-5 rounded-lg border border-white/10 bg-[#1e293b] p-6 shadow-lg"
+      >
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <h3 className="text-lg font-semibold text-white">
+              Configurações da página
+            </h3>
+            <p className="mt-0.5 text-sm text-slate-400">
+              Ajuste marca, cores, endereço, seção sobre e footer da página inicial.
+            </p>
           </div>
-          <Field label="E-mail de suporte" name="support_email" value={form.support_email} onChange={handleChange} placeholder="contato@minhaempresa.com" />
-          <ColorField label="Cor primária" name="primary_color" value={form.primary_color} onChange={handleChange} hint="Cor dos botões e destaques" />
-          <ColorField label="Cor primária hover" name="primary_color_hover" value={form.primary_color_hover} onChange={handleChange} hint="Cor ao passar o mouse" />
-        </Section>
-
-        {/* Local / Endereço */}
-        <Section icon={MapPin} title="Local do Evento">
-          <Field label="Subtítulo da seção" name="local_subheading" value={form.local_subheading} onChange={handleChange} placeholder="Venha nos visitar..." />
-          <Field label="Endereço — linha 1" name="address_line1" value={form.address_line1} onChange={handleChange} placeholder="R. Exemplo, 123" />
-          <Field label="Endereço — linha 2 (bairro/cidade)" name="address_line2" value={form.address_line2} onChange={handleChange} placeholder="Centro – Vitória/ES" />
-          <Field label="CEP" name="address_cep" value={form.address_cep} onChange={handleChange} placeholder="CEP: 29000-000" />
-          <div className="sm:col-span-2">
-            <Field
-              label="Link do Google Maps (para o botão)"
-              name="map_link_url"
-              value={form.map_link_url}
-              onChange={handleChange}
-              placeholder="https://www.google.com/maps/search/?api=1&query=..."
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <Field
-              label="URL do mapa embed (iframe)"
-              name="map_embed_url"
-              value={form.map_embed_url}
-              onChange={handleChange}
-              placeholder="https://www.google.com/maps?q=...&output=embed"
-              hint="Cole a URL de incorporação do Google Maps"
-            />
-          </div>
-        </Section>
-
-        {/* Seção Sobre */}
-        <Section icon={Info} title="Seção Sobre">
-          <ImageUploadField label="Logo da seção" name="about_logo_url" value={form.about_logo_url} onChange={handleChange} hint="Logo exibido na seção 'Sobre' — máx. 2MB" />
-          <Field label="Label do botão" name="about_button_label" value={form.about_button_label} onChange={handleChange} placeholder="Conhecer a empresa" />
-          <div className="sm:col-span-2">
-            <Field label="URL do botão" name="about_button_url" value={form.about_button_url} onChange={handleChange} placeholder="https://minhaempresa.com" />
-          </div>
-          <div className="sm:col-span-2">
-            <Field label="Texto curto (1º parágrafo)" name="about_short_text" value={form.about_short_text} onChange={handleChange} textarea placeholder="Apresentação breve da empresa..." />
-          </div>
-          <div className="sm:col-span-2">
-            <Field label="Texto longo (2º parágrafo)" name="about_long_text" value={form.about_long_text} onChange={handleChange} textarea placeholder="Mais detalhes sobre a empresa..." />
-          </div>
-        </Section>
-
-        {/* Footer */}
-        <Section icon={Layout} title="Footer da Página Inicial">
-          <ImageUploadField label="Logo do footer" name="footer_logo_url" value={form.footer_logo_url} onChange={handleChange} hint="Se vazio, usa o logo principal — máx. 2MB" />
-          <Field label="Nome no copyright" name="footer_copyright_name" value={form.footer_copyright_name} onChange={handleChange} placeholder="Minha Empresa" hint="Ex.: © 2026 Minha Empresa" />
-          <Field label="Instagram (URL completa)" name="instagram_url" value={form.instagram_url} onChange={handleChange} placeholder="https://www.instagram.com/minhaempresa" />
-          <Field label="YouTube (URL completa)" name="youtube_url" value={form.youtube_url} onChange={handleChange} placeholder="https://www.youtube.com/@minhaempresa" />
-        </Section>
-
-        <div className="flex justify-end pb-6">
           <button
-            type="submit"
-            disabled={saving}
-            className="flex items-center gap-2 rounded-xl bg-[var(--brand-primary)] px-6 py-3 text-sm font-bold text-white transition hover:bg-[var(--brand-primary-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+            type="button"
+            onClick={() => setIsPanelCollapsed((prev) => !prev)}
+            className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-300 transition hover:border-white/20 hover:text-white"
           >
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            {saving ? 'Salvando...' : 'Salvar configurações'}
+            {isPanelCollapsed ? (
+              <>
+                <ChevronDown className="h-4 w-4" />
+                Expandir
+              </>
+            ) : (
+              <>
+                <ChevronUp className="h-4 w-4" />
+                Minimizar
+              </>
+            )}
           </button>
         </div>
+
+        {!isPanelCollapsed && (
+          <>
+            <div className="border-t border-white/10 pt-5">
+              {feedback && (
+                <div
+                  className={`mb-5 flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium ${
+                    feedback.type === 'success'
+                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                      : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                  }`}
+                >
+                  {feedback.type === 'success' ? (
+                    <CheckCircle className="h-4 w-4 shrink-0" />
+                  ) : (
+                    <AlertCircle className="h-4 w-4 shrink-0" />
+                  )}
+                  {feedback.text}
+                </div>
+              )}
+              <div className="flex flex-col gap-6">
+                {/* Marca */}
+                <Section icon={Globe} title="Marca">
+                  <Field label="Nome da marca" name="name" value={form.name} onChange={handleChange} placeholder="Minha Empresa" />
+                  <Field label="Tagline / Slogan" name="tagline" value={form.tagline} onChange={handleChange} placeholder="Palco para quem gera valor" />
+                  <ImageUploadField label="Logo principal" name="logo_url" value={form.logo_url} onChange={handleChange} hint="PNG, JPG ou WEBP — máx. 2MB" />
+                  <ImageUploadField label="Favicon" name="favicon_url" value={form.favicon_url} onChange={handleChange} hint="ICO, PNG ou SVG — máx. 2MB" />
+                  <div className="sm:col-span-2">
+                    <Field label="Imagem Open Graph (redes sociais)" name="og_image_url" value={form.og_image_url} onChange={handleChange} placeholder="/og.png ou https://..." hint="URL ou path em public/" />
+                  </div>
+                  <Field label="E-mail de suporte" name="support_email" value={form.support_email} onChange={handleChange} placeholder="contato@minhaempresa.com" />
+                  <ColorField label="Cor primária" name="primary_color" value={form.primary_color} onChange={handleChange} hint="Cor dos botões e destaques" />
+                  <ColorField label="Cor primária hover" name="primary_color_hover" value={form.primary_color_hover} onChange={handleChange} hint="Cor ao passar o mouse" />
+                </Section>
+
+                {/* Local / Endereço */}
+                <Section icon={MapPin} title="Local do Evento">
+                  <Field label="Subtítulo da seção" name="local_subheading" value={form.local_subheading} onChange={handleChange} placeholder="Venha nos visitar..." />
+                  <Field label="Endereço — linha 1" name="address_line1" value={form.address_line1} onChange={handleChange} placeholder="R. Exemplo, 123" />
+                  <Field label="Endereço — linha 2 (bairro/cidade)" name="address_line2" value={form.address_line2} onChange={handleChange} placeholder="Centro – Vitória/ES" />
+                  <Field label="CEP" name="address_cep" value={form.address_cep} onChange={handleChange} placeholder="CEP: 29000-000" />
+                  <div className="sm:col-span-2">
+                    <Field
+                      label="Link do Google Maps (para o botão)"
+                      name="map_link_url"
+                      value={form.map_link_url}
+                      onChange={handleChange}
+                      placeholder="https://www.google.com/maps/search/?api=1&query=..."
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Field
+                      label="URL do mapa embed (iframe)"
+                      name="map_embed_url"
+                      value={form.map_embed_url}
+                      onChange={handleChange}
+                      placeholder="https://www.google.com/maps?q=...&output=embed"
+                      hint="Cole a URL de incorporação do Google Maps"
+                    />
+                  </div>
+                </Section>
+
+                {/* Seção Sobre */}
+                <Section icon={Info} title="Seção Sobre">
+                  <ImageUploadField label="Logo da seção" name="about_logo_url" value={form.about_logo_url} onChange={handleChange} hint="Logo exibido na seção 'Sobre' — máx. 2MB" />
+                  <Field label="Label do botão" name="about_button_label" value={form.about_button_label} onChange={handleChange} placeholder="Conhecer a empresa" />
+                  <div className="sm:col-span-2">
+                    <Field label="URL do botão" name="about_button_url" value={form.about_button_url} onChange={handleChange} placeholder="https://minhaempresa.com" />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Field label="Texto curto (1º parágrafo)" name="about_short_text" value={form.about_short_text} onChange={handleChange} textarea placeholder="Apresentação breve da empresa..." />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Field label="Texto longo (2º parágrafo)" name="about_long_text" value={form.about_long_text} onChange={handleChange} textarea placeholder="Mais detalhes sobre a empresa..." />
+                  </div>
+                </Section>
+
+                {/* Footer */}
+                <Section icon={Layout} title="Footer da Página Inicial">
+                  <ImageUploadField label="Logo do footer" name="footer_logo_url" value={form.footer_logo_url} onChange={handleChange} hint="Se vazio, usa o logo principal — máx. 2MB" />
+                  <Field label="Nome no copyright" name="footer_copyright_name" value={form.footer_copyright_name} onChange={handleChange} placeholder="Minha Empresa" hint="Ex.: © 2026 Minha Empresa" />
+                  <Field label="Instagram (URL completa)" name="instagram_url" value={form.instagram_url} onChange={handleChange} placeholder="https://www.instagram.com/minhaempresa" />
+                  <Field label="YouTube (URL completa)" name="youtube_url" value={form.youtube_url} onChange={handleChange} placeholder="https://www.youtube.com/@minhaempresa" />
+                </Section>
+
+                <div className="flex justify-end pt-2">
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="flex items-center gap-2 rounded-xl bg-[var(--brand-primary)] px-6 py-3 text-sm font-bold text-white transition hover:bg-[var(--brand-primary-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    {saving ? 'Salvando...' : 'Salvar configurações'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </form>
     </div>
   )
