@@ -10,6 +10,7 @@ import {
   ChangeEvent,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { useTranslations } from 'next-intl'
 import { UploadCloud, Check, AlertCircle, ChevronDown, ChevronRight } from 'lucide-react'
 import type { ProfileRecord } from '@/lib/profile'
 import { getSupabaseClient } from '@/lib/supabaseClient'
@@ -126,12 +127,14 @@ function SelectField({
   onChange,
   options,
   placeholder = 'Selecione',
+  closeLabel = 'Fechar',
 }: {
   label?: string
   value: string
   onChange: (value: string) => void
   options: SelectOption[]
   placeholder?: string
+  closeLabel?: string
 }) {
   const [open, setOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -189,7 +192,7 @@ function SelectField({
         <div className="flex items-center justify-between border-b border-slate-700 px-4 py-3">
           <span className="text-sm font-semibold text-white">{label ?? placeholder}</span>
           <button type="button" onPointerDown={(e) => { e.stopPropagation(); setOpen(false) }} className="rounded-lg px-3 py-1 text-sm font-medium text-[#3b82f6]">
-            Fechar
+            {closeLabel}
           </button>
         </div>
         <div className="overflow-y-auto pb-8">
@@ -455,6 +458,7 @@ function toggleMultiSelect<T>(arr: T[], item: T, max: number): T[] {
 }
 
 export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormProps) {
+  const t = useTranslations('Profile')
   const router = useRouter()
   const [step, setStep] = useState(1)
   const parsedCidade = parseCidadeEstado(profile?.cidade_estado ?? '')
@@ -629,7 +633,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
       } = await supabase.auth.getUser()
 
       if (userError || !user) {
-        setFeedback({ type: 'error', message: 'Sessão expirada. Faça login novamente.' })
+        setFeedback({ type: 'error', message: t('sessionExpired') })
         return
       }
 
@@ -648,7 +652,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
           })
 
         if (uploadError) {
-          setFeedback({ type: 'error', message: 'Não foi possível enviar sua foto. Tente novamente.' })
+          setFeedback({ type: 'error', message: t('uploadError') })
           return
         }
 
@@ -698,11 +702,11 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
 
       if (error) {
         console.error('Erro ao salvar perfil:', error)
-        setFeedback({ type: 'error', message: error.message || 'Não foi possível salvar.' })
+        setFeedback({ type: 'error', message: error.message || t('saveError') })
         return
       }
 
-      setFeedback({ type: 'success', message: 'Perfil atualizado com sucesso!' })
+      setFeedback({ type: 'success', message: t('saveSuccess') })
       onProfileUpdated?.({
         ...profile!,
         ...payload,
@@ -719,12 +723,12 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
     const file = event.target.files?.[0]
     if (!file) return
     if (file.size > MAX_AVATAR_SIZE) {
-      setFeedback({ type: 'error', message: 'Arquivo maior que 2MB.' })
+      setFeedback({ type: 'error', message: t('fileTooBig') })
       event.target.value = ''
       return
     }
     if (!['image/jpeg', 'image/png'].includes(file.type)) {
-      setFeedback({ type: 'error', message: 'Use JPEG ou PNG.' })
+      setFeedback({ type: 'error', message: t('useJpegPng') })
       event.target.value = ''
       return
     }
@@ -754,16 +758,16 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/20">
             <Check className="h-8 w-8 text-emerald-400" />
           </div>
-          <h3 className="mb-2 text-lg font-bold text-emerald-200">Cadastro concluído!</h3>
+          <h3 className="mb-2 text-lg font-bold text-emerald-200">{t('completedTitle')}</h3>
           <p className="mb-6 text-sm text-slate-300">
-            Seus dados foram salvos com sucesso. Clique no botão abaixo para acessar o app.
+            {t('completedMessage')}
           </p>
           <button
             type="button"
             onClick={() => router.replace('/inicio')}
             className="w-full rounded-xl bg-[#3b82f6] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2563eb]"
           >
-            Ir para Início
+            {t('goToHome')}
           </button>
         </div>
       </div>
@@ -785,11 +789,11 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
         <div className="border-b border-white/10 bg-slate-900/50 px-4 py-4 sm:px-6">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-white">
-              {isEditMode ? 'Editar perfil' : 'MaxisTalks — Cadastro'}
+              {isEditMode ? t('editProfile') : t('signupTitle')}
             </h2>
             {!isEditMode && (
               <span className="text-sm text-slate-400">
-                Etapa {step} de {TOTAL_STEPS}
+                {t('stepOf', { step: String(step), total: String(TOTAL_STEPS) })}
               </span>
             )}
           </div>
@@ -813,13 +817,13 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                   onClick={() => setExpandedEditSection((s) => (s === 1 ? 0 : 1))}
                   className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-white hover:bg-white/5 transition"
                 >
-                  Básico
+                  {t('sectionBasic')}
                   {expandedEditSection === 1 ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />}
                 </button>
               )}
               {(!isEditMode || expandedEditSection === 1) && (
             <div className={`space-y-4 ${isEditMode ? 'border-t border-slate-600/30 px-4 pb-4 pt-3' : ''}`}>
-              {!isEditMode && <h3 className="text-sm font-semibold text-slate-300">Básico</h3>}
+              {!isEditMode && <h3 className="text-sm font-semibold text-slate-300">{t('sectionBasic')}</h3>}
               <div className="flex justify-center pb-2">
                 <button
                   type="button"
@@ -835,80 +839,80 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                 <input ref={fileInputRef} type="file" accept="image/png,image/jpeg" className="sr-only" onChange={handleFileChange} />
               </div>
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-white">Nome completo *</span>
+                <span className="text-sm font-medium text-white">{t('fullName')}</span>
                 <input
                   type="text"
                   value={formData.nome}
                   onChange={(e) => updateField('nome', e.target.value)}
-                  placeholder="Seu nome completo"
+                  placeholder={t('fullNamePlaceholder')}
                   className={inputClass}
                   required
                 />
               </label>
               {email && (
                 <label className="block space-y-2">
-                  <span className="text-sm font-medium text-white">Email *</span>
+                  <span className="text-sm font-medium text-white">{t('email')}</span>
                   <input type="email" value={email} className={inputClass} readOnly disabled />
                 </label>
               )}
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-white">WhatsApp *</span>
+                <span className="text-sm font-medium text-white">{t('whatsapp')}</span>
                 <input
                   type="tel"
                   inputMode="numeric"
                   autoComplete="tel"
                   value={formData.telefone}
                   onChange={(e) => updateField('telefone', formatPhoneBR(e.target.value))}
-                  placeholder="(00) 00000-0000"
+                  placeholder={t('phonePlaceholder')}
                   className={inputClass}
                   maxLength={16}
                   required
                 />
                 {phoneDigits.length > 0 && phoneDigits.length < 10 && (
-                  <span className="text-xs text-amber-400">Digite o DDD + número com 10 ou 11 dígitos</span>
+                  <span className="text-xs text-amber-400">{t('phoneHint')}</span>
                 )}
               </label>
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-white">Localização *</span>
+                <span className="text-sm font-medium text-white">{t('location')}</span>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1.2fr]">
                   <SearchableSelect
                     value={formData.estado}
                     onChange={(uf) => setFormData((prev) => ({ ...prev, estado: uf, cidade: '' }))}
                     options={ESTADOS_BR.map((uf) => ({ value: uf.value, label: `${uf.label} (${uf.value})` }))}
-                    placeholder="Estado (UF)"
-                    searchPlaceholder="Buscar estado..."
-                    emptyText="Estado não encontrado"
+                    placeholder={t('statePlaceholder')}
+                    searchPlaceholder={t('searchState')}
+                    emptyText={t('stateNotFound')}
                   />
                   <SearchableSelect
                     value={formData.cidade}
                     onChange={(v) => updateField('cidade', v)}
                     options={cidadesOptions.map((nome) => ({ value: nome, label: nome }))}
-                    placeholder={!formData.estado ? 'Selecione o estado primeiro' : 'Buscar cidade...'}
-                    searchPlaceholder="Buscar cidade..."
-                    emptyText="Nenhuma cidade encontrada"
+                    placeholder={!formData.estado ? t('selectStateFirst') : t('searchCity')}
+                    searchPlaceholder={t('searchCity')}
+                    emptyText={t('cityNotFound')}
                     disabled={!formData.estado}
                     loading={cidadesLoading}
-                    loadingText="Carregando cidades..."
+                    loadingText={t('loadingCities')}
                   />
                 </div>
               </label>
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-slate-400">Instagram (opcional)</span>
+                <span className="text-sm font-medium text-slate-400">{t('instagramOptional')}</span>
                 <input
                   type="text"
                   value={formData.instagram}
                   onChange={(e) => updateField('instagram', e.target.value)}
-                  placeholder="@seuuser"
+                  placeholder={t('instagramPlaceholder')}
                   className={inputClass}
                 />
               </label>
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-slate-400">LinkedIn (opcional)</span>
+                <span className="text-sm font-medium text-slate-400">{t('linkedinOptional')}</span>
                 <input
                   type="text"
                   value={formData.linkedin}
                   onChange={(e) => updateField('linkedin', e.target.value)}
-                  placeholder="linkedin.com/in/..."
+                  placeholder={t('linkedinPlaceholder')}
                   className={inputClass}
                 />
               </label>
@@ -926,15 +930,15 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                   onClick={() => setExpandedEditSection((s) => (s === 2 ? 0 : 2))}
                   className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-white hover:bg-white/5 transition"
                 >
-                  Perfil
+                  {t('sectionProfile')}
                   {expandedEditSection === 2 ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />}
                 </button>
               )}
               {(!isEditMode || expandedEditSection === 2) && (
             <div className={`space-y-4 ${isEditMode ? 'border-t border-slate-600/30 px-4 pb-4 pt-3' : ''}`}>
-              {!isEditMode && <h3 className="text-sm font-semibold text-slate-300">Perfil</h3>}
+              {!isEditMode && <h3 className="text-sm font-semibold text-slate-300">{t('sectionProfile')}</h3>}
               <div>
-                <span className="block text-sm font-medium text-white mb-3">Qual é sua posição no mercado hoje? *</span>
+                <span className="block text-sm font-medium text-white mb-3">{t('positionQuestion')}</span>
                 <div className="flex gap-3">
                   <button
                     type="button"
@@ -945,7 +949,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                         : 'border-slate-600/40 bg-slate-900/50 text-slate-400 hover:border-slate-500'
                     }`}
                   >
-                    Empreendedor(a)
+                    {t('entrepreneur')}
                   </button>
                   <button
                     type="button"
@@ -956,7 +960,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                         : 'border-slate-600/40 bg-slate-900/50 text-slate-400 hover:border-slate-500'
                     }`}
                   >
-                    Líder/gestor(a)
+                    {t('leader')}
                   </button>
                 </div>
               </div>
@@ -964,68 +968,78 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
               {isEmpreendedor && (
                 <div className="mt-4 space-y-4 border-t border-slate-600/30 pt-4">
                   <label className="block space-y-2">
-                    <span className="text-sm font-medium text-white">Nome da empresa *</span>
+                    <span className="text-sm font-medium text-white">{t('companyName')}</span>
                     <input
                       type="text"
                       value={formData.empresa_projeto}
                       onChange={(e) => updateField('empresa_projeto', e.target.value)}
-                      placeholder="Sua empresa"
+                      placeholder={t('companyPlaceholder')}
                       className={inputClass}
                     />
                   </label>
                   <label className="block space-y-2">
-                    <span className="text-sm font-medium text-slate-400">Site (opcional, recomendado)</span>
+                    <span className="text-sm font-medium text-slate-400">{t('siteOptional')}</span>
                     <input
                       type="url"
                       value={formData.site}
                       onChange={(e) => updateField('site', e.target.value)}
-                      placeholder="https://..."
+                      placeholder={t('urlPlaceholder')}
                       className={inputClass}
                     />
                   </label>
                   <div>
-                    <span className="block text-sm font-medium text-white mb-2">Segmento do negócio *</span>
+                    <span className="block text-sm font-medium text-white mb-2">{t('segmentLabel')}</span>
                     <SelectField
-                      label="Segmento do negócio"
+                      label={t('segmentLabel')}
                       value={formData.segmento_negocio}
                       onChange={(v) => updateField('segmento_negocio', v)}
-                      options={SEGMENTO_NEGOCIO.map((s) => ({ value: s, label: s }))}
+                      options={SEGMENTO_NEGOCIO.map((s) => ({ value: s, label: t(`options.segmento.${s}`) }))}
+                      placeholder={t('selectPlaceholder')}
+                      closeLabel={t('close')}
                     />
                   </div>
                   <div>
-                    <span className="block text-sm font-medium text-white mb-2">Público que atende *</span>
+                    <span className="block text-sm font-medium text-white mb-2">{t('audienceLabel')}</span>
                     <SelectField
-                      label="Público que atende"
+                      label={t('audienceLabel')}
                       value={formData.publico_atende}
                       onChange={(v) => updateField('publico_atende', v)}
-                      options={PUBLICO_ATENDE}
+                      options={PUBLICO_ATENDE.map((o) => ({ value: o.value, label: t(`options.publico.${o.value}`) }))}
+                      placeholder={t('selectPlaceholder')}
+                      closeLabel={t('close')}
                     />
                   </div>
                   <div>
-                    <span className="block text-sm font-medium text-white mb-2">Faixa de faturamento mensal *</span>
+                    <span className="block text-sm font-medium text-white mb-2">{t('revenueLabel')}</span>
                     <SelectField
-                      label="Faixa de faturamento mensal"
+                      label={t('revenueLabel')}
                       value={formData.faixa_faturamento}
                       onChange={(v) => updateField('faixa_faturamento', v)}
-                      options={FAIXA_FATURAMENTO.map((f) => ({ value: f, label: f }))}
+                      options={FAIXA_FATURAMENTO.map((f) => ({ value: f, label: t(`options.faixa.${f}`) }))}
+                      placeholder={t('selectPlaceholder')}
+                      closeLabel={t('close')}
                     />
                   </div>
                   <div>
-                    <span className="block text-sm font-medium text-white mb-2">Ticket médio *</span>
+                    <span className="block text-sm font-medium text-white mb-2">{t('ticketLabel')}</span>
                     <SelectField
-                      label="Ticket médio"
+                      label={t('ticketLabel')}
                       value={formData.ticket_medio}
                       onChange={(v) => updateField('ticket_medio', v)}
-                      options={TICKET_MEDIO}
+                      options={TICKET_MEDIO.map((o) => ({ value: o.value, label: t(`options.ticket.${o.value}`) }))}
+                      placeholder={t('selectPlaceholder')}
+                      closeLabel={t('close')}
                     />
                   </div>
                   <div>
-                    <span className="block text-sm font-medium text-white mb-2">Nº de colaboradores *</span>
+                    <span className="block text-sm font-medium text-white mb-2">{t('collaboratorsLabel')}</span>
                     <SelectField
-                      label="Nº de colaboradores"
+                      label={t('collaboratorsLabel')}
                       value={formData.num_colaboradores}
                       onChange={(v) => updateField('num_colaboradores', v)}
-                      options={NUM_COLABORADORES}
+                      options={NUM_COLABORADORES.map((o) => ({ value: o.value, label: t(`options.numColab.${o.value}`) }))}
+                      placeholder={t('selectPlaceholder')}
+                      closeLabel={t('close')}
                     />
                   </div>
                 </div>
@@ -1034,45 +1048,49 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
               {isLider && (
                 <div className="mt-4 space-y-4 border-t border-slate-600/30 pt-4">
                   <label className="block space-y-2">
-                    <span className="text-sm font-medium text-white">Cargo atual *</span>
+                    <span className="text-sm font-medium text-white">{t('currentRole')}</span>
                     <input
                       type="text"
                       value={formData.cargo_atual}
                       onChange={(e) => updateField('cargo_atual', e.target.value)}
-                      placeholder="Ex: Gerente de Vendas"
+                      placeholder={t('rolePlaceholder')}
                       className={inputClass}
                     />
                   </label>
                   <div>
-                    <span className="block text-sm font-medium text-white mb-2">Área *</span>
+                    <span className="block text-sm font-medium text-white mb-2">{t('areaLabel')}</span>
                     <SelectField
-                      label="Área"
+                      label={t('areaLabel')}
                       value={formData.area_gestao}
                       onChange={(v) => updateField('area_gestao', v)}
-                      options={AREA_GESTAO.map((a) => ({ value: a, label: a }))}
+                      options={AREA_GESTAO.map((a) => ({ value: a, label: t(`options.area.${a}`) }))}
+                      placeholder={t('selectPlaceholder')}
+                      closeLabel={t('close')}
                     />
                   </div>
                   <label className="block space-y-2">
-                    <span className="text-sm font-medium text-white">Empresa onde trabalha *</span>
+                    <span className="text-sm font-medium text-white">{t('companyWhereWork')}</span>
                     <input
                       type="text"
                       value={formData.empresa_atual}
                       onChange={(e) => updateField('empresa_atual', e.target.value)}
-                      placeholder="Nome da empresa"
+                      placeholder={t('companyNamePlaceholder')}
                       className={inputClass}
                     />
                   </label>
                   <div>
-                    <span className="block text-sm font-medium text-white mb-2">Tamanho da empresa *</span>
+                    <span className="block text-sm font-medium text-white mb-2">{t('companySizeLabel')}</span>
                     <SelectField
-                      label="Tamanho da empresa"
+                      label={t('companySizeLabel')}
                       value={formData.tamanho_empresa}
                       onChange={(v) => updateField('tamanho_empresa', v)}
-                      options={TAMANHO_EMPRESA}
+                      options={TAMANHO_EMPRESA.map((o) => ({ value: o.value, label: t(`options.tamanho.${o.value}`) }))}
+                      placeholder={t('selectPlaceholder')}
+                      closeLabel={t('close')}
                     />
                   </div>
                   <div>
-                    <span className="block text-sm font-medium text-white mb-3">Você lidera time? *</span>
+                    <span className="block text-sm font-medium text-white mb-3">{t('leadTeamQuestion')}</span>
                     <div className="flex gap-3">
                       <button
                         type="button"
@@ -1083,7 +1101,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                             : 'border-slate-600/40 bg-slate-900/50 text-slate-400 hover:border-slate-500'
                         }`}
                       >
-                        Sim
+                        {t('yes')}
                       </button>
                       <button
                         type="button"
@@ -1094,12 +1112,12 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                             : 'border-slate-600/40 bg-slate-900/50 text-slate-400 hover:border-slate-500'
                         }`}
                       >
-                        Não
+                        {t('no')}
                       </button>
                     </div>
                   </div>
                   <div>
-                    <span className="block text-sm font-medium text-white mb-3">Desafios detalhados (até 2) *</span>
+                    <span className="block text-sm font-medium text-white mb-3">{t('challengesLabel')}</span>
                     <div className="flex flex-wrap gap-2">
                       {DESAFIOS_DETALHADOS.map((d) => (
                         <button
@@ -1112,11 +1130,11 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                               : 'border-slate-600/40 bg-slate-900/50 text-slate-400 hover:border-slate-500'
                           }`}
                         >
-                          {d}
+                          {t(`options.desafios.${d}`)}
                         </button>
                       ))}
                     </div>
-                    <p className="mt-2 text-xs text-slate-500">Selecione até 2</p>
+                    <p className="mt-2 text-xs text-slate-500">{t('selectUpTo2')}</p>
                   </div>
                 </div>
               )}
@@ -1134,15 +1152,15 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                   onClick={() => setExpandedEditSection((s) => (s === 3 ? 0 : 3))}
                   className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-white hover:bg-white/5 transition"
                 >
-                  Intenção
+                  {t('sectionIntention')}
                   {expandedEditSection === 3 ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />}
                 </button>
               )}
               {(!isEditMode || expandedEditSection === 3) && (
             <div className={`space-y-4 ${isEditMode ? 'border-t border-slate-600/30 px-4 pb-4 pt-3' : ''}`}>
-              {!isEditMode && <h3 className="text-sm font-semibold text-slate-300">Intenção</h3>}
+              {!isEditMode && <h3 className="text-sm font-semibold text-slate-300">{t('sectionIntention')}</h3>}
               <div>
-                <span className="block text-sm font-medium text-white mb-3">O que você busca no MaxisTalks? (até 2) *</span>
+                <span className="block text-sm font-medium text-white mb-3">{t('whatYouSeekLabel')}</span>
                 <div className="flex flex-wrap gap-2">
                   {BUSCA_MAXISTALKS.map((b) => (
                     <button
@@ -1155,13 +1173,13 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                           : 'border-slate-600/40 bg-slate-900/50 text-slate-400 hover:border-slate-500'
                       }`}
                     >
-                      {b}
+                      {t(`options.busca.${b}`)}
                     </button>
                   ))}
                 </div>
               </div>
               <div>
-                <span className="block text-sm font-medium text-white mb-3">O que você mais quer aprender agora? (até 3) *</span>
+                <span className="block text-sm font-medium text-white mb-3">{t('whatYouWantToLearnLabel')}</span>
                 <div className="flex flex-wrap gap-2">
                   {O_QUE_QUER_APRENDER.map((o) => (
                     <button
@@ -1174,13 +1192,13 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                           : 'border-slate-600/40 bg-slate-900/50 text-slate-400 hover:border-slate-500'
                       }`}
                     >
-                      {o}
+                      {t(`options.aprender.${o}`)}
                     </button>
                   ))}
                 </div>
               </div>
               <div>
-                <span className="block text-sm font-medium text-white mb-3">Sua maior dificuldade hoje? (escolha 1) *</span>
+                <span className="block text-sm font-medium text-white mb-3">{t('mainDifficultyLabel')}</span>
                 <div className="flex flex-wrap gap-2">
                   {MAIOR_DIFICULDADE.map((m) => (
                     <button
@@ -1193,7 +1211,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                           : 'border-slate-600/40 bg-slate-900/50 text-slate-400 hover:border-slate-500'
                       }`}
                     >
-                      {m}
+                      {t(`options.dificuldade.${m}`)}
                     </button>
                   ))}
                 </div>
@@ -1212,13 +1230,13 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                   onClick={() => setExpandedEditSection((s) => (s === 4 ? 0 : 4))}
                   className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-white hover:bg-white/5 transition"
                 >
-                  Finalização
+                  {t('sectionFinal')}
                   {expandedEditSection === 4 ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />}
                 </button>
               )}
               {(!isEditMode || expandedEditSection === 4) && (
             <div ref={!isEditMode ? step4Ref : undefined} className={`space-y-4 ${isEditMode ? 'border-t border-slate-600/30 px-4 pb-4 pt-3' : ''}`}>
-              {!isEditMode && <h3 className="text-sm font-semibold text-slate-300">Finalização</h3>}
+              {!isEditMode && <h3 className="text-sm font-semibold text-slate-300">{t('sectionFinal')}</h3>}
               <label className="flex items-start gap-3 rounded-xl border border-slate-600/40 bg-slate-900/50 px-4 py-3">
                 <input
                   type="checkbox"
@@ -1227,7 +1245,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                   className="mt-1 h-4 w-4 rounded border-slate-600"
                 />
                 <span className="text-sm text-white">
-                  Estou ciente de que o evento presencial é limitado a 30 pessoas e, caso eu não seja selecionado(a) para o presencial, tenho disponibilidade para assistir online. *
+                  {t('eventAwareLabel')}
                 </span>
               </label>
               <label className="flex items-start gap-3 rounded-xl border border-slate-600/40 bg-slate-900/50 px-4 py-3">
@@ -1238,7 +1256,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                   className="mt-1 h-4 w-4 rounded border-slate-600"
                 />
                 <span className="text-sm text-white">
-                  Li e concordo com a <Link href="/politica-de-privacidade" className="text-[#3b82f6] underline hover:no-underline">Política de Privacidade</Link> e com os <Link href="/termos-de-uso" className="text-[#3b82f6] underline hover:no-underline">Termos de Uso</Link> (LGPD). *
+                  {t('consentPrefix')}<Link href="/politica-de-privacidade" className="text-[#3b82f6] underline hover:no-underline">{t('consentPrivacyLink')}</Link>{t('consentMiddle')}<Link href="/termos-de-uso" className="text-[#3b82f6] underline hover:no-underline">{t('consentTermsLink')}</Link>{t('consentSuffix')}
                 </span>
               </label>
               <label className="flex items-start gap-3 rounded-xl border border-slate-600/40 bg-slate-900/50 px-4 py-3">
@@ -1249,16 +1267,16 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                   className="mt-1 h-4 w-4 rounded border-slate-600"
                 />
                 <span className="text-sm text-slate-400">
-                  Autorizo receber comunicações do MaxisTalks/MaxisPlus por WhatsApp e e-mail. (opcional)
+                  {t('receiveCommsLabel')}
                 </span>
               </label>
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-slate-400">Bio curta (opcional)</span>
+                <span className="text-sm font-medium text-slate-400">{t('bioOptional')}</span>
                 <textarea
                   value={formData.bio}
                   onChange={(e) => updateField('bio', e.target.value)}
                   rows={3}
-                  placeholder="Conte um pouco sobre você..."
+                  placeholder={t('bioPlaceholder')}
                   className={inputClass}
                 />
               </label>
@@ -1279,7 +1297,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                 }}
                 className="w-full rounded-xl bg-[#3b82f6] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2563eb] disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isPending ? 'Salvando...' : 'Salvar alterações'}
+                {isPending ? t('saving') : t('save')}
               </button>
             ) : (
               <>
@@ -1289,7 +1307,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                     onClick={() => setStep((s) => s - 1)}
                     className="flex-1 rounded-xl border border-white/20 bg-transparent px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/5"
                   >
-                    Voltar
+                    {t('back')}
                   </button>
                 ) : (
                   <div className="flex-1" />
@@ -1310,7 +1328,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                     }
                     className="flex-1 rounded-xl bg-[#3b82f6] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2563eb] disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    Próximo
+                    {t('next')}
                   </button>
                 ) : (
                   <button
@@ -1322,7 +1340,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                     }}
                     className="flex-1 rounded-xl bg-[#3b82f6] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2563eb] disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {isPending ? 'Salvando...' : 'Finalizar cadastro'}
+                    {isPending ? t('saving') : t('finishSignup')}
                   </button>
                 )}
               </>

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useTransition } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { PartyPopper, Check, MapPin, Calendar, X } from 'lucide-react'
 import type { EventBannerRecord, EventRecord } from '@/lib/queries'
 import { getSupabaseClient } from '@/lib/supabaseClient'
@@ -22,6 +23,7 @@ type MessageState = {
 }
 
 export function EventList({ events, activeBanners = [] }: EventListProps) {
+  const t = useTranslations('UserEventos')
   const supabase = getSupabaseClient()
   const { role, hasActiveSubscription } = useUserRole()
   const [userId, setUserId] = useState<string | null>(null)
@@ -118,7 +120,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
         ...prev,
         [eventId]: {
           type: 'error',
-          text: 'Você precisa estar logado para manifestar interesse.',
+          text: t('needLogin'),
         },
       }))
       return
@@ -136,10 +138,10 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
       if (registrationExists) {
         setMessages((prev) => ({
           ...prev,
-          [eventId]: {
-            type: 'success',
-            text: 'Você já manifestou interesse! Em breve enviaremos um convite no WhatsApp.',
-          },
+        [eventId]: {
+          type: 'success',
+          text: t('alreadyInterest'),
+        },
         }))
         setActiveEventId(null)
         return
@@ -158,10 +160,10 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
         console.error('Erro ao registrar interesse:', insertError)
         setMessages((prev) => ({
           ...prev,
-          [eventId]: {
-            type: 'error',
-            text: 'Não foi possível registrar seu interesse. Tente novamente.',
-          },
+        [eventId]: {
+          type: 'error',
+          text: t('interestError'),
+        },
         }))
         setActiveEventId(null)
         return
@@ -195,10 +197,10 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
 
         setMessages((prev) => ({
           ...prev,
-          [eventId]: {
-            type: 'success',
-            text: 'Obrigado pelo interesse! Em breve enviaremos um convite no WhatsApp.',
-          },
+        [eventId]: {
+          type: 'success',
+          text: t('interestSuccess'),
+        },
         }))
 
       setRegistrations((prev) => ({
@@ -280,7 +282,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                   <div className="flex w-full min-w-0 flex-col items-center gap-3">
                     <div className="flex flex-col items-center gap-1.5">
                       <span className="inline-flex items-center rounded-full bg-blue-500/20 border border-blue-500/30 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-blue-300">
-                        Evento
+                        {t('eventBadge')}
                       </span>
                       <div className="space-y-0.5 text-sm leading-tight text-[#c9c9d2]">
                         <p>{new Date(event.data_horario).toLocaleDateString('pt-BR')}</p>
@@ -323,7 +325,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                       )}
                       {eventBanner?.titulo && (
                         <div className="mt-1 w-full min-w-0 rounded-lg border border-slate-600/30 bg-slate-700/30 px-3 py-2">
-                          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Tema da palestra</p>
+                          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{t('talkTheme')}</p>
                           <p className="mt-0.5 text-sm font-medium leading-relaxed text-[#f5f5f5]">{eventBanner.titulo}</p>
                         </div>
                       )}
@@ -334,7 +336,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                 <div className="space-y-2 text-sm text-[#d6d6de]">
                   <div>
                     <p>
-                      <span className="font-semibold text-[#f5f5f5]">Inscrição:</span>{' '}
+                      <span className="font-semibold text-[#f5f5f5]">{t('registrationLabel')}</span>{' '}
                       {hasDiscount && originalPrice && (
                         <span className="mr-2 text-xs text-[#9a9aa2] line-through">{originalPrice}</span>
                       )}
@@ -345,7 +347,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                     {hasDiscount && (
                       <p className="mt-1 flex items-center justify-center gap-1.5 text-xs text-emerald-300">
                         <PartyPopper className="h-3.5 w-3.5 shrink-0" />
-                        Desconto exclusivo para assinantes MaxisTalks
+                        {t('discountSubscriber')}
                       </p>
                     )}
                   </div>
@@ -368,7 +370,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                   {isRegistered ? (
                     <span className="flex w-full min-w-0 items-center justify-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-emerald-200">
                       <Check className="h-4 w-4 shrink-0" />
-                      Inscrito
+                      {t('registered')}
                     </span>
                   ) : isPaidEvent ? (
                     <button
@@ -380,7 +382,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                           ...prev,
                           [event.id]: {
                             type: 'error',
-                            text: 'Checkout de pagamento disponível em breve.',
+                            text: t('checkoutSoon'),
                           },
                         }))
                       }
@@ -390,7 +392,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                           : 'bg-[#f5f5f5] text-[#0f0f10] hover:brightness-95'
                       }`}
                     >
-                      {isPastEvent ? 'Evento realizado' : 'Comprar'}
+                      {isPastEvent ? t('eventDone') : t('buy')}
                     </button>
                   ) : (
                     <button
@@ -404,10 +406,10 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                       }`}
                     >
                       {isProcessing
-                        ? 'Enviando...'
+                        ? t('sending')
                         : isPastEvent
-                        ? 'Evento realizado'
-                        : 'Tenho interesse em participar'}
+                        ? t('eventDone')
+                        : t('haveInterest')}
                     </button>
                   )}
                 </div>
@@ -416,7 +418,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                   href={`/eventos/${event.id}`}
                   className="flex w-full min-w-0 items-center justify-center rounded-full border border-slate-600/30 bg-slate-800 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-[#f5f5f5] transition hover:border-slate-500/40 hover:bg-slate-700/50"
                 >
-                  Saiba mais
+                  {t('learnMore')}
                 </Link>
               </div>
               </div>
@@ -470,7 +472,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
               type="button"
               onClick={() => setTicketModalEvent(null)}
               className="absolute right-4 top-4 rounded-lg p-2 text-slate-400 transition hover:bg-slate-700/50 hover:text-white"
-              aria-label="Fechar"
+              aria-label={t('closeAria')}
             >
               <X className="h-5 w-5" />
             </button>
@@ -481,12 +483,12 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-white">
-                  Você está inscrito!
+                  {t('youAreRegistered')}
                 </h3>
                 <p className="text-sm text-slate-400">
                   {ticketModalEvent.registration.ticket_url
-                    ? 'Informações do seu ingresso'
-                    : 'Em breve enviaremos um convite no WhatsApp.'}
+                    ? t('ticketInfo')
+                    : t('ticketSoon')}
                 </p>
               </div>
             </div>
@@ -500,7 +502,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                 <Calendar className="h-5 w-5 shrink-0 text-slate-400" />
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                    Data e horário
+                    {t('dateTime')}
                   </p>
                   <p className="mt-1 text-[#f5f5f5]">
                     {new Date(ticketModalEvent.event.data_horario).toLocaleDateString('pt-BR', {
@@ -524,7 +526,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                 <MapPin className="h-5 w-5 shrink-0 text-slate-400" />
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                    Local
+                    {t('location')}
                   </p>
                   <p className="mt-1 text-[#f5f5f5]">{ticketModalEvent.event.local_nome}</p>
                   {ticketModalEvent.event.local_detalhe && (
@@ -540,7 +542,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                     rel="noopener noreferrer"
                     className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-400 transition hover:text-blue-300"
                   >
-                    Ver no Google Maps
+                    {t('viewOnMaps')}
                   </a>
                 </div>
               </div>
@@ -554,11 +556,11 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                   rel="noopener noreferrer"
                   className="inline-flex w-full items-center justify-center rounded-xl bg-[#f5f5f5] px-4 py-3 text-sm font-semibold uppercase tracking-wide text-[#0f0f10] transition hover:brightness-95"
                 >
-                  Abrir ingresso
+                  {t('openTicket')}
                 </a>
               ) : (
                 <p className="text-center text-sm text-slate-400">
-                  Apresente-se no local com o e-mail de confirmação.
+                  {t('presentWithEmail')}
                 </p>
               )}
               <button
@@ -566,7 +568,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                 onClick={() => setTicketModalEvent(null)}
                 className="inline-flex w-full items-center justify-center rounded-xl border border-slate-600/40 px-4 py-3 text-sm font-semibold text-[#f5f5f5] transition hover:bg-slate-700/50"
               >
-                Fechar
+                {t('close')}
               </button>
             </div>
           </div>

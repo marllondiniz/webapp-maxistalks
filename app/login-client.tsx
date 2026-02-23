@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Turnstile } from '@marsidev/react-turnstile'
-
+import { useTranslations } from 'next-intl'
 import { Eye, EyeOff } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { translateAuthError } from '@/lib/authErrors'
@@ -15,14 +15,9 @@ const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 
 type AuthMode = 'signIn' | 'signUp' | 'reset'
 
-const MODE_LABEL: Record<AuthMode, string> = {
-  signIn: 'Entrar',
-  signUp: 'Criar conta',
-  reset: 'Recuperar senha',
-}
-
 export default function LoginClient() {
   const brand = useBrand()
+  const t = useTranslations('Login')
   const router = useRouter()
   const searchParams = useSearchParams()
   const modeParam = searchParams.get('mode')
@@ -91,22 +86,22 @@ export default function LoginClient() {
     setFeedback(null)
 
     if (!email) {
-      setFeedback({ type: 'error', text: 'Informe um e-mail válido.' })
+      setFeedback({ type: 'error', text: t('emailInvalid') })
       return
     }
 
     if (mode !== 'reset' && password.length < 6) {
-      setFeedback({ type: 'error', text: 'A senha precisa ter pelo menos 6 caracteres.' })
+      setFeedback({ type: 'error', text: t('passwordMinLength') })
       return
     }
 
     if (mode === 'signUp' && password !== confirmPassword) {
-      setFeedback({ type: 'error', text: 'As senhas não conferem.' })
+      setFeedback({ type: 'error', text: t('passwordsDontMatch') })
       return
     }
 
     if (mode === 'signUp' && TURNSTILE_SITE_KEY && !turnstileToken) {
-      setFeedback({ type: 'error', text: 'Complete a verificação de segurança para continuar.' })
+      setFeedback({ type: 'error', text: t('turnstileRequired') })
       return
     }
 
@@ -135,7 +130,7 @@ export default function LoginClient() {
             await supabase.auth.signOut()
             setFeedback({
               type: 'error',
-              text: 'Sua conta não foi encontrada no sistema. Entre em contato com o suporte.',
+              text: t('accountNotFound'),
             })
             return
           }
@@ -151,29 +146,29 @@ export default function LoginClient() {
             await supabase.auth.signOut()
             setFeedback({
               type: 'error',
-              text: 'Sua conta não está configurada no sistema. Entre em contato com o suporte.',
+              text: t('accountNotConfigured'),
             })
             return
           }
 
           if (profile.is_admin) {
-            setFeedback({ type: 'success', text: 'Bem-vindo(a), administrador!' })
+            setFeedback({ type: 'success', text: t('welcomeAdmin') })
             router.replace('/admin')
             return
           }
 
           if (profile.is_complete === false) {
-            setFeedback({ type: 'success', text: 'Complete seu perfil para continuar.' })
+            setFeedback({ type: 'success', text: t('completeProfile') })
             router.replace('/perfil')
             return
           }
 
-          setFeedback({ type: 'success', text: 'Login realizado com sucesso!' })
+          setFeedback({ type: 'success', text: t('loginSuccess') })
           router.replace('/inicio')
           return
         }
 
-        setFeedback({ type: 'success', text: 'Login realizado com sucesso!' })
+        setFeedback({ type: 'success', text: t('loginSuccess') })
         router.replace('/inicio')
       }
 
@@ -188,7 +183,7 @@ export default function LoginClient() {
           if (!verifyData?.success) {
             setFeedback({
               type: 'error',
-              text: verifyData?.error || 'Verificação de segurança falhou. Tente novamente.',
+              text: verifyData?.error || t('verifySecurityFailed'),
             })
             setTurnstileToken(null)
             return
@@ -228,14 +223,14 @@ export default function LoginClient() {
         }
 
         if (data.session) {
-          setFeedback({ type: 'success', text: 'Conta criada! Complete seu perfil para continuar.' })
+          setFeedback({ type: 'success', text: t('createProfileSuccess') })
           router.replace('/perfil')
           return
         }
 
         setFeedback({
           type: 'success',
-          text: 'Conta criada! Verifique seu e-mail para confirmar o cadastro.',
+          text: t('checkEmailSuccess'),
         })
         setMode('signIn')
         setPassword('')
@@ -254,7 +249,7 @@ export default function LoginClient() {
 
         setFeedback({
           type: 'success',
-          text: 'Se o e-mail estiver cadastrado, enviamos instruções para recuperação.',
+          text: t('resetSuccess'),
         })
         setMode('signIn')
       }
@@ -262,7 +257,7 @@ export default function LoginClient() {
       const rawMessage =
         error instanceof Error
           ? error.message
-          : 'Não foi possível completar a ação. Tente novamente.'
+          : t('actionDefaultError')
       setFeedback({ type: 'error', text: translateAuthError(rawMessage) })
     } finally {
       setLoading(false)
@@ -280,7 +275,7 @@ export default function LoginClient() {
     router.replace(path, { scroll: false })
   }
 
-  const primaryActionLabel = MODE_LABEL[mode]
+  const primaryActionLabel = mode === 'signIn' ? t('signIn') : mode === 'signUp' ? t('signUp') : t('reset')
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center bg-[#060c1f] px-4 py-16">
@@ -302,44 +297,44 @@ src={brand.logoPath}
         <div className="glass-card p-8 md:p-10">
           <div className="mb-8 text-center">
             <h1 className="font-display text-2xl font-bold text-white">
-              {mode === 'signIn' && 'Bem-vindo de volta'}
-              {mode === 'signUp' && 'Crie sua conta'}
-              {mode === 'reset' && 'Recuperar senha'}
+              {mode === 'signIn' && t('titleWelcomeBack')}
+              {mode === 'signUp' && t('titleCreateAccount')}
+              {mode === 'reset' && t('titleResetPassword')}
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-slate-400">
-              {mode === 'signIn' && 'Acesse sua conta para gerenciar eventos e conteúdo'}
-              {mode === 'signUp' && `Junte-se ao ${brand.name} e participe de eventos exclusivos`}
-              {mode === 'reset' && 'Enviaremos instruções de recuperação para seu e-mail'}
+              {mode === 'signIn' && t('subtitleSignIn')}
+              {mode === 'signUp' && t('subtitleSignUp', { name: brand.name })}
+              {mode === 'reset' && t('subtitleReset')}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <label className="flex flex-col gap-2 text-left">
-              <span className="text-[13px] font-medium text-slate-300">E-mail</span>
+              <span className="text-[13px] font-medium text-slate-300">{t('emailLabel')}</span>
               <input
                 type="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 onInvalid={(event) =>
-                  event.currentTarget.setCustomValidity('Informe um endereço de e-mail válido.')
+                  event.currentTarget.setCustomValidity(t('emailInvalidPlaceholder'))
                 }
                 onInput={(event) => event.currentTarget.setCustomValidity('')}
                 className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 text-[15px] text-white placeholder-slate-500 outline-none transition focus:border-blue-500/50 focus:bg-white/[0.06] focus:ring-2 focus:ring-blue-500/20"
-                placeholder="seu@email.com"
+                placeholder={t('emailPlaceholder')}
                 required
               />
             </label>
 
             {mode !== 'reset' && (
               <label className="flex flex-col gap-2 text-left">
-                <span className="text-[13px] font-medium text-slate-300">Senha</span>
+                <span className="text-[13px] font-medium text-slate-300">{t('passwordLabel')}</span>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 pr-12 text-[15px] text-white placeholder-slate-500 outline-none transition focus:border-blue-500/50 focus:bg-white/[0.06] focus:ring-2 focus:ring-blue-500/20"
-                    placeholder="Mínimo 6 caracteres"
+                    placeholder={t('passwordPlaceholder')}
                     required
                     minLength={6}
                   />
@@ -347,7 +342,7 @@ src={brand.logoPath}
                     type="button"
                     onClick={() => setShowPassword((s) => !s)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-white"
-                    aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                    aria-label={showPassword ? t('hidePassword') : t('showPassword')}
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -357,14 +352,14 @@ src={brand.logoPath}
 
             {mode === 'signUp' && (
               <label className="flex flex-col gap-2 text-left">
-                <span className="text-[13px] font-medium text-slate-300">Confirmar senha</span>
+                <span className="text-[13px] font-medium text-slate-300">{t('confirmPasswordLabel')}</span>
                 <div className="relative">
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(event) => setConfirmPassword(event.target.value)}
                     className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-3.5 pr-12 text-[15px] text-white placeholder-slate-500 outline-none transition focus:border-blue-500/50 focus:bg-white/[0.06] focus:ring-2 focus:ring-blue-500/20"
-                    placeholder="Repita sua senha"
+                    placeholder={t('confirmPasswordPlaceholder')}
                     required
                     minLength={6}
                   />
@@ -372,7 +367,7 @@ src={brand.logoPath}
                     type="button"
                     onClick={() => setShowConfirmPassword((s) => !s)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-white"
-                    aria-label={showConfirmPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                    aria-label={showConfirmPassword ? t('hidePassword') : t('showPassword')}
                   >
                     {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -428,7 +423,7 @@ src={brand.logoPath}
                   onClick={() => handleModeChange('signIn')}
                   className="transition hover:text-white"
                 >
-                  Já tenho conta
+                  {t('alreadyHaveAccount')}
                 </button>
               )}
               {mode !== 'signUp' && (
@@ -437,7 +432,7 @@ src={brand.logoPath}
                   onClick={() => handleModeChange('signUp')}
                   className="transition hover:text-white"
                 >
-                  Criar conta
+                  {t('createAccount')}
                 </button>
               )}
               {mode !== 'reset' && (
@@ -446,7 +441,7 @@ src={brand.logoPath}
                   onClick={() => handleModeChange('reset')}
                   className="transition hover:text-white"
                 >
-                  Esqueci minha senha
+                  {t('forgotPassword')}
                 </button>
               )}
             </div>
@@ -454,7 +449,7 @@ src={brand.logoPath}
         </div>
 
         <p className="mt-8 text-center text-xs text-slate-600">
-          © {new Date().getFullYear()} MaxisPlus. Todos os direitos reservados.
+          {t('copyright', { year: String(new Date().getFullYear()) })}
         </p>
       </div>
     </main>

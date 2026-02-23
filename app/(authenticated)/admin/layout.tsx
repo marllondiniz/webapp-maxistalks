@@ -4,23 +4,36 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { LayoutDashboard, BarChart3, Calendar, FileText, Users, UserCheck, LogOut, Menu, X, Wrench, Palette } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { useBrand } from '@/app/(components)/BrandProvider'
 
+const NAV_LINK_KEYS = [
+  'navOverview',
+  'navDashboard',
+  'navUsers',
+  'navGuests',
+  'navEvents',
+  'navContent',
+  'navTools',
+  'navCustomization',
+] as const
+
 const NAV_LINKS = [
-  { href: '/admin', label: 'Visão geral', icon: LayoutDashboard },
-  { href: '/admin/dashboard', label: 'Dashboard', icon: BarChart3 },
-  { href: '/admin/usuarios', label: 'Usuários', icon: Users },
-  { href: '/admin/convidados', label: 'Convidados', icon: UserCheck },
-  { href: '/admin/eventos', label: 'Eventos', icon: Calendar },
-  { href: '/admin/conteudo', label: 'Conteúdo', icon: FileText },
-  { href: '/admin/ferramentas', label: 'Ferramentas', icon: Wrench },
-  { href: '/admin/customizacao', label: 'Customização', icon: Palette },
-]
+  { href: '/admin', labelKey: NAV_LINK_KEYS[0], icon: LayoutDashboard },
+  { href: '/admin/dashboard', labelKey: NAV_LINK_KEYS[1], icon: BarChart3 },
+  { href: '/admin/usuarios', labelKey: NAV_LINK_KEYS[2], icon: Users },
+  { href: '/admin/convidados', labelKey: NAV_LINK_KEYS[3], icon: UserCheck },
+  { href: '/admin/eventos', labelKey: NAV_LINK_KEYS[4], icon: Calendar },
+  { href: '/admin/conteudo', labelKey: NAV_LINK_KEYS[5], icon: FileText },
+  { href: '/admin/ferramentas', labelKey: NAV_LINK_KEYS[6], icon: Wrench },
+  { href: '/admin/customizacao', labelKey: NAV_LINK_KEYS[7], icon: Palette },
+] as const
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const brand = useBrand()
+  const t = useTranslations('Admin')
   const router = useRouter()
   const pathname = usePathname()
   const supabase = getSupabaseClient()
@@ -74,12 +87,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#0f172a] px-4 text-white">
         <div className="max-w-md space-y-4 text-center">
-          <h2 className="text-2xl font-bold">Acesso restrito</h2>
+          <h2 className="text-2xl font-bold">{t('restrictedTitle')}</h2>
           <p className="text-sm text-slate-400">
-            Você precisa de permissão de administrador para acessar esta área.
+            {t('restrictedMessage')}
           </p>
           <Link href="/" className="text-[var(--brand-primary)] underline hover:opacity-90">
-            Voltar ao início
+            {t('backHome')}
           </Link>
         </div>
       </main>
@@ -91,7 +104,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <main className="flex min-h-screen items-center justify-center bg-[#0f172a] px-4 text-white">
         <div className="flex items-center gap-3">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--brand-primary)] border-t-transparent" />
-          Carregando painel...
+          {t('loadingPanel')}
         </div>
       </main>
     )
@@ -107,7 +120,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           type="button"
           onClick={closeSidebar}
           className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
-          aria-label="Fechar menu"
+          aria-label={t('closeMenu')}
         />
       )}
 
@@ -121,7 +134,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/" onClick={closeSidebar} className="flex-shrink-0">
             <Image src={brand.logoPath} alt={brand.name} width={100} height={40} className="h-8 w-auto" />
           </Link>
-          <button type="button" onClick={closeSidebar} className="rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white lg:hidden" aria-label="Fechar menu">
+          <button type="button" onClick={closeSidebar} className="rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white lg:hidden" aria-label={t('closeMenu')}>
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -142,7 +155,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     }`}
                   >
                     <Icon className="h-5 w-5 flex-shrink-0" />
-                    {link.label}
+                    {t(link.labelKey)}
                   </Link>
                 )
               })}
@@ -158,7 +171,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <LogOut className="h-5 w-5 flex-shrink-0" />
-                {loggingOut ? 'Saindo...' : 'Sair'}
+                {loggingOut ? t('loggingOut') : t('logout')}
               </button>
             </div>
           </div>
@@ -171,7 +184,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               type="button"
               onClick={() => setSidebarOpen(true)}
               className="rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white"
-              aria-label="Abrir menu"
+              aria-label={t('openMenu')}
             >
               <Menu className="h-6 w-6" />
             </button>

@@ -3,6 +3,7 @@
 import { useEffect, useCallback } from 'react'
 import { X, Youtube, FileDown, Wrench } from 'lucide-react'
 import type { ToolRecord } from '@/lib/queries'
+import { useTranslations } from 'next-intl'
 
 function getYoutubeEmbedId(url: string): string | null {
   const patterns = [
@@ -23,6 +24,7 @@ export function ToolModal({
   tool: ToolRecord
   onClose: () => void
 }) {
+  const t = useTranslations('UserToolModal')
   const embedId = tool.youtube_url ? getYoutubeEmbedId(tool.youtube_url) : null
   const hasPdf = Boolean(tool.pdf_url)
   const hasVideo = Boolean(tool.youtube_url)
@@ -67,13 +69,13 @@ export function ToolModal({
           <div className="min-w-0 flex-1">
             <h2 className="text-lg font-bold leading-snug text-white">{tool.titulo}</h2>
             {hasVideo && hasPdf && (
-              <p className="mt-0.5 text-xs font-medium text-slate-400">Aula + PDF disponíveis</p>
+              <p className="mt-0.5 text-xs font-medium text-slate-400">{t('lessonAndPdf')}</p>
             )}
             {hasVideo && !hasPdf && (
-              <p className="mt-0.5 text-xs font-medium text-slate-400">Aula em vídeo</p>
+              <p className="mt-0.5 text-xs font-medium text-slate-400">{t('videoLesson')}</p>
             )}
             {!hasVideo && hasPdf && (
-              <p className="mt-0.5 text-xs font-medium text-slate-400">Material para download</p>
+              <p className="mt-0.5 text-xs font-medium text-slate-400">{t('downloadMaterial')}</p>
             )}
           </div>
           <button
@@ -116,7 +118,7 @@ export function ToolModal({
           {tool.descricao && (
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Descrição
+                {t('descriptionLabel')}
               </p>
               <p className="mt-1.5 text-sm leading-relaxed text-slate-300">{tool.descricao}</p>
             </div>
@@ -133,7 +135,7 @@ export function ToolModal({
                 className="group inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-lg transition hover:bg-blue-500 active:scale-95"
               >
                 <FileDown className="h-4 w-4 transition group-hover:translate-y-0.5" />
-                Baixar {tool.pdf_nome ? `"${tool.pdf_nome}"` : 'PDF'}
+                {t('downloadPdf')} {tool.pdf_nome ? `"${tool.pdf_nome}"` : 'PDF'}
               </a>
             )}
             {hasVideo && tool.youtube_url && (
@@ -144,7 +146,7 @@ export function ToolModal({
                 className="inline-flex items-center gap-2 rounded-xl border border-slate-600/50 bg-slate-800 px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:border-slate-500/70 hover:text-white active:scale-95"
               >
                 <Youtube className="h-4 w-4 text-red-400" />
-                Abrir no YouTube
+                {t('openYoutube')}
               </a>
             )}
           </div>

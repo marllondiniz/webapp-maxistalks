@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, useTransition } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Calendar, MapPin, Banknote, Map, ChevronLeft, Check } from 'lucide-react'
 import type { EventRecord, EventBannerRecord } from '@/lib/queries'
 import { getSupabaseClient } from '@/lib/supabaseClient'
@@ -53,6 +54,7 @@ const parseDescriptionSections = (raw: string | null): DescriptionSection[] => {
 }
 
 export function EventDetailClient({ event, banner, outrosEventos = [], bannersAtivos = [] }: Props) {
+  const t = useTranslations('UserEventosDetail')
   const router = useRouter()
   const supabase = getSupabaseClient()
   const { profile, userId } = useUserRole()
@@ -181,7 +183,7 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
         className="mb-6 inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-[#f5f5f5]"
       >
         <ChevronLeft className="h-4 w-4" />
-        Voltar aos eventos
+        {t('backToEvents')}
       </button>
 
       <header className="space-y-4">

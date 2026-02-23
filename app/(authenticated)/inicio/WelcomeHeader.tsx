@@ -1,11 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { useBrand } from '@/app/(components)/BrandProvider'
 
 export function WelcomeHeader() {
   const brand = useBrand()
+  const t = useTranslations('UserInicio')
   const [userName, setUserName] = useState<string | null>(null)
 
   useEffect(() => {
@@ -31,10 +33,10 @@ export function WelcomeHeader() {
         {brand.name}
       </span>
       <h2 className="text-3xl font-bold uppercase tracking-tight text-[#f5f5f5] sm:text-4xl">
-        Bem-vindo de volta{userName ? `, ${userName}` : ''}
+        {t('welcomeBack')}{userName ? `, ${userName}` : ''}
       </h2>
       <p className="mx-auto max-w-lg text-sm leading-relaxed text-slate-400">
-        Confira os próximos eventos e palestras, e mergulhe na comunidade.
+        {t('subtitle')}
       </p>
     </header>
   )

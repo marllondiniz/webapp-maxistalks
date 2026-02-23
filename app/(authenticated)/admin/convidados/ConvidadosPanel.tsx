@@ -24,6 +24,7 @@ import {
 } from 'lucide-react'
 import type { EventRecord, EventInteressado } from '@/lib/queries'
 import { saveGuestSelection, markInvitesSent, markInvitesUnsent } from './actions'
+import { useTranslations } from 'next-intl'
 
 const DEFAULT_TEMPLATE = `Olá, {nome}! 🎉
 
@@ -64,6 +65,7 @@ type Props = {
 }
 
 export function ConvidadosPanel({ events, selectedEventId, selectedEvent, interessados }: Props) {
+  const t = useTranslations('AdminConvidados')
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
@@ -122,7 +124,7 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
     setStatus('saving')
     const { error } = await saveGuestSelection({ eventId: selectedEventId, selectedUserIds: [...selected] })
     setStatus('idle')
-    setSaveMsg(error ? `Erro: ${error}` : 'Seleção salva com sucesso!')
+    setSaveMsg(error ? t('saveError', { error }) : t('saved'))
     setTimeout(() => setSaveMsg(null), 3000)
   }, [selectedEventId, selected])
 
@@ -167,7 +169,7 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
 
       {/* Seletor de evento */}
       <div className="rounded-2xl border border-white/10 bg-[#1e293b] p-5">
-        <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-500">Evento</label>
+        <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-500">{t('eventLabel')}</label>
         <div className="relative">
           <select
             value={selectedEventId ?? ''}
@@ -192,7 +194,7 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
             </span>
             {selectedEvent.capacidade_maxima && (
               <span className="flex items-center gap-1.5">
-                <Users className="h-4 w-4" />{selectedEvent.capacidade_maxima} vagas
+                <Users className="h-4 w-4" />{t('slotsLabel', { count: selectedEvent.capacidade_maxima })}
               </span>
             )}
           </div>
@@ -202,10 +204,10 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
       {/* Cards de estatísticas */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { label: 'Interessados', value: stats.total, color: 'border-[#3b82f6]/20 text-[#3b82f6]', icon: <Users className="h-4 w-4" /> },
-          { label: 'Selecionados', value: stats.selecionados, color: 'border-emerald-500/20 text-emerald-400', icon: <CheckSquare className="h-4 w-4" /> },
-          { label: 'Enviados', value: stats.enviados, color: 'border-violet-500/20 text-violet-400', icon: <CheckCircle2 className="h-4 w-4" /> },
-          { label: 'Sem telefone', value: stats.semTelefone, color: 'border-amber-500/20 text-amber-400', icon: <MessageCircle className="h-4 w-4" /> },
+          { label: t('statInterested'), value: stats.total, color: 'border-[#3b82f6]/20 text-[#3b82f6]', icon: <Users className="h-4 w-4" /> },
+          { label: t('statSelected'), value: stats.selecionados, color: 'border-emerald-500/20 text-emerald-400', icon: <CheckSquare className="h-4 w-4" /> },
+          { label: t('statSent'), value: stats.enviados, color: 'border-violet-500/20 text-violet-400', icon: <CheckCircle2 className="h-4 w-4" /> },
+          { label: t('statNoPhone'), value: stats.semTelefone, color: 'border-amber-500/20 text-amber-400', icon: <MessageCircle className="h-4 w-4" /> },
         ].map(({ label, value, color, icon }) => (
           <div key={label} className={`rounded-2xl border bg-[#1e293b] p-4 ${color.split(' ')[0]}`}>
             <div className={`mb-2 inline-flex ${color.split(' ')[1]}`}>{icon}</div>
@@ -227,7 +229,7 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   type="search"
-                  placeholder="Buscar nome, email ou telefone..."
+                  placeholder={t('searchPlaceholder')}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="w-full rounded-xl border border-white/10 bg-[#0f172a] py-2 pl-9 pr-3 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
@@ -238,10 +240,10 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
                 onChange={(e) => setFilterStatus(e.target.value as typeof filterStatus)}
                 className="rounded-xl border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none"
               >
-                <option value="all">Todos ({interessados.length})</option>
-                <option value="selecionados">Selecionados ({stats.selecionados})</option>
-                <option value="enviados">Enviados ({stats.enviados})</option>
-                <option value="pendentes">Pendentes de envio</option>
+                <option value="all">{t('filterAll', { count: interessados.length })}</option>
+                <option value="selecionados">{t('filterSelected', { count: stats.selecionados })}</option>
+                <option value="enviados">{t('filterSent', { count: stats.enviados })}</option>
+                <option value="pendentes">{t('filterPending')}</option>
               </select>
               <button
                 type="button"
@@ -249,12 +251,12 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
                 className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-slate-300 hover:bg-white/5 transition"
               >
                 {allFilteredSelected
-                  ? <><Square className="h-4 w-4" /> Desmarcar</>
-                  : <><CheckSquare className="h-4 w-4 text-emerald-400" /> Marcar todos</>}
+                  ? <><Square className="h-4 w-4" /> {t('deselectAll')}</>
+                  : <><CheckSquare className="h-4 w-4 text-emerald-400" /> {t('selectAll')}</>}
               </button>
             </div>
             <p className="text-xs text-slate-500">
-              {filtered.length} resultado(s) · {selected.size} selecionado(s)
+              {t('results', { count: filtered.length, selected: selected.size })}
             </p>
           </div>
 
@@ -262,7 +264,7 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
           {filtered.length === 0 ? (
             <div className="py-16 text-center">
               <Users className="mx-auto mb-3 h-10 w-10 text-slate-600" />
-              <p className="text-slate-400">Nenhum interessado encontrado.</p>
+              <p className="text-slate-400">{t('noResults')}</p>
             </div>
           ) : (
             <div className="divide-y divide-white/5 max-h-[600px] overflow-y-auto">
@@ -294,9 +296,9 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="font-medium text-white">{u.nome || '—'}</p>
                         {isSent && (
-                          <span className="inline-flex items-center gap-1.5">
+                            <span className="inline-flex items-center gap-1.5">
                             <span className="inline-flex items-center gap-1 rounded-full bg-violet-500/15 px-2 py-0.5 text-xs font-medium text-violet-400">
-                              <CheckCircle2 className="h-3 w-3" /> Enviado
+                              <CheckCircle2 className="h-3 w-3" /> {t('sentBadge')}
                             </span>
                             <button
                               type="button"
@@ -304,13 +306,13 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
                               className="inline-flex items-center gap-1 rounded-full border border-slate-500/50 bg-slate-700/50 px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-600/50 hover:text-white transition"
                               title="Marcar como não enviado"
                             >
-                              <Undo2 className="h-3 w-3" /> Desfazer
+                              <Undo2 className="h-3 w-3" /> {t('unsentButton')}
                             </button>
                           </span>
                         )}
                         {!isSent && isSel && (
                           <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-medium text-emerald-400">
-                            Selecionado
+                            {t('selectedBadge')}
                           </span>
                         )}
                         {u.posicao_mercado && (
@@ -323,7 +325,7 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
                         {u.email && <span>{u.email}</span>}
                         {u.telefone
                           ? <span className="text-emerald-400">{u.telefone}</span>
-                          : <span className="text-amber-400/70">sem telefone</span>}
+                          : <span className="text-amber-400/70">{t('statNoPhone').toLowerCase()}</span>}
                         {u.cidade_estado && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{u.cidade_estado}</span>}
                         {u.empresa && <span className="flex items-center gap-1"><Building2 className="h-3 w-3" />{u.empresa}</span>}
                         {u.faixa_faturamento && (
@@ -353,7 +355,7 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
               className="inline-flex items-center gap-2 rounded-xl bg-[#3b82f6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2563eb] disabled:opacity-50 disabled:pointer-events-none transition"
             >
               {status === 'saving' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-              Salvar seleção
+              {status === 'saving' ? t('saving') : t('saveSelection')}
             </button>
             <button
               type="button"
@@ -430,9 +432,9 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
             {/* Header */}
             <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
               <div>
-                <h2 className="font-bold text-white">Disparar convites via WhatsApp</h2>
+                <h2 className="font-bold text-white">{t('dispatchPanelTitle')}</h2>
                 <p className="text-xs text-slate-400">
-                  {dispatchProgress} de {selectedWithPhone.length} enviado(s)
+                  {t('dispatchProgress', { sent: dispatchProgress, total: selectedWithPhone.length })}
                 </p>
               </div>
               <button
@@ -489,15 +491,14 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
                     {isSent ? (
                       <div className="flex items-center gap-2">
                         <span className="inline-flex items-center gap-1 rounded-full bg-violet-500/15 px-3 py-1 text-xs font-medium text-violet-400">
-                          <CheckCircle2 className="h-3.5 w-3.5" /> Enviado
+                          <CheckCircle2 className="h-3.5 w-3.5" /> {t('sentBadge')}
                         </span>
                         <button
                           type="button"
                           onClick={() => handleMarkUnsent(u.userId)}
                           className="inline-flex items-center gap-1 rounded-lg border border-slate-500/50 bg-slate-700/50 px-2 py-1 text-xs text-slate-300 hover:bg-slate-600/50 hover:text-white transition"
-                          title="Marcar como não enviado para poder reenviar"
                         >
-                          <Undo2 className="h-3 w-3" /> Desfazer
+                          <Undo2 className="h-3 w-3" /> {t('unsentButton')}
                         </button>
                       </div>
                     ) : (
@@ -508,7 +509,7 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
                         onClick={() => handleMarkSent(u.userId)}
                         className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-emerald-600 transition"
                       >
-                        <ExternalLink className="h-3.5 w-3.5" /> Abrir WhatsApp
+                        <ExternalLink className="h-3.5 w-3.5" /> {t('waButton')}
                       </a>
                     )}
                   </div>

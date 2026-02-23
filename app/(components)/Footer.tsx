@@ -3,10 +3,12 @@
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { useBrand } from '@/app/(components)/BrandProvider'
 
 export function Footer() {
   const brand = useBrand()
+  const t = useTranslations('Landing')
   return (
     <footer className="relative py-4 md:py-6 px-6 md:px-12 border-t border-white/10">
       <div className="max-w-6xl mx-auto">
@@ -66,7 +68,7 @@ export function Footer() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-center text-base md:text-lg text-neutral-300 font-space max-w-70ch mx-auto leading-relaxed mb-2 md:mb-3"
         >
-          {brand.tagline}. Palestras presenciais com experts do digital.
+          {brand.tagline}. {t('footerTagline')}
         </motion.p>
 
         <motion.div
@@ -77,29 +79,29 @@ export function Footer() {
           className="text-center space-y-3"
         >
           <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-neutral-400 font-space">
-            <a
+            <Link
               href="/politica-de-privacidade"
               className="hover:text-neutral-300 transition-colors"
             >
-              Política de Privacidade
-            </a>
+              {t('footerPrivacy')}
+            </Link>
             <span className="text-neutral-600">•</span>
-            <a
+            <Link
               href="/termos-de-uso"
               className="hover:text-neutral-300 transition-colors"
             >
-              Termos de Uso
-            </a>
+              {t('footerTerms')}
+            </Link>
             <span className="text-neutral-600">•</span>
-            <a
+            <Link
               href="/cookies"
               className="hover:text-neutral-300 transition-colors"
             >
-              Cookies
-            </a>
+              {t('footerCookies')}
+            </Link>
           </div>
           <p className="text-sm text-neutral-400 font-space">
-            © {new Date().getFullYear()} {brand.name}. Todos os direitos reservados.
+            © {new Date().getFullYear()} {brand.name}. {t('footerCopyright')}
           </p>
         </motion.div>
       </div>

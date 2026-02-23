@@ -6,6 +6,8 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { EventPreviewModalLanding, type EventPreviewLanding } from '@/components/EventPreviewModalLanding'
 import { useBrand } from '@/app/(components)/BrandProvider'
+import { useTranslations } from 'next-intl'
+import { LanguageToggle } from '@/app/(components)/LanguageToggle'
 
 type EventPreview = EventPreviewLanding
 
@@ -37,6 +39,7 @@ const stagger = {
 
 export default function MaxisTalksPage() {
   const brand = useBrand()
+  const t = useTranslations('Landing')
   const [events, setEvents] = useState<EventPreview[]>([])
   const [previewEvent, setPreviewEvent] = useState<EventPreview | null>(null)
 
@@ -56,6 +59,10 @@ export default function MaxisTalksPage() {
       <section className="hero-glow relative flex min-h-[calc(100vh-48px)] flex-col overflow-hidden">
         {/* Background grid */}
         <div className="pointer-events-none absolute inset-0 animated-grid" />
+
+        <div className="absolute right-6 top-6 z-20">
+          <LanguageToggle />
+        </div>
 
         <motion.div
           variants={stagger}
@@ -82,7 +89,7 @@ export default function MaxisTalksPage() {
           >
             <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.9)]" />
             <span className="font-semibold uppercase tracking-[0.2em] text-slate-300">
-              {brand.tagline}
+              {t('heroTagline')}
             </span>
           </motion.div>
 
@@ -91,9 +98,9 @@ export default function MaxisTalksPage() {
             variants={fadeUp}
             className="mb-5 text-balance text-center font-display text-3xl font-bold leading-[1.1] tracking-tight md:text-5xl lg:text-6xl"
           >
-            Participe das próximas
+            {t('heroHeadlineLine1')}
             <br />
-            <span className="text-gradient-blue">edições do {brand.name}</span>
+            <span className="text-gradient-blue">{t('heroHeadlineLine2', { name: brand.name })}</span>
           </motion.h1>
 
           {/* Sub-headline */}
@@ -101,8 +108,7 @@ export default function MaxisTalksPage() {
             variants={fadeUp}
             className="mx-auto mb-10 max-w-xl text-balance text-center text-base leading-relaxed text-slate-400 md:text-lg"
           >
-            Crie sua conta e inscreva-se em palestras presenciais com experts
-            que compartilham estratégias reais para escalar no digital.
+            {t('heroSubheadline')}
           </motion.p>
 
           {/* CTA */}
@@ -111,15 +117,15 @@ export default function MaxisTalksPage() {
               href="/login?mode=signUp"
               className="btn-glow flex items-center gap-2.5 rounded-2xl bg-[var(--brand-primary)] px-10 py-4 text-[15px] font-bold uppercase tracking-wider text-white transition hover:bg-[var(--brand-primary-hover)]"
             >
-              Criar conta
+              {t('ctaCreateAccount')}
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
             </Link>
             <p className="text-sm text-slate-500">
-              Já tem conta?{' '}
+              {t('ctaLoginPrefix')}{' '}
               <Link href="/login" className="text-blue-400 transition hover:text-blue-300 hover:underline">
-                Fazer login
+                {t('ctaLogin')}
               </Link>
             </p>
           </motion.div>
@@ -127,7 +133,7 @@ export default function MaxisTalksPage() {
           {/* Spoiler – Próximas Edições */}
           <motion.div variants={fadeUp} className="w-full max-w-4xl">
             <p className="mb-8 text-center text-xs font-semibold uppercase tracking-[0.25em] text-slate-500">
-              Próximas edições
+              {t('tagUpcoming')}
             </p>
 
             {events.length > 0 ? (
@@ -161,14 +167,14 @@ export default function MaxisTalksPage() {
                               />
                                   <div className="absolute left-4 top-4 flex items-center gap-2">
                                 <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium tracking-wider text-white/90 backdrop-blur-sm">
-                                  Ed. {String(i + 1).padStart(2, '0')}
+                                  {t('cardEdition', { n: String(i + 1).padStart(2, '0') })}
                                 </span>
                                 {isPast && (
                                   <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/95 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur">
                                     <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    Realizado
+                                    {t('cardDone')}
                                   </span>
                                 )}
                               </div>
@@ -176,7 +182,7 @@ export default function MaxisTalksPage() {
                           ) : (
                             <div className="relative flex aspect-[3/4] items-center justify-center bg-gradient-to-br from-blue-600/10 to-transparent p-8">
                               <span className="absolute left-4 top-4 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium tracking-wider text-white/90 backdrop-blur-sm">
-                                Ed. {String(i + 1).padStart(2, '0')}
+                                {t('cardEdition', { n: String(i + 1).padStart(2, '0') })}
                               </span>
                               <p className="text-center text-lg font-bold text-white/80">{event.titulo}</p>
                             </div>
@@ -201,7 +207,7 @@ export default function MaxisTalksPage() {
                           </div>
                           <div className="mx-5 mb-5 rounded-xl bg-[#1e293b]/80 px-4 py-3">
                             <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-                              Tema da palestra
+                              {t('cardThemeLabel')}
                             </p>
                             <p className="mt-1 font-semibold text-white line-clamp-2">{temaPalestra}</p>
                           </div>
@@ -214,7 +220,7 @@ export default function MaxisTalksPage() {
                                   : 'btn-glow bg-[var(--brand-primary)] text-white hover:bg-[var(--brand-primary-hover)]'
                               }`}
                             >
-                              {isPast ? '✓ Evento realizado' : 'Inscreva-se →'}
+                              {isPast ? t('cardButtonPast') : t('cardButtonUpcoming')}
                             </Link>
                           </div>
                         </div>
@@ -251,14 +257,14 @@ export default function MaxisTalksPage() {
                           />
                           <div className="absolute left-4 top-4 flex items-center gap-2">
                             <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium tracking-wider text-white/90 backdrop-blur-sm">
-                              Ed. {String(i + 1).padStart(2, '0')}
+                              {t('cardEdition', { n: String(i + 1).padStart(2, '0') })}
                             </span>
                             {isPast && (
                             <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/95 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur">
                               <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                               </svg>
-                              Realizado
+                              {t('cardDone')}
                             </span>
                             )}
                           </div>
@@ -266,7 +272,7 @@ export default function MaxisTalksPage() {
                       ) : (
                         <div className="relative flex aspect-[3/4] items-center justify-center bg-gradient-to-br from-blue-600/10 to-transparent p-8">
                           <span className="absolute left-4 top-4 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium tracking-wider text-white/90 backdrop-blur-sm">
-                            Ed. {String(i + 1).padStart(2, '0')}
+                            {t('cardEdition', { n: String(i + 1).padStart(2, '0') })}
                           </span>
                           <p className="text-center text-lg font-bold text-white/80">{event.titulo}</p>
                         </div>
@@ -295,7 +301,7 @@ export default function MaxisTalksPage() {
                       {/* Tema da palestra */}
                       <div className="mx-5 mb-5 rounded-xl bg-[#1e293b]/80 px-4 py-3">
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-                          Tema da palestra
+                          {t('cardThemeLabel')}
                         </p>
                         <p className="mt-1 font-semibold text-white line-clamp-2">{temaPalestra}</p>
                       </div>
@@ -310,7 +316,7 @@ export default function MaxisTalksPage() {
                               : 'btn-glow bg-[var(--brand-primary)] text-white hover:bg-[var(--brand-primary-hover)]'
                           }`}
                         >
-                          {isPast ? '✓ Evento realizado' : 'Inscreva-se →'}
+                          {isPast ? t('cardButtonPast') : t('cardButtonUpcoming')}
                         </Link>
                       </div>
                     </motion.div>
@@ -340,7 +346,7 @@ export default function MaxisTalksPage() {
             variants={stagger}
           >
             <motion.h2 variants={fadeUp} className="section-heading">
-              {brand.whatIsHeading || `O que é o ${brand.name}?`}
+              {brand.whatIsHeading || t('whatIsFallbackTitle', { name: brand.name })}
             </motion.h2>
             <motion.div
               variants={fadeUp}
@@ -369,7 +375,7 @@ export default function MaxisTalksPage() {
               variants={stagger}
             >
               <motion.h2 variants={fadeUp} className="section-heading">
-                Local do Evento
+                {t('localTitle')}
               </motion.h2>
               {brand.localSubheading && (
                 <motion.p variants={fadeUp} className="section-subheading">
@@ -392,7 +398,7 @@ export default function MaxisTalksPage() {
                     </div>
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Formato</p>
-                      <p className="text-lg font-semibold text-white">Presencial</p>
+                      <p className="text-lg font-semibold text-white">{t('localFormatValue')}</p>
                     </div>
                   </div>
 
@@ -405,6 +411,7 @@ export default function MaxisTalksPage() {
                       </div>
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Endereço</p>
+                        {/* label traduzida acima */}
                         <p className="text-base font-medium text-white">{brand.addressLine1}</p>
                         {brand.addressLine2 && <p className="text-sm text-slate-300">{brand.addressLine2}</p>}
                         {brand.addressCep && <p className="text-sm text-slate-400">{brand.addressCep}</p>}
@@ -423,7 +430,7 @@ export default function MaxisTalksPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
-                      Ver rotas no Google Maps
+                      {t('localMapsButton')}
                     </a>
                   )}
                 </div>
@@ -476,7 +483,7 @@ export default function MaxisTalksPage() {
               )}
 
               <motion.h2 variants={fadeUp} className="mb-6 text-center font-display text-2xl font-bold md:text-3xl">
-                Sobre o {brand.name}
+                {t('aboutTitle', { name: brand.name })}
               </motion.h2>
 
               {brand.aboutShortText && (
@@ -525,17 +532,16 @@ export default function MaxisTalksPage() {
               variants={fadeUp}
               className="font-display text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl"
             >
-              Quer ser um dos
+              {t('finalCtaTitleLine1')}
               <br />
-              <span className="text-gradient-blue">30 convidados?</span>
+              <span className="text-gradient-blue">{t('finalCtaGradient')}</span>
             </motion.h2>
 
             <motion.p
               variants={fadeUp}
               className="mx-auto mt-5 max-w-md text-base leading-relaxed text-slate-400 md:text-lg"
             >
-              Crie sua conta e faça parte de uma experiência exclusiva de
-              aprendizado e networking com quem constrói o futuro digital.
+              {t('finalCtaBody')}
             </motion.p>
 
             <motion.div variants={fadeUp} className="mt-10">
@@ -543,15 +549,15 @@ export default function MaxisTalksPage() {
                 href="/login?mode=signUp"
                 className="btn-glow inline-flex items-center gap-2.5 rounded-2xl bg-[var(--brand-primary)] px-10 py-4 text-[15px] font-bold uppercase tracking-wider text-white transition hover:bg-[var(--brand-primary-hover)]"
               >
-                Criar conta
+                {t('finalCtaButton')}
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </Link>
               <p className="mt-4 text-sm text-slate-500">
-                Já tem conta?{' '}
+                {t('ctaLoginPrefix')}{' '}
                 <Link href="/login" className="text-blue-400 transition hover:text-blue-300 hover:underline">
-                  Fazer login
+                  {t('ctaLogin')}
                 </Link>
               </p>
             </motion.div>
@@ -574,9 +580,9 @@ export default function MaxisTalksPage() {
             </div>
           )}
           <div className="flex shrink-0 flex-wrap items-center justify-center gap-4 text-sm text-slate-500 md:gap-6">
-            <Link href="/cookies" className="transition hover:text-white">Cookies</Link>
+            <Link href="/cookies" className="transition hover:text-white">{t('footerCookies')}</Link>
             <span className="text-slate-700">•</span>
-            <Link href="/politica-de-privacidade" className="transition hover:text-white">Política de Privacidade</Link>
+            <Link href="/politica-de-privacidade" className="transition hover:text-white">{t('footerPrivacy')}</Link>
           </div>
           {(brand.instagramUrl || brand.youtubeUrl) && (
             <div className="flex shrink-0 items-center gap-5">

@@ -3,16 +3,7 @@ import Link from 'next/link'
 import { getArticles } from '@/lib/queries'
 import { getTenantIdForRequest } from '@/lib/brand'
 import { Activity, Coffee, Heart, Sparkles, Lightbulb, type LucideIcon } from 'lucide-react'
-
-const CATEGORIAS = [
-  { value: 'todos', label: 'Todos' },
-  { value: 'inspiracao', label: 'Inspiração' },
-  { value: 'dicas', label: 'Dicas' },
-  { value: 'desenvolvimento', label: 'Desenvolvimento' },
-  { value: 'palestras', label: 'Palestras' },
-  { value: 'vendas', label: 'Vendas' },
-  { value: 'marketing', label: 'Marketing' },
-] as const
+import { getTranslations } from 'next-intl/server'
 
 const CATEGORIA_ICONS: Record<string, LucideIcon> = {
   treino: Activity,
@@ -36,9 +27,20 @@ export default async function BlogPage({
 }: {
   searchParams: Promise<{ categoria?: string }>
 }) {
+  const t = await getTranslations('UserBlog')
   const { categoria } = await searchParams
   const tenantId = await getTenantIdForRequest()
   const artigos = await getArticles('blog', tenantId)
+
+  const CATEGORIAS = [
+    { value: 'todos', label: t('catAll') },
+    { value: 'inspiracao', label: t('catInspiracao') },
+    { value: 'dicas', label: t('catDicas') },
+    { value: 'desenvolvimento', label: t('catDesenvolvimento') },
+    { value: 'palestras', label: t('catPalestras') },
+    { value: 'vendas', label: t('catVendas') },
+    { value: 'marketing', label: t('catMarketing') },
+  ]
 
   const artigosFiltrados =
     categoria && categoria !== 'todos'
@@ -49,10 +51,10 @@ export default async function BlogPage({
     <section className="space-y-6">
       <header className="space-y-2 text-center">
         <h2 className="text-2xl font-bold uppercase tracking-tight text-[#f5f5f5]">
-          Artigos e inspirações
+          {t('title')}
         </h2>
         <p className="text-sm text-[#c9c9d2]">
-          Conteúdos para aprender, refletir e se desenvolver com a comunidade.
+          {t('subtitle')}
         </p>
       </header>
 
@@ -118,7 +120,7 @@ export default async function BlogPage({
                   <p className="mt-2 line-clamp-2 text-sm text-slate-500">{artigo.resumo}</p>
                 )}
                 <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#3b82f6] transition group-hover:text-blue-400">
-                  Ler
+                  {t('readLink')}
                   <span className="inline-block transition group-hover:translate-x-0.5">→</span>
                 </span>
               </div>
@@ -129,12 +131,12 @@ export default async function BlogPage({
 
       {artigosFiltrados.length === 0 && (
         <div className="rounded-xl border border-slate-600/30 bg-slate-800/80 p-12 text-center">
-          <p className="text-sm text-slate-400">Nenhum conteúdo disponível no momento.</p>
+          <p className="text-sm text-slate-400">{t('emptyContent')}</p>
           <Link
             href="/eventos"
             className="mt-4 inline-block text-sm font-semibold text-[#3b82f6] transition hover:text-blue-400"
           >
-            Ver eventos
+            {t('seeEvents')}
           </Link>
         </div>
       )}

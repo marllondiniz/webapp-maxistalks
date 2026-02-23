@@ -1,6 +1,7 @@
 'use client'
 
 import { FormEvent, useMemo, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Image as ImageIcon, Lightbulb, Loader2, Upload, ImagePlus, MapPin } from 'lucide-react'
 import type { EventBannerRecord, EventRecord } from '@/lib/queries'
 import { getSupabaseClient } from '@/lib/supabaseClient'
@@ -31,6 +32,7 @@ const defaultFormState: BannerFormState = {
 }
 
 export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelProps) {
+  const t = useTranslations('AdminBanner')
   const [form, setForm] = useState<BannerFormState>(defaultFormState)
   const [feedback, setFeedback] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -46,7 +48,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
 
     const isValidType = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'].includes(file.type)
     if (!isValidType) {
-      setFeedback('Formato inválido. Use PNG, JPG ou WEBP.')
+      setFeedback(t('invalidFormat'))
       return
     }
 
@@ -68,7 +70,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
     setFeedback(null)
 
     if (!form.file) {
-      setFeedback('Envie uma imagem para o banner.')
+      setFeedback(t('uploadImageRequired'))
       return
     }
 
@@ -86,7 +88,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
 
       if (uploadError) {
         console.error('Erro ao enviar banner:', uploadError)
-        setFeedback('Não foi possível enviar a imagem. Verifique o bucket e tente novamente.')
+        setFeedback(t('uploadError'))
         return
       }
 
@@ -94,7 +96,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
       const imageUrl = publicData?.publicUrl
 
       if (!imageUrl) {
-        setFeedback('Não foi possível obter a URL pública do banner.')
+        setFeedback(t('saveError'))
         return
       }
 
@@ -111,17 +113,17 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
       })
 
       if (!response.ok) {
-        const { error } = await response.json().catch(() => ({ error: 'Erro ao salvar banner.' }))
-        setFeedback(error || 'Não foi possível salvar o banner.')
+        const { error } = await response.json().catch(() => ({ error: t('saveError') }))
+        setFeedback(error || t('saveError'))
         return
       }
 
-      setFeedback('Banner criado com sucesso! Ative-o para exibir no app.')
+      setFeedback(t('successCreate'))
       setForm(defaultFormState)
       await refreshBanners()
     } catch (error) {
       console.error('Erro inesperado ao criar banner:', error)
-      setFeedback('Erro inesperado ao criar banner.')
+      setFeedback(t('unexpectedError'))
     } finally {
       setLoading(false)
     }
@@ -136,12 +138,12 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
     })
 
     if (!response.ok) {
-      const { error } = await response.json().catch(() => ({ error: 'Erro ao ativar banner.' }))
-      setFeedback(error || 'Não foi possível ativar o banner.')
+      const { error } = await response.json().catch(() => ({ error: t('activateError') }))
+      setFeedback(error || t('activateError'))
       return
     }
 
-    setFeedback('Banner ativado! Ele já aparece na página de eventos.')
+    setFeedback(t('activated'))
     await refreshBanners()
   }
 
@@ -152,8 +154,8 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
     })
 
     if (!response.ok) {
-      const { error } = await response.json().catch(() => ({ error: 'Erro ao excluir banner.' }))
-      setFeedback(error || 'Não foi possível excluir o banner.')
+      const { error } = await response.json().catch(() => ({ error: t('deleteError') }))
+      setFeedback(error || t('deleteError'))
       return
     }
 
@@ -166,7 +168,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
     }
 
     await refreshBanners()
-    setFeedback('Banner removido.')
+    setFeedback(t('deleted'))
   }
 
   return (
@@ -174,15 +176,15 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
       <div className="space-y-2">
         <h3 className="text-lg font-bold uppercase tracking-tight text-white flex items-center gap-2">
           <ImageIcon className="h-5 w-5" />
-          Banner Promocional
+          {t('title')}
         </h3>
         <p className="text-sm text-slate-400">
-          Destaque eventos com banners visuais
+          {t('subtitle')}
         </p>
         <div className="flex items-start gap-2 rounded-lg border border-blue-500/20 bg-blue-500/5 p-3">
           <Lightbulb className="h-4 w-4 shrink-0 text-blue-200 mt-0.5" />
           <p className="text-xs text-blue-200">
-            Cada evento pode ter seu próprio banner
+            {t('hint')}
           </p>
         </div>
       </div>
@@ -190,7 +192,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">Título (opcional)</span>
+            <span className="text-xs font-semibold uppercase text-slate-400">{t('titleOptional')}</span>
             <input
               type="text"
               value={form.titulo}
@@ -202,7 +204,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
 
           <label className="space-y-2 md:col-span-2">
             <span className="text-xs font-semibold uppercase text-slate-400">
-              Subtítulo (opcional)
+              {t('subtitleOptional')}
             </span>
             <input
               type="text"
@@ -215,7 +217,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
 
           <div className="space-y-2 md:col-span-2">
             <span className="text-xs font-semibold uppercase text-slate-400">
-              Evento relacionado (opcional)
+              {t('eventRelated')}
             </span>
             <div className="relative">
               <button
@@ -225,8 +227,8 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
               >
                 <span className={form.eventId ? 'text-white' : 'text-slate-400'}>
                   {form.eventId
-                    ? events.find((e) => e.id === form.eventId)?.titulo ?? 'Selecione um evento'
-                    : 'Selecione um evento'}
+                    ? events.find((e) => e.id === form.eventId)?.titulo ?? t('selectEvent')
+                    : t('selectEvent')}
                 </span>
                 <svg
                   className={`h-5 w-5 text-slate-400 transition-transform ${
@@ -253,7 +255,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
                     }}
                     className="w-full border-b border-white/5 px-4 py-3 text-left text-sm text-slate-400 transition hover:bg-white/5"
                   >
-                    Nenhum evento
+                    {t('noEvent')}
                   </button>
                   {events.map((evento) => (
                     <button
@@ -275,7 +277,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
           </div>
 
           <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">Imagem do banner</span>
+            <span className="text-xs font-semibold uppercase text-slate-400">{t('imageLabel')}</span>
             <input
               type="file"
               accept="image/png,image/jpeg,image/webp"
@@ -286,7 +288,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={form.previewUrl}
-                alt="Pré-visualização do banner"
+                alt={t('previewAlt')}
                 className="mt-3 w-full max-w-xl rounded-lg border border-white/10 object-cover"
               />
             )}
@@ -313,12 +315,12 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
           {loading ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Enviando...
+              {t('uploading')}
             </>
           ) : (
             <>
               <Upload className="h-4 w-4" />
-              Salvar banner
+              {t('saveBanner')}
             </>
           )}
         </button>
@@ -328,7 +330,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
         <div className="flex items-center justify-between">
           <h4 className="text-sm font-bold uppercase tracking-wide text-slate-400 flex items-center gap-2">
             <ImagePlus className="h-4 w-4" />
-            Banners cadastrados
+            {t('bannersRegistered')}
           </h4>
           <span className="rounded-full bg-[#334155] px-2.5 py-0.5 text-xs font-bold text-white">
             {banners.length}
@@ -337,8 +339,8 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
 
         {banners.length === 0 ? (
           <div className="rounded-xl border border-dashed border-white/10 bg-[#1e293b] p-6 text-center">
-            <p className="text-sm text-slate-400">Nenhum banner cadastrado</p>
-            <p className="mt-1 text-xs text-slate-500">Crie seu primeiro banner acima</p>
+            <p className="text-sm text-slate-400">{t('noBanners')}</p>
+            <p className="mt-1 text-xs text-slate-500">{t('createFirst')}</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -355,18 +357,18 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={banner.image_url}
-                    alt={banner.titulo ?? 'Banner'}
+                    alt={banner.titulo ?? t('title')}
                     className="h-16 w-24 flex-shrink-0 rounded-lg border border-white/10 object-cover shadow-md"
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="text-sm font-bold text-white truncate">
-                        {banner.titulo || 'Banner sem título'}
+                        {banner.titulo || t('noTitle')}
                       </p>
                       {banner.is_active && (
                         <span className="flex items-center gap-1 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-200 whitespace-nowrap">
                           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-                          Ativo
+                          {t('active')}
                         </span>
                       )}
                     </div>
@@ -391,7 +393,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-3.5 w-3.5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
                       </svg>
-                      Ativar
+                      {t('activate')}
                     </button>
                   )}
                   <button
@@ -402,8 +404,8 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-3.5 w-3.5">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                     </svg>
-                    Excluir
-                  </button>
+                      {t('delete')}
+                    </button>
                 </div>
               </div>
             ))}

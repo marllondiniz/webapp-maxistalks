@@ -3,8 +3,10 @@
 import { useState, useTransition } from 'react'
 import { Send, Check } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
+import { useTranslations } from 'next-intl'
 
 export function PainForm({ tenantId }: { tenantId: string | null }) {
+  const t = useTranslations('UserPainForm')
   const supabase = getSupabaseClient()
   const [dor, setDor] = useState('')
   const [submitted, setSubmitted] = useState(false)
@@ -19,7 +21,7 @@ export function PainForm({ tenantId }: { tenantId: string | null }) {
       setError(null)
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        setError('Você precisa estar logado.')
+        setError(t('loginRequired'))
         return
       }
 
@@ -30,7 +32,7 @@ export function PainForm({ tenantId }: { tenantId: string | null }) {
       })
 
       if (insertError) {
-        setError('Não foi possível registrar. Tente novamente.')
+        setError(t('submitError'))
         return
       }
 
@@ -46,15 +48,15 @@ export function PainForm({ tenantId }: { tenantId: string | null }) {
           <Check className="h-4 w-4 text-emerald-400" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-emerald-200">Registrado com sucesso!</p>
-          <p className="text-xs text-emerald-300/80">Obrigado por compartilhar. Isso nos ajuda a melhorar o conteúdo.</p>
+          <p className="text-sm font-semibold text-emerald-200">{t('successTitle')}</p>
+          <p className="text-xs text-emerald-300/80">{t('successBody')}</p>
         </div>
         <button
           type="button"
           onClick={() => setSubmitted(false)}
           className="ml-auto text-xs text-emerald-400 underline hover:no-underline"
         >
-          Registrar outra
+          {t('registerAnother')}
         </button>
       </div>
     )
@@ -65,7 +67,7 @@ export function PainForm({ tenantId }: { tenantId: string | null }) {
       <textarea
         value={dor}
         onChange={(e) => setDor(e.target.value)}
-        placeholder="Descreva o seu maior desafio ou dificuldade atual no negócio..."
+        placeholder={t('placeholder')}
         rows={4}
         maxLength={600}
         className="w-full resize-none rounded-xl border border-slate-600/40 bg-slate-900 px-4 py-3 text-sm text-[#f5f5f5] placeholder:text-[#54545b] focus:border-slate-500/60 focus:outline-none"
@@ -79,7 +81,7 @@ export function PainForm({ tenantId }: { tenantId: string | null }) {
           className="inline-flex items-center gap-2 rounded-full bg-[#3b82f6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2563eb] disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Send className="h-3.5 w-3.5" />
-          {isPending ? 'Enviando...' : 'Enviar'}
+          {isPending ? t('sending') : t('submit')}
         </button>
       </div>
     </form>

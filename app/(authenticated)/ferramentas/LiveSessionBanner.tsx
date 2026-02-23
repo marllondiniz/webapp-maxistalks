@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Radio, X, Youtube, Maximize2 } from 'lucide-react'
 import type { LiveSessionRecord } from '@/lib/queries'
+import { useTranslations } from 'next-intl'
 
 function getYoutubeEmbedId(url: string): string | null {
   const patterns = [
@@ -17,6 +18,7 @@ function getYoutubeEmbedId(url: string): string | null {
 }
 
 export function LiveSessionBanner({ session }: { session: LiveSessionRecord }) {
+  const t = useTranslations('UserLiveSession')
   const [open, setOpen] = useState(false)
   const embedId = getYoutubeEmbedId(session.youtube_url)
 
@@ -45,7 +47,7 @@ export function LiveSessionBanner({ session }: { session: LiveSessionRecord }) {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-500" />
           </span>
-          <span className="text-xs font-bold uppercase tracking-widest text-red-400">Ao vivo</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-red-400">{t('liveLabel')}</span>
         </div>
 
         <button
@@ -56,8 +58,8 @@ export function LiveSessionBanner({ session }: { session: LiveSessionRecord }) {
             <Radio className="h-6 w-6 text-red-400" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-bold text-white">{session.titulo ?? 'Evento ao vivo'}</p>
-            <p className="mt-0.5 text-sm text-red-300/80">Clique para assistir agora</p>
+            <p className="font-bold text-white">{session.titulo ?? t('liveEventFallback')}</p>
+            <p className="mt-0.5 text-sm text-red-300/80">{t('clickToWatch')}</p>
           </div>
           <Maximize2 className="h-5 w-5 shrink-0 text-red-400 transition group-hover:scale-110" />
         </button>
@@ -81,7 +83,7 @@ export function LiveSessionBanner({ session }: { session: LiveSessionRecord }) {
                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-500" />
               </span>
               <p className="min-w-0 flex-1 truncate font-semibold text-white">
-                {session.titulo ?? 'Ao vivo'}
+                {session.titulo ?? t('liveShort')}
               </p>
               {embedId && (
                 <a
@@ -107,7 +109,7 @@ export function LiveSessionBanner({ session }: { session: LiveSessionRecord }) {
               <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
                 <iframe
                   src={`https://www.youtube.com/embed/${embedId}?autoplay=1&rel=0`}
-                  title={session.titulo ?? 'Ao vivo'}
+                  title={session.titulo ?? t('liveShort')}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                   allowFullScreen
                   className="absolute inset-0 h-full w-full"
@@ -116,14 +118,14 @@ export function LiveSessionBanner({ session }: { session: LiveSessionRecord }) {
             ) : (
               <div className="flex flex-col items-center gap-4 px-6 py-12 text-center">
                 <Youtube className="h-12 w-12 text-red-400" />
-                <p className="text-slate-300">Link não reconhecido como YouTube. Abra diretamente:</p>
+                <p className="text-slate-300">{t('unrecognizedLink')}</p>
                 <a
                   href={session.youtube_url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-red-500"
                 >
-                  Abrir transmissão
+                  {t('openBroadcast')}
                 </a>
               </div>
             )}

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { Suspense } from 'react'
+import { getTranslations, getLocale } from 'next-intl/server'
 import { getBrandConfig } from '@/lib/brand'
 import LoginClient from '../login-client'
 
@@ -10,15 +11,17 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const headersList = await headers()
   const host = headersList.get('host') ?? undefined
   const brand = await getBrandConfig(host)
+  const locale = await getLocale()
+  const t = await getTranslations({ locale, namespace: 'LoginMeta' })
   const params = await searchParams
   const mode = typeof params?.mode === 'string' ? params.mode : undefined
   const ref = typeof params?.ref === 'string' ? params.ref : undefined
   const isInvite = mode === 'signUp' || Boolean(ref?.trim())
 
   const description = isInvite
-    ? `Crie sua conta no ${brand.name} e acesse eventos, conteúdo e palestras com experts do digital.`
-    : `Faça login ou crie sua conta para acessar o ${brand.name}: eventos, conteúdo e palestras.`
-  const title = isInvite ? `Criar conta | ${brand.name}` : `Entrar | ${brand.name}`
+    ? t('descSignUp', { name: brand.name })
+    : t('descSignIn', { name: brand.name })
+  const title = isInvite ? `${t('titleSignUp')} | ${brand.name}` : `${t('titleSignIn')} | ${brand.name}`
 
   return {
     title,

@@ -9,6 +9,7 @@ import {
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import type { ToolRecord, UserPainRecord, LiveSessionRecord } from '@/lib/queries'
 import type { PainWithUser } from '@/app/api/admin/ferramentas/pains/route'
+import { useTranslations } from 'next-intl'
 
 const inputClass =
   'w-full rounded-xl border border-slate-600/40 bg-slate-900 px-4 py-3 text-sm text-[#f5f5f5] placeholder:text-[#54545b] focus:border-slate-500/60 focus:outline-none'
@@ -26,6 +27,7 @@ const emptyTool = {
 }
 
 export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null }) {
+  const t = useTranslations('AdminFerramentas')
   const supabase = getSupabaseClient()
   const [tab, setTab] = useState<Tab>('ferramentas')
   const [isPending, startTransition] = useTransition()
@@ -221,9 +223,9 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
 
   // ---------- UI ----------
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
-    { key: 'ferramentas', label: 'Ferramentas', icon: <Wrench className="h-4 w-4" /> },
-    { key: 'aovivo', label: 'Ao Vivo', icon: <Radio className="h-4 w-4" /> },
-    { key: 'dores', label: 'Dores Cadastradas', icon: <AlertCircle className="h-4 w-4" /> },
+    { key: 'ferramentas', label: t('tabTools'), icon: <Wrench className="h-4 w-4" /> },
+    { key: 'aovivo', label: t('tabLive'), icon: <Radio className="h-4 w-4" /> },
+    { key: 'dores', label: t('tabPains'), icon: <AlertCircle className="h-4 w-4" /> },
   ]
 
   return (
@@ -262,7 +264,7 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
               onClick={() => { setShowToolForm(true); setEditingToolId(null); setFormTool(emptyTool) }}
               className="inline-flex items-center gap-2 rounded-full bg-[#3b82f6] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2563eb]"
             >
-              <Plus className="h-4 w-4" /> Nova ferramenta
+              <Plus className="h-4 w-4" /> {t('newTool')}
             </button>
           </div>
 
@@ -275,7 +277,7 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
           {/* Formulário */}
           {showToolForm && (
             <div className="rounded-2xl border border-slate-600/40 bg-slate-800/80 p-5 space-y-4">
-              <h3 className="font-bold text-white">{editingToolId ? 'Editar ferramenta' : 'Nova ferramenta'}</h3>
+              <h3 className="font-bold text-white">{editingToolId ? t('editTool') : t('newTool')}</h3>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <label className="block space-y-1">
                   <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Título *</span>
@@ -369,14 +371,14 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
                   className="inline-flex items-center gap-2 rounded-full bg-[#3b82f6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2563eb] disabled:opacity-50"
                 >
                   <Save className="h-4 w-4" />
-                  {isPending ? 'Salvando...' : 'Salvar'}
+                  {isPending ? t('saving') : t('save')}
                 </button>
                 <button
                   type="button"
                   onClick={() => { setShowToolForm(false); setEditingToolId(null); setFormTool(emptyTool) }}
                   className="inline-flex items-center gap-2 rounded-full border border-slate-600/40 px-5 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/5"
                 >
-                  <X className="h-4 w-4" /> Cancelar
+                  <X className="h-4 w-4" /> {t('cancel')}
                 </button>
               </div>
             </div>
@@ -391,7 +393,7 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
           ) : tools.length === 0 ? (
             <div className="rounded-2xl border border-slate-600/30 bg-slate-800/50 py-12 text-center">
               <Wrench className="mx-auto h-10 w-10 text-slate-600" />
-              <p className="mt-3 text-sm text-slate-400">Nenhuma ferramenta cadastrada ainda.</p>
+              <p className="mt-3 text-sm text-slate-400">{t('noTools')}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -446,7 +448,7 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
               onClick={() => { setShowLiveForm(true); setEditingLiveId(null); setLiveForm({ titulo: '', youtube_url: '', ativo: true }) }}
               className="inline-flex items-center gap-2 rounded-full bg-[#3b82f6] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2563eb]"
             >
-              <Plus className="h-4 w-4" /> Nova sessão ao vivo
+              <Plus className="h-4 w-4" /> {t('newSession')}
             </button>
           </div>
 
@@ -458,7 +460,7 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
 
           {showLiveForm && (
             <div className="rounded-2xl border border-slate-600/40 bg-slate-800/80 p-5 space-y-4">
-              <h3 className="font-bold text-white">{editingLiveId ? 'Editar sessão' : 'Nova sessão ao vivo'}</h3>
+              <h3 className="font-bold text-white">{editingLiveId ? t('editSession') : t('newSession')}</h3>
               <label className="block space-y-1">
                 <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Título do evento</span>
                 <input
@@ -500,14 +502,14 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
                   className="inline-flex items-center gap-2 rounded-full bg-[#3b82f6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2563eb] disabled:opacity-50"
                 >
                   <Save className="h-4 w-4" />
-                  {isPending ? 'Salvando...' : 'Salvar'}
+                  {isPending ? t('saving') : t('save')}
                 </button>
                 <button
                   type="button"
                   onClick={() => { setShowLiveForm(false); setEditingLiveId(null) }}
                   className="inline-flex items-center gap-2 rounded-full border border-slate-600/40 px-5 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/5"
                 >
-                  <X className="h-4 w-4" /> Cancelar
+                  <X className="h-4 w-4" /> {t('cancel')}
                 </button>
               </div>
             </div>
@@ -521,7 +523,7 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
           ) : liveSessions.length === 0 ? (
             <div className="rounded-2xl border border-slate-600/30 bg-slate-800/50 py-12 text-center">
               <Radio className="mx-auto h-10 w-10 text-slate-600" />
-              <p className="mt-3 text-sm text-slate-400">Nenhuma sessão cadastrada.</p>
+              <p className="mt-3 text-sm text-slate-400">{t('noSessions')}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -574,7 +576,7 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
           ) : pains.length === 0 ? (
             <div className="rounded-2xl border border-slate-600/30 bg-slate-800/50 py-12 text-center">
               <AlertCircle className="mx-auto h-10 w-10 text-slate-600" />
-              <p className="mt-3 text-sm text-slate-400">Nenhum desafio registrado ainda.</p>
+                    <p className="mt-3 text-sm text-slate-400">{t('noPains')}</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -583,7 +585,7 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex flex-col gap-0.5">
                       <span className="text-sm font-semibold text-white">
-                        {pain.user_nome ?? 'Usuário'}
+                        {pain.user_nome ?? t('anonymous')}
                       </span>
                       {pain.user_email && (
                         <span className="text-xs text-slate-400">{pain.user_email}</span>

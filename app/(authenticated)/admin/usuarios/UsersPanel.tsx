@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import {
   Mail,
   MapPin,
@@ -20,6 +21,7 @@ type Props = {
 }
 
 export function UsersPanel({ allUsers, registrations }: Props) {
+  const t = useTranslations('AdminUsers')
   const [userSearch, setUserSearch] = useState('')
   const [userFilterPosicao, setUserFilterPosicao] = useState<string>('all')
   const [userFilterCidade, setUserFilterCidade] = useState<string>('all')
@@ -94,18 +96,18 @@ export function UsersPanel({ allUsers, registrations }: Props) {
 
   const handleExportUsersCsv = () => {
     const headers = [
-      'Nome',
-      'Email',
-      'Telefone',
-      'Cidade/Estado',
-      'Posição',
-      'Empresa/Projeto',
-      'Empresa atual',
-      'Setor',
-      'Faturamento',
-      'O que quer aprender',
-      'Indicado por',
-      'Inscrições em eventos',
+      t('csvName'),
+      t('csvEmail'),
+      t('csvPhone'),
+      t('csvCityState'),
+      t('csvPosition'),
+      t('csvCompanyProject'),
+      t('csvCompanyCurrent'),
+      t('csvSector'),
+      t('csvRevenue'),
+      t('csvWantToLearn'),
+      t('csvReferredBy'),
+      t('csvRegistrations'),
     ]
     const rows = sortedUsers.map((u) => [
       u.nome ?? '',
@@ -126,7 +128,7 @@ export function UsersPanel({ allUsers, registrations }: Props) {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `usuarios-${new Date().toISOString().slice(0, 10)}.csv`
+    a.download = `${t('csvFilenamePrefix')}-${new Date().toISOString().slice(0, 10)}.csv`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -138,7 +140,7 @@ export function UsersPanel({ allUsers, registrations }: Props) {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             type="search"
-            placeholder="Buscar nome ou email..."
+            placeholder={t('searchPlaceholder')}
             value={userSearch}
             onChange={(e) => { setUserSearch(e.target.value); setPage(1) }}
             className="w-full rounded-lg border border-white/10 bg-[#0f172a] py-2 pl-9 pr-3 text-sm text-white placeholder:text-slate-500 focus:border-[#3b82f6] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]"
@@ -149,16 +151,16 @@ export function UsersPanel({ allUsers, registrations }: Props) {
           onChange={(e) => { setUserFilterPosicao(e.target.value); setPage(1) }}
           className="rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:border-[#3b82f6] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]"
         >
-          <option value="all">Posição: todas</option>
-          <option value="empreendedor">Empreendedor</option>
-          <option value="lider">Líder</option>
+          <option value="all">{t('positionAll')}</option>
+          <option value="empreendedor">{t('positionEmpreendedor')}</option>
+          <option value="lider">{t('positionLider')}</option>
         </select>
         <select
           value={userFilterCidade}
           onChange={(e) => { setUserFilterCidade(e.target.value); setPage(1) }}
           className="min-w-0 max-w-[180px] rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:border-[#3b82f6] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]"
         >
-          <option value="all">Cidade: todas</option>
+          <option value="all">{t('cityAll')}</option>
           {uniqueCidades.map((c) => (
             <option key={c} value={c}>{c}</option>
           ))}
@@ -168,7 +170,7 @@ export function UsersPanel({ allUsers, registrations }: Props) {
           onChange={(e) => { setUserFilterSegmento(e.target.value); setPage(1) }}
           className="min-w-0 max-w-[160px] rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:border-[#3b82f6] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]"
         >
-          <option value="all">Setor: todos</option>
+          <option value="all">{t('sectorAll')}</option>
           {uniqueSegmentos.map((s) => (
             <option key={s} value={s}>{s}</option>
           ))}
@@ -178,8 +180,8 @@ export function UsersPanel({ allUsers, registrations }: Props) {
           onChange={(e) => setUserSortBy(e.target.value as 'name' | 'recent')}
           className="rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:border-[#3b82f6] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]"
         >
-          <option value="recent">Mais recente primeiro</option>
-          <option value="name">Por nome</option>
+          <option value="recent">{t('sortRecent')}</option>
+          <option value="name">{t('sortName')}</option>
         </select>
         <button
           type="button"
@@ -187,16 +189,16 @@ export function UsersPanel({ allUsers, registrations }: Props) {
           className="inline-flex items-center gap-2 rounded-lg bg-emerald-500/20 px-3 py-2 text-sm font-medium text-emerald-400 hover:bg-emerald-500/30"
         >
           <Download className="h-4 w-4" />
-          Exportar CSV
+          {t('exportCsv')}
         </button>
       </div>
 
       <div className="flex items-center justify-between border-b border-white/10 px-4 py-2 sm:px-5">
         <span className="text-sm text-slate-400">
           {sortedUsers.length === allUsers.length
-            ? `${allUsers.length} usuário(s)`
-            : `${sortedUsers.length} de ${allUsers.length} usuário(s)`}
-          {totalPages > 1 && ` · Página ${currentPage} de ${totalPages}`}
+            ? t('usersCountOne', { count: String(allUsers.length) })
+            : t('usersCountFiltered', { filtered: String(sortedUsers.length), total: String(allUsers.length) })}
+          {totalPages > 1 && ` · ${t('pageOf', { current: String(currentPage), total: String(totalPages) })}`}
         </span>
         {totalPages > 1 && (
           <div className="flex items-center gap-1">
@@ -222,7 +224,7 @@ export function UsersPanel({ allUsers, registrations }: Props) {
 
       {paginatedUsers.length === 0 ? (
         <div className="px-4 py-12 text-center text-slate-400 sm:px-5">
-          Nenhum usuário encontrado.
+          {t('noUsersFound')}
         </div>
       ) : (
         <>
@@ -244,10 +246,10 @@ export function UsersPanel({ allUsers, registrations }: Props) {
                 )}
                 {(u.invited_by_user_id || (registrationsCountByUser.get(u.id) ?? 0) > 0) && (
                   <p className="mt-1.5 text-xs text-slate-400">
-                    {u.invited_by_user_id && <span>Indicado por: {referrerNameById.get(u.invited_by_user_id) ?? '—'}</span>}
+                    {u.invited_by_user_id && <span>{t('referredBy')} {referrerNameById.get(u.invited_by_user_id) ?? '—'}</span>}
                     {(registrationsCountByUser.get(u.id) ?? 0) > 0 && (
                       <span className={u.invited_by_user_id ? ' ml-2' : ''}>
-                        {(registrationsCountByUser.get(u.id) ?? 0)} evento(s)
+                        {t('eventsCount', { count: String(registrationsCountByUser.get(u.id) ?? 0) })}
                       </span>
                     )}
                   </p>
@@ -277,14 +279,14 @@ export function UsersPanel({ allUsers, registrations }: Props) {
             <table className="w-full min-w-[900px] text-sm">
               <thead className="sticky top-0 bg-[#1e293b] text-left">
                 <tr className="border-b border-white/10">
-                  <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Nome</th>
-                  <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Telefone</th>
-                  <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Email</th>
-                  <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Empresa</th>
-                  <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Cidade</th>
-                  <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Indicado por</th>
-                  <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Eventos</th>
-                  <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">Contato</th>
+                  <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">{t('thName')}</th>
+                  <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">{t('thPhone')}</th>
+                  <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">{t('thEmail')}</th>
+                  <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">{t('thCompany')}</th>
+                  <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">{t('thCity')}</th>
+                  <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">{t('thReferredBy')}</th>
+                  <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">{t('thEvents')}</th>
+                  <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">{t('thContact')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -339,10 +341,10 @@ export function UsersPanel({ allUsers, registrations }: Props) {
                 disabled={currentPage <= 1}
                 className="rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-slate-300 hover:bg-white/5 disabled:opacity-40 disabled:pointer-events-none"
               >
-                Anterior
+                {t('prev')}
               </button>
               <span className="text-sm text-slate-400">
-                Página {currentPage} de {totalPages}
+                {t('pageOf', { current: String(currentPage), total: String(totalPages) })}
               </span>
               <button
                 type="button"
@@ -350,7 +352,7 @@ export function UsersPanel({ allUsers, registrations }: Props) {
                 disabled={currentPage >= totalPages}
                 className="rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-slate-300 hover:bg-white/5 disabled:opacity-40 disabled:pointer-events-none"
               >
-                Próxima
+                {t('next')}
               </button>
             </div>
           )}

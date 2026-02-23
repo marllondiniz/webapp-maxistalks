@@ -5,6 +5,7 @@ import { Image as ImageIcon, Upload, X, Pencil, Images, Loader2, Trash2, Chevron
 import type { ArticleRecord, ArticleGalleryRecord } from '@/lib/queries'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { RichTextEditor } from '@/components/RichTextEditor'
+import { useTranslations } from 'next-intl'
 
 type Props = {
   initialArticles: ArticleRecord[]
@@ -12,23 +13,6 @@ type Props = {
 
 const CONTENT_BUCKET = 'event-banners'
 const MAX_FILE_SIZE = 3 * 1024 * 1024 // 3MB
-
-const categorias = [
-  { value: 'dicas', label: 'Dicas' },
-  { value: 'inspiracao', label: 'Inspiração' },
-  { value: 'desenvolvimento', label: 'Desenvolvimento' },
-  { value: 'palestras', label: 'Palestras' },
-  { value: 'vendas', label: 'Vendas' },
-  { value: 'marketing', label: 'Marketing' },
-  { value: 'outros', label: 'Outros' },
-]
-
-const tiposConteudo = [
-  { value: 'blog', label: 'Conteúdo / Blog' },
-  { value: 'inicio', label: 'Início (destaque)' },
-  { value: 'comunidade', label: 'Comunidade' },
-  { value: 'geral', label: 'Todos os lugares' },
-]
 
 type FormState = {
   titulo: string
@@ -55,6 +39,7 @@ const defaultForm: FormState = {
 }
 
 export function ArticleAdminPanel({ initialArticles }: Props) {
+  const t = useTranslations('AdminConteudo')
   const [articles, setArticles] = useState(initialArticles)
   const [form, setForm] = useState<FormState>(defaultForm)
   const [loading, setLoading] = useState(false)
@@ -357,7 +342,24 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
       ? articles
       : articles.filter((a) => a.tipo_conteudo === filterTipo || a.tipo_conteudo === 'geral')
 
-  const tipoLabel = (t: string | null) => tiposConteudo.find((x) => x.value === t)?.label ?? t ?? '—'
+  const categorias = [
+    { value: 'dicas', label: t('catDicas') },
+    { value: 'inspiracao', label: t('catInspiracao') },
+    { value: 'desenvolvimento', label: t('catDesenvolvimento') },
+    { value: 'palestras', label: t('catPalestras') },
+    { value: 'vendas', label: t('catVendas') },
+    { value: 'marketing', label: t('catMarketing') },
+    { value: 'outros', label: t('catOutros') },
+  ]
+
+  const tiposConteudo = [
+    { value: 'blog', label: t('typeBlog') },
+    { value: 'inicio', label: t('typeInicio') },
+    { value: 'comunidade', label: t('typeComunidade') },
+    { value: 'geral', label: t('typeGeral') },
+  ]
+
+  const tipoLabel = (tipo: string | null) => tiposConteudo.find((x) => x.value === tipo)?.label ?? tipo ?? '—'
 
   return (
     <div className="space-y-8">
@@ -368,7 +370,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-white">
-              {editingId ? 'Editar conteúdo' : 'Novo conteúdo'}
+              {editingId ? t('editArticle') : t('newArticle')}
             </h3>
             <p className="text-sm text-slate-400">
               {editingId
@@ -402,7 +404,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
                 onClick={cancelEdit}
                 className="rounded-lg border border-slate-600/40 px-3 py-2 text-sm text-slate-400 transition hover:bg-slate-700/50 hover:text-white"
               >
-                Cancelar
+                {t('cancel')}
               </button>
             )}
           </div>
@@ -412,7 +414,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
         <>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">Título *</span>
+            <span className="text-xs font-semibold uppercase text-slate-400">{t('titleLabel')} *</span>
             <input
               type="text"
               value={form.titulo}
@@ -423,7 +425,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
           </label>
 
           <label className="space-y-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">Autor</span>
+            <span className="text-xs font-semibold uppercase text-slate-400">{t('authorLabel')}</span>
             <input
               type="text"
               value={form.autor_handle}
@@ -434,7 +436,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
           </label>
 
           <label className="space-y-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">Categoria</span>
+            <span className="text-xs font-semibold uppercase text-slate-400">{t('categoryLabel')}</span>
             <select
               value={form.categoria}
               onChange={(e) => setForm((prev) => ({ ...prev, categoria: e.target.value }))}
@@ -615,7 +617,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
           disabled={loading}
           className="w-full rounded-xl bg-[#3b82f6] px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {loading ? 'Salvando...' : editingId ? 'Salvar alterações' : 'Publicar conteúdo'}
+          {loading ? t('saving') : editingId ? t('save') : t('newArticle')}
         </button>
 
         {feedback && (
@@ -629,21 +631,21 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
 
       <section className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <h3 className="text-lg font-semibold text-white">Conteúdos publicados</h3>
+          <h3 className="text-lg font-semibold text-white">{t('articles')}</h3>
           <select
             value={filterTipo}
             onChange={(e) => setFilterTipo(e.target.value)}
             className="rounded-lg border border-white/10 bg-[#1e293b] px-3 py-2 text-sm text-white"
           >
-            <option value="all">Todos</option>
-            {tiposConteudo.map((t) => (
-              <option key={t.value} value={t.value}>{t.label}</option>
+            <option value="all">{t('filterAll')}</option>
+            {tiposConteudo.map((tipo) => (
+              <option key={tipo.value} value={tipo.value}>{tipo.label}</option>
             ))}
           </select>
         </div>
 
         {filteredArticles.length === 0 ? (
-          <p className="text-sm text-slate-400">Nenhum conteúdo encontrado.</p>
+          <p className="text-sm text-slate-400">{t('noArticles')}</p>
         ) : (
           <div className="space-y-3">
             {filteredArticles.map((article) => (
@@ -678,7 +680,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
                       className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-blue-300 transition hover:bg-blue-500/10"
                     >
                       <Pencil className="h-3.5 w-3.5" />
-                      Editar
+                      {t('editArticle')}
                     </button>
                     <button
                       type="button"
@@ -705,7 +707,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
                       onClick={() => handleDelete(article.id)}
                       className="rounded-full border border-red-500/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-red-300 transition hover:bg-red-500/10"
                     >
-                      Excluir
+                      {t('delete')}
                     </button>
                   </div>
                   {broadcastFeedback?.id === article.id && (

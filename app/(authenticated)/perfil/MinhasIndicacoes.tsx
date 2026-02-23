@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { UserPlus, Users } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 type Indicado = {
   id: string
@@ -16,6 +17,7 @@ function formatDate(v: string | null) {
 }
 
 export function MinhasIndicacoes({ userId }: { userId: string }) {
+  const t = useTranslations('UserIndicacoes')
   const supabase = getSupabaseClient()
   const [indicados, setIndicados] = useState<Indicado[]>([])
   const [loading, setLoading] = useState(true)
@@ -53,11 +55,11 @@ export function MinhasIndicacoes({ userId }: { userId: string }) {
           <UserPlus className="h-4 w-4" />
         </div>
         <div>
-          <h3 className="text-sm font-bold text-white">Minha rede de indicações</h3>
+          <h3 className="text-sm font-bold text-white">{t('title')}</h3>
           <p className="text-xs text-slate-400">
             {indicados.length > 0
-              ? `Você indicou ${indicados.length} pessoa(s)`
-              : 'Nenhuma indicação ainda'}
+              ? t('youReferred', { count: indicados.length })
+              : t('noReferrals')}
           </p>
         </div>
         {indicados.length > 0 && (
@@ -70,9 +72,7 @@ export function MinhasIndicacoes({ userId }: { userId: string }) {
       {indicados.length === 0 ? (
         <div className="px-4 py-6 text-center">
           <Users className="mx-auto mb-2 h-8 w-8 text-slate-600" />
-          <p className="text-xs text-slate-500">
-            Compartilhe seu link de convite para ver suas indicações aqui.
-          </p>
+          <p className="text-xs text-slate-500">{t('shareHint')}</p>
         </div>
       ) : (
         <div className="divide-y divide-slate-700/30 max-h-[240px] overflow-y-auto">

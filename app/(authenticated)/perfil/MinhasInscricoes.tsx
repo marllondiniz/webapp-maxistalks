@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { Calendar, MapPin, CheckCircle2, Clock, ExternalLink, Layers } from 'lucide-react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 
 type Inscricao = {
   event_id: string
@@ -28,6 +29,7 @@ function formatEventDate(v: string) {
 }
 
 export function MinhasInscricoes({ userId }: { userId: string }) {
+  const t = useTranslations('UserInscricoes')
   const supabase = getSupabaseClient()
   const [inscricoes, setInscricoes] = useState<Inscricao[]>([])
   const [loading, setLoading] = useState(true)
@@ -85,7 +87,7 @@ export function MinhasInscricoes({ userId }: { userId: string }) {
   if (loading) {
     return (
       <div className="rounded-xl border border-slate-600/30 bg-slate-800/60 p-4 text-center text-sm text-slate-400">
-        Carregando eventos...
+        {t('loading')}
       </div>
     )
   }
@@ -94,12 +96,12 @@ export function MinhasInscricoes({ userId }: { userId: string }) {
     return (
       <div className="rounded-xl border border-slate-600/30 bg-slate-800/60 p-6 text-center">
         <Layers className="mx-auto mb-3 h-8 w-8 text-slate-600" />
-        <p className="text-sm text-slate-400">Você ainda não manifestou interesse em nenhum evento.</p>
+        <p className="text-sm text-slate-400">{t('empty')}</p>
         <Link
           href="/eventos"
           className="mt-3 inline-block text-sm text-[var(--brand-primary)] hover:underline"
         >
-          Ver eventos disponíveis
+          {t('viewEvents')}
         </Link>
       </div>
     )
@@ -115,8 +117,8 @@ export function MinhasInscricoes({ userId }: { userId: string }) {
           <Calendar className="h-4 w-4" />
         </div>
         <div>
-          <h3 className="text-sm font-bold text-white">Meus eventos</h3>
-          <p className="text-xs text-slate-400">{inscricoes.length} evento(s) de interesse</p>
+          <h3 className="text-sm font-bold text-white">{t('myEvents')}</h3>
+          <p className="text-xs text-slate-400">{t('countInterest', { count: inscricoes.length })}</p>
         </div>
       </div>
 
@@ -124,17 +126,17 @@ export function MinhasInscricoes({ userId }: { userId: string }) {
         {proximos.length > 0 && (
           <>
             <p className="px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-emerald-400/70 bg-emerald-500/5">
-              Próximos
+              {t('upcoming')}
             </p>
-            {proximos.map((i) => <InscricaoRow key={i.event_id} item={i} />)}
+            {proximos.map((i) => <InscricaoRow key={i.event_id} item={i} t={t} />)}
           </>
         )}
         {passados.length > 0 && (
           <>
             <p className="px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500 bg-white/5">
-              Passados
+              {t('past')}
             </p>
-            {passados.map((i) => <InscricaoRow key={i.event_id} item={i} />)}
+            {passados.map((i) => <InscricaoRow key={i.event_id} item={i} t={t} />)}
           </>
         )}
       </div>
@@ -142,7 +144,7 @@ export function MinhasInscricoes({ userId }: { userId: string }) {
   )
 }
 
-function InscricaoRow({ item: i }: { item: Inscricao }) {
+function InscricaoRow({ item: i, t }: { item: Inscricao; t: ReturnType<typeof useTranslations<'UserInscricoes'>> }) {
   const isFuture = i.event_data_horario > new Date().toISOString()
 
   return (
@@ -170,15 +172,15 @@ function InscricaoRow({ item: i }: { item: Inscricao }) {
       <div className="flex shrink-0 flex-col items-end gap-1">
         {i.convite_enviado_em ? (
           <span className="inline-flex items-center gap-1 rounded-full bg-violet-500/15 px-2 py-0.5 text-xs font-medium text-violet-400">
-            <CheckCircle2 className="h-3 w-3" /> Convidado
+            <CheckCircle2 className="h-3 w-3" /> {t('invited')}
           </span>
         ) : i.convidado_selecionado ? (
           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-medium text-emerald-400">
-            Selecionado
+            {t('selected')}
           </span>
         ) : (
           <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-xs font-medium text-amber-400">
-            Interesse
+            {t('interest')}
           </span>
         )}
         {i.ticket_url && (
@@ -188,7 +190,7 @@ function InscricaoRow({ item: i }: { item: Inscricao }) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-xs text-[var(--brand-primary)] hover:underline"
           >
-            <ExternalLink className="h-3 w-3" /> Ingresso
+            <ExternalLink className="h-3 w-3" /> {t('ticket')}
           </a>
         )}
       </div>

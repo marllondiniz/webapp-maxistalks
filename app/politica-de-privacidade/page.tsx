@@ -1,177 +1,173 @@
 import type { Metadata } from 'next'
+import { getTranslations, getLocale } from 'next-intl/server'
+import Link from 'next/link'
 import { Header } from '../(components)/Header'
 import { Footer } from '../(components)/Footer'
 
-export const metadata: Metadata = {
-  title: 'Política de Privacidade — MaxisTalks',
-  description: 'Política de privacidade do MaxisTalks',
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale()
+  const t = await getTranslations({ locale, namespace: 'Privacy' })
+  return {
+    title: t('metaTitle'),
+    description: t('metaDesc'),
+  }
 }
 
-export default function PoliticaPrivacidadePage() {
+export default async function PoliticaPrivacidadePage() {
+  const locale = await getLocale()
+  const t = await getTranslations('Privacy')
+  const dateLocale = locale === 'en' ? 'en-GB' : 'pt-BR'
+  const lastUpdated = new Date().toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' })
+
   return (
     <main className="min-h-screen bg-neutral-950">
       <Header />
       <div className="pt-32 pb-20 px-6 md:px-12">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-5xl font-orbitron font-bold text-neutral-100 mb-8">
-            Política de Privacidade
+            {t('title')}
           </h1>
           
           <div className="prose prose-invert max-w-none text-neutral-300 font-space space-y-6">
             <p className="text-neutral-400 text-sm">
-              Última atualização: {new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}
+              {t('lastUpdate')}: {lastUpdated}
             </p>
 
             <p className="text-lg text-neutral-200 mb-6">
-              Confira abaixo como cuidamos dos seus dados pessoais. Nosso compromisso é com a sua segurança, transparência e confiança.
+              {t('intro')}
             </p>
 
             <section>
               <h2 className="text-2xl font-orbitron font-bold text-neutral-100 mt-8 mb-4">
-                1. Quem somos
+                {t('s1Title')}
               </h2>
-              <p>
-                O MaxisTalks é uma plataforma que promove palestras presenciais com experts que compartilham estratégias reais para escalar no digital. Para oferecer nossos serviços, inscrições em eventos e garantir sua experiência, precisamos coletar e tratar alguns dados pessoais.
-              </p>
+              <p>{t('s1Body')}</p>
             </section>
 
             <section>
               <h2 className="text-2xl font-orbitron font-bold text-neutral-100 mt-8 mb-4">
-                2. Quais dados coletamos
+                {t('s2Title')}
               </h2>
-              <p>Podemos coletar:</p>
+              <p>{t('s2Intro')}</p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Nome completo e e-mail;</li>
-                <li>Telefone e endereço;</li>
-                <li>Informações de perfil (foto, bio, redes sociais);</li>
-                <li>Dados de inscrição em eventos;</li>
-                <li>Informações de pagamento (quando aplicável) processadas por parceiros.</li>
+                <li>{t('s2Li1')}</li>
+                <li>{t('s2Li2')}</li>
+                <li>{t('s2Li3')}</li>
+                <li>{t('s2Li4')}</li>
+                <li>{t('s2Li5')}</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-2xl font-orbitron font-bold text-neutral-100 mt-8 mb-4">
-                3. Como usamos seus dados
+                {t('s3Title')}
               </h2>
-              <p>
-                Nossas práticas seguem os princípios da Lei Geral de Proteção de Dados (13.709/18). Utilizamos seus dados para:
-              </p>
+              <p>{t('s3Intro')}</p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Confirmar sua identidade e acesso à plataforma;</li>
-                <li>Processar inscrições em eventos e palestras;</li>
-                <li>Enviar comunicações sobre eventos, novidades e confirmações;</li>
-                <li>Melhorar a experiência do usuário na plataforma;</li>
-                <li>Atender solicitações de suporte e dúvidas.</li>
+                <li>{t('s3Li1')}</li>
+                <li>{t('s3Li2')}</li>
+                <li>{t('s3Li3')}</li>
+                <li>{t('s3Li4')}</li>
+                <li>{t('s3Li5')}</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-2xl font-orbitron font-bold text-neutral-100 mt-8 mb-4">
-                4. Com quem podemos compartilhar
+                {t('s4Title')}
               </h2>
               <ul className="list-disc pl-6 space-y-2">
-                <li><strong>Operadores de pagamento:</strong> para processar transações de inscrições.</li>
-                <li><strong>Órgãos públicos:</strong> quando houver obrigação legal.</li>
-                <li><strong>Colaboradores autorizados do MaxisTalks:</strong> apenas os que precisam para realizar o serviço.</li>
+                <li><strong>{t('s4Li1')}</strong></li>
+                <li><strong>{t('s4Li2')}</strong></li>
+                <li><strong>{t('s4Li3')}</strong></li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-2xl font-orbitron font-bold text-neutral-100 mt-8 mb-4">
-                5. Armazenamento e segurança dos dados
+                {t('s5Title')}
               </h2>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Os dados são guardados em ambiente seguro e com acesso restrito.</li>
-                <li>Adotamos medidas técnicas para evitar acessos não autorizados.</li>
-                <li>Utilizamos serviços de infraestrutura confiáveis para proteção dos dados.</li>
+                <li>{t('s5Li1')}</li>
+                <li>{t('s5Li2')}</li>
+                <li>{t('s5Li3')}</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-2xl font-orbitron font-bold text-neutral-100 mt-8 mb-4">
-                6. Por quanto tempo guardamos os dados
+                {t('s6Title')}
               </h2>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Guardamos seus dados somente pelo tempo necessário para cumprir obrigações legais e prestar nossos serviços.</li>
-                <li>Após o período necessário, os dados podem ser excluídos ou anonimizados.</li>
+                <li>{t('s6Li1')}</li>
+                <li>{t('s6Li2')}</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-2xl font-orbitron font-bold text-neutral-100 mt-8 mb-4">
-                7. Seus direitos
+                {t('s7Title')}
               </h2>
-              <p>Você pode, a qualquer momento:</p>
+              <p>{t('s7Intro')}</p>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Confirmar se tratamos seus dados;</li>
-                <li>Solicitar cópia ou correção de informações;</li>
-                <li>Pedir exclusão de dados, quando permitido por lei;</li>
-                <li>Limitar ou contestar o uso dos dados.</li>
+                <li>{t('s7Li1')}</li>
+                <li>{t('s7Li2')}</li>
+                <li>{t('s7Li3')}</li>
+                <li>{t('s7Li4')}</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-2xl font-orbitron font-bold text-neutral-100 mt-8 mb-4">
-                8. Cookies e tecnologias de navegação
+                {t('s8Title')}
               </h2>
-              <p>
-                O MaxisTalks utiliza cookies para melhorar a experiência do usuário, analisar o tráfego e personalizar conteúdos.
-              </p>
-              
+              <p>{t('s8Body')}</p>
               <h3 className="text-xl font-orbitron font-bold text-neutral-100 mt-6 mb-3">
-                Tipos de cookies utilizados:
+                {t('s8TypesTitle')}
               </h3>
               <ul className="list-disc pl-6 space-y-2 mb-4">
-                <li><strong>Essenciais:</strong> garantem o funcionamento básico da plataforma e autenticação.</li>
-                <li><strong>Analíticos:</strong> coletam dados de uso para melhorar o site.</li>
-                <li><strong>Funcionais:</strong> armazenam preferências e configurações.</li>
+                <li><strong>{t('s8Li1')}</strong></li>
+                <li><strong>{t('s8Li2')}</strong></li>
+                <li><strong>{t('s8Li3')}</strong></li>
               </ul>
-              
-              <p className="mb-2">
-                Ao acessar o site pela primeira vez, o usuário visualizará o banner de consentimento de cookies, podendo aceitar ou rejeitar. É possível desativar cookies nas configurações do navegador, ciente de que certas funções podem deixar de funcionar.
-              </p>
-              
-              <p>
-                Os cookies não coletam informações sensíveis como senha ou dados de pagamento completos.
-              </p>
-              
+              <p className="mb-2">{t('s8Banner')}</p>
+              <p>{t('s8NoSensitive')}</p>
               <p className="mt-4">
-                Para mais informações sobre cookies, consulte nossa{' '}
-                <a href="/cookies" className="text-white hover:text-neutral-300 underline">
-                  Política de Cookies
-                </a>.
+                {t('s8Link')}{' '}
+                <Link href="/cookies" className="text-white hover:text-neutral-300 underline">
+                  {t('s8LinkLabel')}
+                </Link>
+                .
               </p>
             </section>
 
             <section>
               <h2 className="text-2xl font-orbitron font-bold text-neutral-100 mt-8 mb-4">
-                9. Alterações desta política
+                {t('s9Title')}
               </h2>
               <ul className="list-disc pl-6 space-y-2">
-                <li>Podemos atualizar esta Política de Privacidade para atender novas exigências legais ou melhorias internas.</li>
-                <li>Sempre informaremos nos nossos canais oficiais quando houver mudanças.</li>
+                <li>{t('s9Li1')}</li>
+                <li>{t('s9Li2')}</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-2xl font-orbitron font-bold text-neutral-100 mt-8 mb-4">
-                10. Fale conosco
+                {t('s10Title')}
               </h2>
               <p>
-                E-mail:{' '}
+                {t('s10Email')}{' '}
                 <a href="mailto:contato@maxistalks.com" className="text-white hover:text-neutral-300 underline">
                   contato@maxistalks.com
                 </a>
               </p>
               <p className="mt-2">
-                Instagram:{' '}
+                {t('s10Instagram')}{' '}
                 <a href="https://www.instagram.com/maxisplus" target="_blank" rel="noopener noreferrer" className="text-white hover:text-neutral-300 underline">
                   @maxisplus
                 </a>
               </p>
-              <p className="mt-2">
-                Endereço: R. Ten. Mário Francisco Brito, 854–998, Enseada do Suá – Vitória/ES, CEP 29055-100
-              </p>
+              <p className="mt-2">{t('s10Address')}</p>
             </section>
           </div>
         </div>

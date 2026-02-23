@@ -4,12 +4,7 @@ import { useState, useMemo } from 'react'
 import { Youtube, FileDown, ChevronRight } from 'lucide-react'
 import type { ToolRecord } from '@/lib/queries'
 import { ToolModal } from './ToolModal'
-
-const FILTROS_TEMA = [
-  { value: 'all', label: 'Todos' },
-  { value: 'aula', label: 'Aulas' },
-  { value: 'ferramenta', label: 'Ferramentas' },
-] as const
+import { useTranslations } from 'next-intl'
 
 function getYoutubeThumb(url: string): string | null {
   const patterns = [
@@ -57,6 +52,7 @@ function ToolCard({ tool, onClick }: { tool: ToolRecord; onClick: () => void }) 
           {hasVideo && (
             <span className="flex items-center gap-1 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-bold text-red-400 backdrop-blur-sm">
               <Youtube className="h-3 w-3" />
+              {/* Aula badge — translated inline in parent */}
               Aula
             </span>
           )}
@@ -86,24 +82,31 @@ function ToolCard({ tool, onClick }: { tool: ToolRecord; onClick: () => void }) 
 }
 
 export function ToolList({ tools }: { tools: ToolRecord[] }) {
+  const t = useTranslations('UserToolList')
   const [selected, setSelected] = useState<ToolRecord | null>(null)
   const [filterTema, setFilterTema] = useState<string>('all')
 
+  const FILTROS_TEMA = [
+    { value: 'all', label: t('filterAll') },
+    { value: 'aula', label: t('filterLessons') },
+    { value: 'ferramenta', label: t('filterTools') },
+  ]
+
   const filteredTools = useMemo(() => {
     if (filterTema === 'all') return tools
-    if (filterTema === 'aula') return tools.filter((t) => t.youtube_url)
-    if (filterTema === 'ferramenta') return tools.filter((t) => t.pdf_url)
+    if (filterTema === 'aula') return tools.filter((tool) => tool.youtube_url)
+    if (filterTema === 'ferramenta') return tools.filter((tool) => tool.pdf_url)
     return tools
   }, [tools, filterTema])
 
   const countLabel =
     filterTema === 'aula'
       ? filteredTools.length === 1
-        ? 'aula'
-        : 'aulas'
+        ? t('countLesson')
+        : t('countLessons')
       : filteredTools.length === 1
-        ? 'ferramenta'
-        : 'ferramentas'
+        ? t('countTool')
+        : t('countTools')
 
   return (
     <>
@@ -134,7 +137,7 @@ export function ToolList({ tools }: { tools: ToolRecord[] }) {
       <div className="space-y-3">
         {filteredTools.length === 0 ? (
           <p className="rounded-2xl border border-slate-600/30 bg-slate-800/50 px-6 py-8 text-center text-sm text-slate-400">
-            {filterTema === 'aula' ? 'Nenhuma aula neste filtro.' : 'Nenhuma ferramenta neste filtro.'}
+            {filterTema === 'aula' ? t('noLessons') : t('noTools')}
           </p>
         ) : (
           filteredTools.map((tool) => (

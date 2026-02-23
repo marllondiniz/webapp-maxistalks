@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { translateAuthError } from '@/lib/authErrors'
 
@@ -22,12 +23,13 @@ const parseHashParams = () => {
 }
 
 export function ResetPasswordClient() {
+  const t = useTranslations('ResetPassword')
   const supabase = useMemo(() => getSupabaseClient(), [])
   const router = useRouter()
   const [view, setView] = useState<ViewState>('validating')
   const [alert, setAlert] = useState<AlertState | null>({
     type: 'info',
-    text: 'Validando link de recuperação...',
+    text: t('validating'),
   })
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -69,7 +71,7 @@ export function ResetPasswordClient() {
         setView('error')
         setAlert({
           type: 'error',
-          text: 'Link inválido ou expirado. Solicite um novo e-mail de recuperação.',
+          text: t('linkInvalid'),
         })
       } catch (error) {
         console.error('Erro ao validar link de recuperação:', error)
@@ -77,7 +79,7 @@ export function ResetPasswordClient() {
         const msg = error instanceof Error ? error.message : ''
         setAlert({
           type: 'error',
-          text: translateAuthError(msg) || 'Não foi possível validar o link. Solicite novamente o e-mail de recuperação.',
+          text: translateAuthError(msg) || t('linkValidateError'),
         })
       }
     }
@@ -91,7 +93,7 @@ export function ResetPasswordClient() {
     if (password.length < 6) {
       setAlert({
         type: 'error',
-        text: 'A nova senha deve ter pelo menos 6 caracteres.',
+        text: t('passwordMin'),
       })
       return
     }
@@ -99,7 +101,7 @@ export function ResetPasswordClient() {
     if (password !== confirmPassword) {
       setAlert({
         type: 'error',
-        text: 'As senhas informadas não conferem.',
+        text: t('passwordsDontMatch'),
       })
       return
     }
@@ -114,7 +116,7 @@ export function ResetPasswordClient() {
       setView('success')
       setAlert({
         type: 'success',
-        text: 'Senha atualizada com sucesso! Você será redirecionado para fazer login.',
+        text: t('success'),
       })
 
       setTimeout(() => {
@@ -125,7 +127,7 @@ export function ResetPasswordClient() {
       const msg = error instanceof Error ? error.message : ''
       setAlert({
         type: 'error',
-        text: translateAuthError(msg) || 'Não foi possível atualizar a senha. Tente novamente ou solicite um novo e-mail.',
+        text: translateAuthError(msg) || t('updateError'),
       })
     } finally {
       setLoading(false)
@@ -140,9 +142,9 @@ export function ResetPasswordClient() {
     <main className="flex min-h-screen items-center justify-center bg-neutral-950 px-4 py-16 text-neutral-100">
       <div className="w-full max-w-md space-y-6 rounded-2xl border border-neutral-800 bg-neutral-900/80 p-8 shadow-xl backdrop-blur">
         <header className="space-y-2 text-center">
-          <h1 className="text-2xl font-semibold text-white">Redefinir senha</h1>
+          <h1 className="text-2xl font-semibold text-white">{t('title')}</h1>
           <p className="text-sm text-neutral-300">
-            Informe uma nova senha segura para acessar sua conta.
+            {t('subtitle')}
           </p>
         </header>
 
@@ -182,14 +184,14 @@ export function ResetPasswordClient() {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            Validando link…
+            {t('validatingShort')}
           </div>
         )}
 
         {view === 'ready' && (
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-200">Nova senha</label>
+              <label className="text-sm font-medium text-neutral-200">{t('newPasswordLabel')}</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -197,14 +199,14 @@ export function ResetPasswordClient() {
                   onChange={(event) => setPassword(event.target.value)}
                   minLength={6}
                   required
-                  placeholder="Digite a nova senha"
+                  placeholder={t('newPasswordPlaceholder')}
                   className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-3 pr-12 text-base text-neutral-100 outline-none transition focus:border-white/60 focus:ring focus:ring-white/20"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 transition hover:text-neutral-200"
-                  aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                  aria-label={showPassword ? t('hidePassword') : t('showPassword')}
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -212,7 +214,7 @@ export function ResetPasswordClient() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-200">Confirmar nova senha</label>
+              <label className="text-sm font-medium text-neutral-200">{t('confirmPasswordLabel')}</label>
               <div className="relative">
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
@@ -220,14 +222,14 @@ export function ResetPasswordClient() {
                   onChange={(event) => setConfirmPassword(event.target.value)}
                   minLength={6}
                   required
-                  placeholder="Repita a nova senha"
+                  placeholder={t('confirmPlaceholder')}
                   className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-3 pr-12 text-base text-neutral-100 outline-none transition focus:border-white/60 focus:ring focus:ring-white/20"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword((s) => !s)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 transition hover:text-neutral-200"
-                  aria-label={showConfirmPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                  aria-label={showConfirmPassword ? t('hidePassword') : t('showPassword')}
                 >
                   {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -239,7 +241,7 @@ export function ResetPasswordClient() {
               disabled={loading}
               className="w-full rounded-xl bg-white px-4 py-3 text-sm font-semibold uppercase tracking-wide text-neutral-950 transition hover:bg-neutral-100 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {loading ? 'Atualizando senha…' : 'Atualizar senha'}
+              {loading ? t('updating') : t('submit')}
             </button>
           </form>
         )}
@@ -250,7 +252,7 @@ export function ResetPasswordClient() {
               onClick={handleGoToLogin}
               className="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:border-white/40 hover:bg-white/20"
             >
-              Voltar ao login
+              {t('backToLogin')}
             </button>
           </div>
         )}
@@ -261,7 +263,7 @@ export function ResetPasswordClient() {
               onClick={handleGoToLogin}
               className="w-full rounded-xl border border-emerald-400/40 bg-emerald-500/20 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-emerald-100 transition hover:border-emerald-400/60 hover:bg-emerald-500/30"
             >
-              Ir para o login agora
+              {t('goToLogin')}
             </button>
           </div>
         )}

@@ -4,6 +4,7 @@ import { ReactNode, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import {
   LogOut,
   Home,
@@ -17,47 +18,23 @@ import { useBrand } from '@/app/(components)/BrandProvider'
 
 type NavItem = {
   href: string
-  label: string
+  labelKey: 'navHome' | 'navEvents' | 'navContent' | 'navTools' | 'navProfile'
   icon: React.ComponentType<{ size?: number | string; className?: string }>
-  title: string
+  titleKey: 'navHomeTitle' | 'navEventsTitle' | 'navContentTitle' | 'navToolsTitle' | 'navProfileTitle'
   showInNav?: boolean
 }
 
 const NAV_ITEMS: NavItem[] = [
-  {
-    href: '/inicio',
-    label: 'Início',
-    icon: Home,
-    title: 'Visão geral',
-  },
-  {
-    href: '/eventos',
-    label: 'Eventos',
-    icon: CalendarDays,
-    title: 'Próximos eventos',
-  },
-  {
-    href: '/blog',
-    label: 'Conteúdo',
-    icon: BookOpenText,
-    title: 'Artigos e inspirações',
-  },
-  {
-    href: '/ferramentas',
-    label: 'Ferramentas',
-    icon: Wrench,
-    title: 'Ferramentas e recursos',
-  },
-  {
-    href: '/perfil',
-    label: 'Perfil',
-    icon: User,
-    title: 'Seu perfil',
-  },
+  { href: '/inicio', labelKey: 'navHome', icon: Home, titleKey: 'navHomeTitle' },
+  { href: '/eventos', labelKey: 'navEvents', icon: CalendarDays, titleKey: 'navEventsTitle' },
+  { href: '/blog', labelKey: 'navContent', icon: BookOpenText, titleKey: 'navContentTitle' },
+  { href: '/ferramentas', labelKey: 'navTools', icon: Wrench, titleKey: 'navToolsTitle' },
+  { href: '/perfil', labelKey: 'navProfile', icon: User, titleKey: 'navProfileTitle' },
 ]
 
 export default function AuthenticatedLayout({ children }: { children: ReactNode }) {
   const brand = useBrand()
+  const t = useTranslations('UserNav')
   const router = useRouter()
   const pathname = usePathname()
   const [loggingOut, setLoggingOut] = useState(false)
@@ -66,7 +43,11 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
   )
   const supabase = useMemo(() => getSupabaseClient(), [])
 
-  const navItemsToShow = useMemo(() => NAV_ITEMS, [])
+  const navItemsToShow = useMemo(() => NAV_ITEMS.map((item) => ({
+    ...item,
+    label: t(item.labelKey),
+    title: t(item.titleKey),
+  })), [t])
 
   useEffect(() => {
     let isMounted = true
@@ -186,7 +167,7 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
                 className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-white transition hover:bg-white/10 disabled:opacity-60"
               >
                 <LogOut size={20} />
-                <span className="sr-only">Sair da conta</span>
+                <span className="sr-only">{t('logoutSr')}</span>
               </button>
             </div>
           </div>

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Save, Loader2, CheckCircle, AlertCircle, Globe, MapPin, Info, Layout, Upload, X, ChevronDown, ChevronUp, ImageIcon } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
+import { useTranslations } from 'next-intl'
 
 const TENANT_BUCKET = 'event-banners'
 const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB
@@ -107,6 +108,7 @@ function ImageUploadField({
   onChange: (name: string, value: string) => void
   hint?: string
 }) {
+  const t = useTranslations('AdminCustomizacao')
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
@@ -114,11 +116,11 @@ function ImageUploadField({
   const handleFile = async (file: File) => {
     setUploadError(null)
     if (!['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/svg+xml', 'image/x-icon'].includes(file.type)) {
-      setUploadError('Formato inválido. Use PNG, JPG, WEBP, SVG ou ICO.')
+      setUploadError(t('uploadErrorFormat'))
       return
     }
     if (file.size > MAX_FILE_SIZE) {
-      setUploadError('Arquivo muito grande. Máximo 2MB.')
+      setUploadError(t('uploadErrorSize'))
       return
     }
 
@@ -132,13 +134,13 @@ function ImageUploadField({
         .upload(filePath, file, { cacheControl: '3600', upsert: true })
 
       if (uploadErr) {
-        setUploadError('Erro ao enviar imagem: ' + uploadErr.message)
+        setUploadError(t('uploadErrorSend') + uploadErr.message)
         return
       }
       const { data: publicData } = supabase.storage.from(TENANT_BUCKET).getPublicUrl(filePath)
       onChange(name, publicData.publicUrl)
     } catch {
-      setUploadError('Erro inesperado ao enviar imagem.')
+      setUploadError(t('uploadErrorUnexpected'))
     } finally {
       setUploading(false)
     }
@@ -182,9 +184,9 @@ function ImageUploadField({
         className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-slate-600 bg-slate-900/40 px-4 py-3 text-sm text-slate-400 transition hover:border-slate-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
       >
         {uploading ? (
-          <><Loader2 className="h-4 w-4 animate-spin" /> Enviando...</>
+          <><Loader2 className="h-4 w-4 animate-spin" /> {t('uploading')}</>
         ) : (
-          <><Upload className="h-4 w-4" /> {value ? 'Trocar imagem' : 'Fazer upload'}</>
+          <><Upload className="h-4 w-4" /> {value ? t('changeImage') : t('uploadImage')}</>
         )}
       </button>
       <input
@@ -262,6 +264,7 @@ function Section({ icon: Icon, title, children }: { icon: React.ElementType; tit
 
 // ── Main Panel ────────────────────────────────────────────────────────────────
 export default function CustomizacaoPanel() {
+  const t = useTranslations('AdminCustomizacao')
   const [form, setForm] = useState<TenantData>(EMPTY)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -280,7 +283,7 @@ export default function CustomizacaoPanel() {
         })
         const json = await res.json()
         if (!res.ok) {
-          setFeedback({ type: 'error', text: json?.error || 'Erro ao carregar configurações.' })
+          setFeedback({ type: 'error', text: json?.error || t('errorLoad') })
           return
         }
         const tenant = json?.tenant
@@ -314,7 +317,7 @@ export default function CustomizacaoPanel() {
           })
         }
       } catch {
-        setFeedback({ type: 'error', text: 'Erro ao carregar configurações.' })
+        setFeedback({ type: 'error', text: t('errorLoad') })
       } finally {
         setLoading(false)
       }
@@ -353,13 +356,13 @@ export default function CustomizacaoPanel() {
       })
       const json = await res.json()
       if (!res.ok || !json.success) {
-        setFeedback({ type: 'error', text: json.error || 'Erro ao salvar.' })
+        setFeedback({ type: 'error', text: json.error || t('errorSave') })
       } else {
-        setFeedback({ type: 'success', text: 'Configurações salvas com sucesso!' })
+        setFeedback({ type: 'success', text: t('successSave') })
         window.scrollTo({ top: 0, behavior: 'smooth' })
       }
     } catch {
-      setFeedback({ type: 'error', text: 'Erro de rede ao salvar.' })
+      setFeedback({ type: 'error', text: t('errorNetwork') })
     } finally {
       setSaving(false)
     }
@@ -369,7 +372,7 @@ export default function CustomizacaoPanel() {
     return (
       <div className="flex items-center gap-3 text-slate-400">
         <Loader2 className="h-5 w-5 animate-spin" />
-        Carregando configurações...
+        {t('loading')}
       </div>
     )
   }
@@ -383,10 +386,10 @@ export default function CustomizacaoPanel() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0 flex-1">
             <h3 className="text-lg font-semibold text-white">
-              Configurações da página
+              {t('panelTitle')}
             </h3>
             <p className="mt-0.5 text-sm text-slate-400">
-              Ajuste marca, cores, endereço, seção sobre e footer da página inicial.
+              {t('panelSubtitle')}
             </p>
           </div>
           <button
@@ -397,12 +400,12 @@ export default function CustomizacaoPanel() {
             {isPanelCollapsed ? (
               <>
                 <ChevronDown className="h-4 w-4" />
-                Expandir
+                {t('expand')}
               </>
             ) : (
               <>
                 <ChevronUp className="h-4 w-4" />
-                Minimizar
+                {t('minimize')}
               </>
             )}
           </button>
@@ -429,49 +432,49 @@ export default function CustomizacaoPanel() {
               )}
               <div className="flex flex-col gap-6">
                 {/* Marca */}
-                <Section icon={Globe} title="Marca">
-                  <Field label="Nome da marca" name="name" value={form.name} onChange={handleChange} placeholder="Minha Empresa" />
-                  <Field label="Tagline / Slogan" name="tagline" value={form.tagline} onChange={handleChange} placeholder="Palco para quem gera valor" />
-                  <ImageUploadField label="Logo principal" name="logo_url" value={form.logo_url} onChange={handleChange} hint="PNG, JPG ou WEBP — máx. 2MB" />
-                  <ImageUploadField label="Favicon" name="favicon_url" value={form.favicon_url} onChange={handleChange} hint="ICO, PNG ou SVG — máx. 2MB" />
+                <Section icon={Globe} title={t('sectionBrand')}>
+                  <Field label={t('fieldBrandName')} name="name" value={form.name} onChange={handleChange} placeholder="Minha Empresa" />
+                  <Field label={t('fieldTagline')} name="tagline" value={form.tagline} onChange={handleChange} placeholder="Palco para quem gera valor" />
+                  <ImageUploadField label={t('fieldLogo')} name="logo_url" value={form.logo_url} onChange={handleChange} hint={t('hintLogoMain')} />
+                  <ImageUploadField label={t('fieldFavicon')} name="favicon_url" value={form.favicon_url} onChange={handleChange} hint={t('hintFavicon')} />
                   <div className="sm:col-span-2">
-                    <Field label="Imagem Open Graph (redes sociais)" name="og_image_url" value={form.og_image_url} onChange={handleChange} placeholder="/og.png ou https://..." hint="URL ou path em public/" />
+                    <Field label={t('fieldOgImage')} name="og_image_url" value={form.og_image_url} onChange={handleChange} placeholder="/og.png ou https://..." hint={t('hintOgImage')} />
                   </div>
-                  <Field label="E-mail de suporte" name="support_email" value={form.support_email} onChange={handleChange} placeholder="contato@minhaempresa.com" />
-                  <ColorField label="Cor primária" name="primary_color" value={form.primary_color} onChange={handleChange} hint="Cor dos botões e destaques" />
-                  <ColorField label="Cor primária hover" name="primary_color_hover" value={form.primary_color_hover} onChange={handleChange} hint="Cor ao passar o mouse" />
+                  <Field label={t('fieldSupportEmail')} name="support_email" value={form.support_email} onChange={handleChange} placeholder="contato@minhaempresa.com" />
+                  <ColorField label={t('fieldPrimaryColor')} name="primary_color" value={form.primary_color} onChange={handleChange} hint={t('hintPrimaryColor')} />
+                  <ColorField label={t('fieldPrimaryColorHover')} name="primary_color_hover" value={form.primary_color_hover} onChange={handleChange} hint={t('hintPrimaryColorHover')} />
                 </Section>
 
                 {/* Seção "O que é" */}
-                <Section icon={ImageIcon} title="Seção 'O que é'">
+                <Section icon={ImageIcon} title={t('sectionWhatIs')}>
                   <Field
-                    label="Título da seção"
+                    label={t('fieldWhatIsHeading')}
                     name="what_is_heading"
                     value={form.what_is_heading}
                     onChange={handleChange}
                     placeholder="O que é o (Nome do evento)?"
-                    hint="Ex.: O que é o MaxisTalks? — use o nome do seu evento no lugar de (Nome do evento)"
+                    hint={t('hintWhatIsHeading')}
                   />
                   <div className="sm:col-span-2">
                     <ImageUploadField
-                      label="Imagem da seção 'O que é'"
+                      label={t('fieldWhatIsImage')}
                       name="what_is_image_url"
                       value={form.what_is_image_url}
                       onChange={handleChange}
-                      hint="Clique em 'Fazer upload' para enviar a imagem (não digite URL). Se vazio, usa a imagem padrão. Máx. 2MB."
+                      hint={t('hintWhatIsImage')}
                     />
                   </div>
                 </Section>
 
                 {/* Local / Endereço */}
-                <Section icon={MapPin} title="Local do Evento">
-                  <Field label="Subtítulo da seção" name="local_subheading" value={form.local_subheading} onChange={handleChange} placeholder="Venha nos visitar..." />
-                  <Field label="Endereço — linha 1" name="address_line1" value={form.address_line1} onChange={handleChange} placeholder="R. Exemplo, 123" />
-                  <Field label="Endereço — linha 2 (bairro/cidade)" name="address_line2" value={form.address_line2} onChange={handleChange} placeholder="Centro – Vitória/ES" />
-                  <Field label="CEP" name="address_cep" value={form.address_cep} onChange={handleChange} placeholder="CEP: 29000-000" />
+                <Section icon={MapPin} title={t('sectionLocation')}>
+                  <Field label={t('fieldLocalSubheading')} name="local_subheading" value={form.local_subheading} onChange={handleChange} placeholder="Venha nos visitar..." />
+                  <Field label={t('fieldAddress1')} name="address_line1" value={form.address_line1} onChange={handleChange} placeholder="R. Exemplo, 123" />
+                  <Field label={t('fieldAddress2')} name="address_line2" value={form.address_line2} onChange={handleChange} placeholder="Centro – Vitória/ES" />
+                  <Field label={t('fieldCep')} name="address_cep" value={form.address_cep} onChange={handleChange} placeholder="CEP: 29000-000" />
                   <div className="sm:col-span-2">
                     <Field
-                      label="Link do Google Maps (para o botão)"
+                      label={t('fieldMapLink')}
                       name="map_link_url"
                       value={form.map_link_url}
                       onChange={handleChange}
@@ -480,37 +483,37 @@ export default function CustomizacaoPanel() {
                   </div>
                   <div className="sm:col-span-2">
                     <Field
-                      label="URL do mapa embed (iframe)"
+                      label={t('fieldMapEmbed')}
                       name="map_embed_url"
                       value={form.map_embed_url}
                       onChange={handleChange}
                       placeholder="https://www.google.com/maps?q=...&output=embed"
-                      hint="Cole a URL de incorporação do Google Maps"
+                      hint={t('hintMapEmbed')}
                     />
                   </div>
                 </Section>
 
                 {/* Seção Sobre */}
-                <Section icon={Info} title="Seção Sobre">
-                  <ImageUploadField label="Logo da seção" name="about_logo_url" value={form.about_logo_url} onChange={handleChange} hint="Logo exibido na seção 'Sobre' — máx. 2MB" />
-                  <Field label="Label do botão" name="about_button_label" value={form.about_button_label} onChange={handleChange} placeholder="Conhecer a empresa" />
+                <Section icon={Info} title={t('sectionAbout')}>
+                  <ImageUploadField label={t('fieldAboutLogo')} name="about_logo_url" value={form.about_logo_url} onChange={handleChange} hint={t('hintAboutLogo')} />
+                  <Field label={t('fieldAboutButtonLabel')} name="about_button_label" value={form.about_button_label} onChange={handleChange} placeholder="Conhecer a empresa" />
                   <div className="sm:col-span-2">
-                    <Field label="URL do botão" name="about_button_url" value={form.about_button_url} onChange={handleChange} placeholder="https://minhaempresa.com" />
+                    <Field label={t('fieldAboutButtonUrl')} name="about_button_url" value={form.about_button_url} onChange={handleChange} placeholder="https://minhaempresa.com" />
                   </div>
                   <div className="sm:col-span-2">
-                    <Field label="Texto curto (1º parágrafo)" name="about_short_text" value={form.about_short_text} onChange={handleChange} textarea placeholder="Apresentação breve da empresa..." />
+                    <Field label={t('fieldAboutShort')} name="about_short_text" value={form.about_short_text} onChange={handleChange} textarea placeholder="Apresentação breve da empresa..." />
                   </div>
                   <div className="sm:col-span-2">
-                    <Field label="Texto longo (2º parágrafo)" name="about_long_text" value={form.about_long_text} onChange={handleChange} textarea placeholder="Mais detalhes sobre a empresa..." />
+                    <Field label={t('fieldAboutLong')} name="about_long_text" value={form.about_long_text} onChange={handleChange} textarea placeholder="Mais detalhes sobre a empresa..." />
                   </div>
                 </Section>
 
                 {/* Footer */}
-                <Section icon={Layout} title="Footer da Página Inicial">
-                  <ImageUploadField label="Logo do footer" name="footer_logo_url" value={form.footer_logo_url} onChange={handleChange} hint="Se vazio, usa o logo principal — máx. 2MB" />
-                  <Field label="Nome no copyright" name="footer_copyright_name" value={form.footer_copyright_name} onChange={handleChange} placeholder="Minha Empresa" hint="Ex.: © 2026 Minha Empresa" />
-                  <Field label="Instagram (URL completa)" name="instagram_url" value={form.instagram_url} onChange={handleChange} placeholder="https://www.instagram.com/minhaempresa" />
-                  <Field label="YouTube (URL completa)" name="youtube_url" value={form.youtube_url} onChange={handleChange} placeholder="https://www.youtube.com/@minhaempresa" />
+                <Section icon={Layout} title={t('sectionFooter')}>
+                  <ImageUploadField label={t('fieldFooterLogo')} name="footer_logo_url" value={form.footer_logo_url} onChange={handleChange} hint={t('hintFooterLogo')} />
+                  <Field label={t('fieldCopyrightName')} name="footer_copyright_name" value={form.footer_copyright_name} onChange={handleChange} placeholder="Minha Empresa" hint={t('hintCopyrightName')} />
+                  <Field label={t('fieldInstagram')} name="instagram_url" value={form.instagram_url} onChange={handleChange} placeholder="https://www.instagram.com/minhaempresa" />
+                  <Field label={t('fieldYoutube')} name="youtube_url" value={form.youtube_url} onChange={handleChange} placeholder="https://www.youtube.com/@minhaempresa" />
                 </Section>
 
                 <div className="flex justify-end pt-2">
@@ -520,7 +523,7 @@ export default function CustomizacaoPanel() {
                     className="flex items-center gap-2 rounded-xl bg-[var(--brand-primary)] px-6 py-3 text-sm font-bold text-white transition hover:bg-[var(--brand-primary-hover)] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                    {saving ? 'Salvando...' : 'Salvar configurações'}
+                    {saving ? t('saving') : t('saveBtn')}
                   </button>
                 </div>
               </div>

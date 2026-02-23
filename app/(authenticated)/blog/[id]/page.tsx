@@ -6,6 +6,7 @@ import { getTenantIdForRequest } from '@/lib/brand'
 import { ChevronLeft } from 'lucide-react'
 import { ArticleGalleryCarousel } from './ArticleGalleryCarousel'
 import { ArticleComments } from './ArticleComments'
+import { getTranslations, getLocale } from 'next-intl/server'
 
 export default async function ArticlePage({
   params,
@@ -13,7 +14,11 @@ export default async function ArticlePage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const tenantId = await getTenantIdForRequest()
+  const [t, locale, tenantId] = await Promise.all([
+    getTranslations('UserBlogDetail'),
+    getLocale(),
+    getTenantIdForRequest(),
+  ])
   const [artigo, gallery] = await Promise.all([
     getArticleById(id, tenantId),
     getArticleGallery(id),
@@ -24,7 +29,7 @@ export default async function ArticlePage({
   }
 
   const dataPublicacao = artigo.publicado_em
-    ? new Date(artigo.publicado_em).toLocaleDateString('pt-BR', {
+    ? new Date(artigo.publicado_em).toLocaleDateString(locale, {
         day: '2-digit',
         month: 'long',
         year: 'numeric',
@@ -38,7 +43,7 @@ export default async function ArticlePage({
         className="mb-6 inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-[#f5f5f5]"
       >
         <ChevronLeft className="h-4 w-4" />
-        Voltar ao conteúdo
+        {t('backToContent')}
       </Link>
 
       <header className="space-y-4">
@@ -96,7 +101,7 @@ export default async function ArticlePage({
             [&_pre]:bg-black/30 [&_pre]:rounded-lg [&_pre]:p-4 [&_pre]:my-4 [&_pre]:overflow-x-auto [&_pre_code]:bg-transparent [&_pre_code]:p-0
             [&_a]:text-blue-400 [&_a]:underline [&_a]:hover:text-blue-300 [&_a]:transition-colors
             [&_img]:rounded-lg [&_img]:my-6 [&_img]:w-full [&_img]:h-auto [&_img]:shadow-lg"
-          dangerouslySetInnerHTML={{ __html: artigo.conteudo || artigo.resumo || '<p>Conteúdo em breve.</p>' }}
+          dangerouslySetInnerHTML={{ __html: artigo.conteudo || artigo.resumo || `<p>${t('contentSoon')}</p>` }}
         />
       </div>
 
@@ -108,7 +113,7 @@ export default async function ArticlePage({
           className="inline-flex items-center gap-2 rounded-xl border border-slate-600/40 bg-slate-800/80 px-5 py-3 text-sm font-semibold text-[#f5f5f5] transition hover:border-slate-500/50 hover:bg-slate-700/60"
         >
           <ChevronLeft className="h-4 w-4" />
-          Ver mais artigos
+          {t('seeMoreArticles')}
         </Link>
       </div>
     </article>

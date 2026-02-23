@@ -4,6 +4,8 @@ import { Inter, DM_Sans } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { getBrandConfig, getBrandOgImageUrl } from '@/lib/brand'
+import { NextIntlClientProvider } from 'next-intl'
+import { getLocale, getMessages } from 'next-intl/server'
 import './globals.css'
 import { CookieConsent } from './(components)/CookieConsent'
 import { BrandProvider } from './(components)/BrandProvider'
@@ -26,6 +28,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = headersList.get('host') ?? undefined
   const brand = await getBrandConfig(host)
   const imageUrl = getBrandOgImageUrl(brand)
+  const locale = await getLocale()
+  const ogLocale = locale === 'en' ? 'en_US' : 'pt_BR'
   return {
     metadataBase: new URL(brand.baseUrl),
     title: `${brand.name} | ${brand.tagline}`,
@@ -51,7 +55,7 @@ export async function generateMetadata(): Promise<Metadata> {
         },
       ],
       type: 'website',
-      locale: 'pt_BR',
+      locale: ogLocale,
     },
     twitter: {
       card: 'summary_large_image',
@@ -71,6 +75,8 @@ export default async function RootLayout({
   const host = headersList.get('host') ?? undefined
   const brand = await getBrandConfig(host)
   const imageUrl = getBrandOgImageUrl(brand)
+  const locale = await getLocale()
+  const messages = await getMessages()
 
   const styleVars = {
     '--brand-primary': brand.primaryColor,
@@ -78,7 +84,7 @@ export default async function RootLayout({
   } as React.CSSProperties
 
   return (
-    <html lang="pt-BR" className="scroll-smooth">
+    <html lang={locale} className="scroll-smooth">
       <head>
         <meta property="og:image" content={imageUrl} />
         <meta property="og:image:secure_url" content={imageUrl} />
@@ -91,12 +97,14 @@ export default async function RootLayout({
         className={`${inter.variable} ${dmSans.variable} font-sans antialiased`}
         style={styleVars}
       >
-        <BrandProvider brand={brand}>
-          {children}
-          <CookieConsent />
-          <Analytics />
-          <SpeedInsights />
-        </BrandProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <BrandProvider brand={brand}>
+            {children}
+            <CookieConsent />
+            <Analytics />
+            <SpeedInsights />
+          </BrandProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   )

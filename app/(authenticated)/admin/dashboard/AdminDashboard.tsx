@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import {
   Users,
@@ -144,6 +145,7 @@ export function AdminDashboard({
   events,
   configError,
 }: Props) {
+  const t = useTranslations('AdminDashboard')
   const [filterEvent, setFilterEvent] = useState<string>('all')
   const [sortBy, setSortBy] = useState<'recent' | 'event' | 'name'>('recent')
   const [expandedReg, setExpandedReg] = useState(true)
@@ -278,8 +280,8 @@ export function AdminDashboard({
       {/* Cabeçalho */}
       <div className="flex flex-col gap-0.5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-white">Dashboard</h2>
-          <p className="mt-0.5 text-sm text-slate-400">Visão geral da plataforma — usuários, eventos, conteúdo e indicações.</p>
+          <h2 className="text-2xl font-bold tracking-tight text-white">{t('title')}</h2>
+          <p className="mt-0.5 text-sm text-slate-400">{t('subtitle')}</p>
         </div>
         <p className="text-xs text-slate-500 sm:text-right">
           {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}
@@ -288,18 +290,18 @@ export function AdminDashboard({
 
       {configError && (
         <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-5 py-4 text-amber-200">
-          <p className="font-semibold">Configuração necessária</p>
+          <p className="font-semibold">{t('configTitle')}</p>
           <p className="mt-1 text-sm">{configError}</p>
-          <p className="mt-2 text-xs text-amber-300/70">Vercel → Project Settings → Environment Variables</p>
+          <p className="mt-2 text-xs text-amber-300/70">{t('configHint')}</p>
         </div>
       )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        <KpiCard icon={<TrendingUp className="h-5 w-5" />} color="blue"   label="Total de interesses"      value={stats.totalInscricoes}          sub={`${mediaEvento} por evento`} />
-        <KpiCard icon={<Users      className="h-5 w-5" />} color="emerald" label="Usuários na plataforma"  value={allUsers.length}                 sub={`${stats.totalUsuariosUnicos} com interesse`} />
-        <KpiCard icon={<Calendar   className="h-5 w-5" />} color="amber"   label="Eventos com interesses"  value={stats.inscricoesPorEvento.length} sub={`de ${events.length} evento(s)`} />
-        <KpiCard icon={<UserPlus   className="h-5 w-5" />} color="cyan"    label="Usuários indicados"       value={referralStats.totalReferred}     sub={referralStats.topReferrers.length > 0 ? `por ${referralStats.topReferrers.length} indicador(es)` : 'nenhum ainda'} />
+        <KpiCard icon={<TrendingUp className="h-5 w-5" />} color="blue"   label={t('kpiInterests')}  value={stats.totalInscricoes}          sub={t('kpiInterestsSub', { avg: mediaEvento })} />
+        <KpiCard icon={<Users      className="h-5 w-5" />} color="emerald" label={t('kpiUsers')}     value={allUsers.length}                 sub={t('kpiUsersSub', { unique: stats.totalUsuariosUnicos })} />
+        <KpiCard icon={<Calendar   className="h-5 w-5" />} color="amber"   label={t('kpiEvents')}    value={stats.inscricoesPorEvento.length} sub={t('kpiEventsSub', { total: events.length })} />
+        <KpiCard icon={<UserPlus   className="h-5 w-5" />} color="cyan"    label={t('kpiReferred')}  value={referralStats.totalReferred}     sub={referralStats.topReferrers.length > 0 ? t('kpiReferredSub', { count: referralStats.topReferrers.length }) : t('kpiReferredNone')} />
       </div>
 
       {/* Layout principal: conteúdo largo + sidebar */}
@@ -314,14 +316,14 @@ export function AdminDashboard({
               className="flex w-full items-center gap-3 px-5 py-4 text-left hover:bg-white/5 transition">
               <div className="rounded-xl bg-[#3b82f6]/10 p-2 text-[#3b82f6]"><Users className="h-5 w-5" /></div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white">Usuários inscritos</p>
+                <p className="font-semibold text-white">{t('usersTitle')}</p>
                 <p className="text-xs text-slate-400">
-                  {sortedUsers.length === allUsers.length ? `${allUsers.length} usuário(s)` : `${sortedUsers.length} de ${allUsers.length}`}
+                  {sortedUsers.length === allUsers.length ? t('usersCount', { count: allUsers.length }) : t('usersCountFiltered', { filtered: sortedUsers.length, total: allUsers.length })}
                 </p>
               </div>
               <Link href="/admin/usuarios" onClick={(e) => e.stopPropagation()}
                 className="mr-2 hidden items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-slate-300 hover:bg-white/5 sm:flex">
-                Ver tudo <ArrowUpRight className="h-3 w-3" />
+                {t('viewAll')} <ArrowUpRight className="h-3 w-3" />
               </Link>
               {expandedUsers ? <ChevronUp className="h-5 w-5 flex-shrink-0 text-slate-400" /> : <ChevronDown className="h-5 w-5 flex-shrink-0 text-slate-400" />}
             </button>
@@ -332,35 +334,35 @@ export function AdminDashboard({
                 <div className="flex flex-wrap items-center gap-2 border-b border-white/10 bg-white/5 px-4 py-3">
                   <div className="relative min-w-0 flex-1 sm:max-w-[220px]">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                    <input type="search" placeholder="Nome ou email..." value={userSearch} onChange={(e) => setUserSearch(e.target.value)}
+                    <input type="search" placeholder={t('searchUserPlaceholder')} value={userSearch} onChange={(e) => setUserSearch(e.target.value)}
                       className="w-full rounded-lg border border-white/10 bg-[#0f172a] py-2 pl-9 pr-3 text-sm text-white placeholder:text-slate-500 focus:border-[#3b82f6] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]" />
                   </div>
                   <select value={userFilterPosicao} onChange={(e) => setUserFilterPosicao(e.target.value)}
                     className="rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none">
-                    <option value="all">Posição: todas</option>
-                    <option value="empreendedor">Empreendedor</option>
-                    <option value="lider">Líder</option>
+                    <option value="all">{t('filterPositionAll')}</option>
+                    <option value="empreendedor">{t('positionEntrepreneur')}</option>
+                    <option value="lider">{t('positionLeader')}</option>
                   </select>
                   <select value={userFilterCidade} onChange={(e) => setUserFilterCidade(e.target.value)}
                     className="min-w-0 max-w-[160px] rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none">
-                    <option value="all">Cidade: todas</option>
+                    <option value="all">{t('filterCityAll')}</option>
                     {uniqueCidades.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
                   <select value={userFilterSegmento} onChange={(e) => setUserFilterSegmento(e.target.value)}
                     className="min-w-0 max-w-[140px] rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none">
-                    <option value="all">Setor: todos</option>
+                    <option value="all">{t('filterSectorAll')}</option>
                     {uniqueSegmentos.map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>
                   <select value={userFilterFaturamento} onChange={(e) => setUserFilterFaturamento(e.target.value)}
                     className="min-w-0 max-w-[160px] rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none">
-                    <option value="all">Faturamento: todos</option>
+                    <option value="all">{t('filterRevenueAll')}</option>
                     {uniqueFaturamentos.map((f) => <option key={f} value={f}>{f}</option>)}
                   </select>
                   <select value={userSortBy} onChange={(e) => setUserSortBy(e.target.value as 'name' | 'recent' | 'faturamento')}
                     className="rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none">
-                    <option value="recent">Mais recente</option>
-                    <option value="name">Por nome</option>
-                    <option value="faturamento">Maior faturamento</option>
+                    <option value="recent">{t('sortRecent')}</option>
+                    <option value="name">{t('sortName')}</option>
+                    <option value="faturamento">{t('sortRevenue')}</option>
                   </select>
                   <button type="button" onClick={handleExportUsersCsv}
                     className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/15 px-3 py-2 text-sm font-medium text-emerald-400 hover:bg-emerald-500/25 transition">
@@ -369,7 +371,7 @@ export function AdminDashboard({
                 </div>
 
                 {sortedUsers.length === 0 ? (
-                  <p className="py-10 text-center text-slate-400 text-sm">Nenhum usuário encontrado.</p>
+                  <p className="py-10 text-center text-slate-400 text-sm">{t('noUsersFound')}</p>
                 ) : (
                   <>
                     {/* Mobile cards */}
@@ -393,8 +395,8 @@ export function AdminDashboard({
                           )}
                           {(u.invited_by_user_id || (registrationsCountByUser.get(u.id) ?? 0) > 0) && (
                             <p className="mt-1.5 flex flex-wrap gap-3 text-xs text-slate-400">
-                              {u.invited_by_user_id && <span>Indicado por: <strong className="text-slate-200">{referrerNameById.get(u.invited_by_user_id) ?? '—'}</strong></span>}
-                              {(registrationsCountByUser.get(u.id) ?? 0) > 0 && <span className="rounded-full bg-amber-400/10 px-2 py-0.5 text-amber-300">{registrationsCountByUser.get(u.id)} evento(s)</span>}
+                              {u.invited_by_user_id && <span>{t('referredBy')} <strong className="text-slate-200">{referrerNameById.get(u.invited_by_user_id) ?? '—'}</strong></span>}
+                              {(registrationsCountByUser.get(u.id) ?? 0) > 0 && <span className="rounded-full bg-amber-400/10 px-2 py-0.5 text-amber-300">{t('eventCount', { count: registrationsCountByUser.get(u.id) ?? 0 })}</span>}
                             </p>
                           )}
                           <div className="mt-3 flex flex-wrap gap-2">
@@ -409,14 +411,14 @@ export function AdminDashboard({
                       <table className="w-full min-w-[960px] text-sm">
                         <thead className="sticky top-0 bg-[#1e293b]">
                           <tr className="border-b border-white/10 text-left">
-                            <th className="px-5 py-3 font-semibold text-slate-400">Nome</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">Contato</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">Empresa</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">Faturamento</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">Cidade</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">Indicado por</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400 text-center">Eventos</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">Links</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colName')}</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colContact')}</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colCompany')}</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colRevenue')}</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colCity')}</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colReferredBy')}</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400 text-center">{t('colEvents')}</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colLinks')}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -479,8 +481,8 @@ export function AdminDashboard({
               className="flex w-full items-center gap-3 px-5 py-4 text-left hover:bg-white/5 transition">
               <div className="rounded-xl bg-amber-500/10 p-2 text-amber-400"><Layers className="h-5 w-5" /></div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white">Lista de interesses</p>
-                <p className="text-xs text-slate-400">{registrations.length} registro(s)</p>
+                <p className="font-semibold text-white">{t('interestsTitle')}</p>
+                <p className="text-xs text-slate-400">{t('interestsCount', { count: registrations.length })}</p>
               </div>
               {expandedReg ? <ChevronUp className="h-5 w-5 flex-shrink-0 text-slate-400" /> : <ChevronDown className="h-5 w-5 flex-shrink-0 text-slate-400" />}
             </button>
@@ -490,18 +492,18 @@ export function AdminDashboard({
                 <div className="flex flex-wrap gap-2 border-b border-white/10 bg-white/5 px-4 py-3">
                   <select value={filterEvent} onChange={(e) => setFilterEvent(e.target.value)}
                     className="flex-1 rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none sm:flex-initial">
-                    <option value="all">Todos os eventos</option>
+                    <option value="all">{t('allEvents')}</option>
                     {stats.inscricoesPorEvento.map(({ eventoId, titulo }) => <option key={eventoId} value={eventoId}>{titulo}</option>)}
                   </select>
                   <select value={sortBy} onChange={(e) => setSortBy(e.target.value as 'recent' | 'event' | 'name')}
                     className="flex-1 rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none sm:flex-initial">
-                    <option value="recent">Mais recente</option>
-                    <option value="event">Por evento</option>
-                    <option value="name">Por nome</option>
+                    <option value="recent">{t('sortRecent')}</option>
+                    <option value="event">{t('sortByEvent')}</option>
+                    <option value="name">{t('sortName')}</option>
                   </select>
                 </div>
                 {sortedReg.length === 0 ? (
-                  <p className="py-10 text-center text-sm text-slate-400">Nenhum interesse encontrado.</p>
+                  <p className="py-10 text-center text-sm text-slate-400">{t('noInterestsFound')}</p>
                 ) : (
                   <>
                     {/* Mobile */}
@@ -529,11 +531,11 @@ export function AdminDashboard({
                       <table className="w-full min-w-[640px] text-sm">
                         <thead className="sticky top-0 bg-[#1e293b]">
                           <tr className="border-b border-white/10 text-left">
-                            <th className="px-5 py-3 font-semibold text-slate-400">Data</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">Participante</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">Evento</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">Empresa</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">Contato</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colDate')}</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colParticipant')}</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colEvent')}</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colCompany')}</th>
+                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colContact')}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -576,10 +578,10 @@ export function AdminDashboard({
         <div className="space-y-4 xl:max-h-[calc(100vh-180px)] xl:overflow-y-auto xl:pr-1">
 
           {/* Próximos eventos */}
-          <SideWidget icon={<CalendarClock className="h-4 w-4" />} title="Próximos eventos" color="text-emerald-400"
-            action={{ label: 'Convidados', href: '/admin/convidados' }}>
+          <SideWidget icon={<CalendarClock className="h-4 w-4" />} title={t('sideNextEvents')} color="text-emerald-400"
+            action={{ label: t('sideGuests'), href: '/admin/convidados' }}>
             {nextEvents.length === 0 ? (
-              <p className="text-xs text-slate-400">Nenhum evento futuro.</p>
+              <p className="text-xs text-slate-400">{t('noFutureEvents')}</p>
             ) : (
               <ul className="space-y-2.5">
                 {nextEvents.map((e) => (
@@ -601,7 +603,7 @@ export function AdminDashboard({
 
           {/* Interesses por evento */}
           {stats.inscricoesPorEvento.length > 0 && (
-            <SideWidget icon={<BarChart3 className="h-4 w-4" />} title="Interesses por evento" color="text-violet-400">
+            <SideWidget icon={<BarChart3 className="h-4 w-4" />} title={t('sideInterestsByEvent')} color="text-violet-400">
               <div className="space-y-2.5">
                 {stats.inscricoesPorEvento.sort((a, b) => b.total - a.total).map(({ eventoId, titulo, total }) => (
                   <div key={eventoId}>
@@ -617,9 +619,9 @@ export function AdminDashboard({
 
           {/* Por faixa de faturamento */}
           {faturamentoByFaixa.length > 0 && (
-            <SideWidget icon={<DollarSign className="h-4 w-4" />} title="Por faturamento" color="text-emerald-400">
+            <SideWidget icon={<DollarSign className="h-4 w-4" />} title={t('sideRevenue')} color="text-emerald-400">
               <p className="mb-2 text-xs text-slate-500">
-                Usuários por faixa de faturamento mensal
+                {t('sideRevenueDesc')}
               </p>
               <div className="space-y-2">
                 {faturamentoByFaixa.map(({ faixa, total }) => (
@@ -636,9 +638,9 @@ export function AdminDashboard({
           )}
 
           {/* Indicações */}
-          <SideWidget icon={<UserPlus className="h-4 w-4" />} title="Indicações" color="text-cyan-400">
+          <SideWidget icon={<UserPlus className="h-4 w-4" />} title={t('sideReferrals')} color="text-cyan-400">
             <p className="mb-3 text-xs text-slate-500">
-              Total indicado: <strong className="text-white">{referralStats.totalReferred}</strong>
+              {t('sideTotalReferred')} <strong className="text-white">{referralStats.totalReferred}</strong>
             </p>
             {referralStats.topReferrers.length > 0 ? (
               <ul className="space-y-2">
@@ -650,14 +652,14 @@ export function AdminDashboard({
                   </li>
                 ))}
               </ul>
-            ) : <p className="text-xs text-slate-500">Nenhuma indicação ainda.</p>}
+            ) : <p className="text-xs text-slate-500">{t('noReferrals')}</p>}
           </SideWidget>
 
           {/* Conteúdo */}
-          <SideWidget icon={<FileText className="h-4 w-4" />} title="Conteúdo" color="text-amber-400"
-            action={{ label: 'Gerenciar', href: '/admin/conteudo' }}>
+          <SideWidget icon={<FileText className="h-4 w-4" />} title={t('sideContent')} color="text-amber-400"
+            action={{ label: t('sideManage'), href: '/admin/conteudo' }}>
             <p className="mb-2 text-xs text-slate-500">
-              <strong className="text-white">{contentStats.totalArticles}</strong> artigo(s)
+              <strong className="text-white">{contentStats.totalArticles}</strong> {t('articleLabel')}
             </p>
             {Object.keys(contentStats.byTipo).length > 0 && (
               <div className="mb-3 flex flex-wrap gap-1.5">
@@ -681,28 +683,28 @@ export function AdminDashboard({
 
           {/* Perfil da comunidade */}
           {allUsers.length > 0 && (
-            <SideWidget icon={<Award className="h-4 w-4" />} title="Perfil da comunidade" color="text-violet-400"
-              action={{ label: 'Ver usuários', href: '/admin/usuarios' }}>
+            <SideWidget icon={<Award className="h-4 w-4" />} title={t('sideCommunity')} color="text-violet-400"
+              action={{ label: t('sideViewUsers'), href: '/admin/usuarios' }}>
               <div className="space-y-4">
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Posição</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{t('sectionPosition')}</p>
                   <div className="space-y-2">
                     {totalEmpreendedores > 0 && (
                       <div>
-                        <div className="mb-0.5 flex justify-between text-xs"><span className="text-slate-400">Empreendedores</span></div>
+                        <div className="mb-0.5 flex justify-between text-xs"><span className="text-slate-400">{t('labelEntrepreneurs')}</span></div>
                         <ProgressBar value={totalEmpreendedores} max={allUsers.length} color="bg-[#3b82f6]" />
                       </div>
                     )}
                     {totalLideres > 0 && (
                       <div>
-                        <div className="mb-0.5 flex justify-between text-xs"><span className="text-slate-400">Líderes</span></div>
+                        <div className="mb-0.5 flex justify-between text-xs"><span className="text-slate-400">{t('labelLeaders')}</span></div>
                         <ProgressBar value={totalLideres} max={allUsers.length} color="bg-violet-500" />
                       </div>
                     )}
                   </div>
                 </div>
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Top cidades</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{t('sectionTopCities')}</p>
                   <div className="space-y-1.5">
                     {topCidades.slice(0, 5).map(([cidade, n]) => (
                       <div key={cidade}>
@@ -713,7 +715,7 @@ export function AdminDashboard({
                   </div>
                 </div>
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Quer aprender</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{t('sectionWantToLearn')}</p>
                   <div className="space-y-1.5">
                     {topAprender.slice(0, 5).map(([item, n]) => (
                       <div key={item}>

@@ -5,12 +5,14 @@ import type { ArticleCommentItem } from '@/app/api/articles/[id]/comments/route'
 import Image from 'next/image'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { Pencil, Trash2, User, Linkedin, Instagram, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 type Props = {
   articleId: string
 }
 
 export function ArticleComments({ articleId }: Props) {
+  const t = useTranslations('UserBlogComments')
   const [comments, setComments] = useState<ArticleCommentItem[]>([])
   const [loading, setLoading] = useState(true)
   const [body, setBody] = useState('')
@@ -49,10 +51,10 @@ export function ArticleComments({ articleId }: Props) {
     try {
       const res = await fetch(`/api/articles/${articleId}/comments`)
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? 'Erro ao carregar comentários')
+      if (!res.ok) throw new Error(data.error ?? t('errorLoad'))
       setComments(data.comments ?? [])
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erro ao carregar comentários')
+      setError(e instanceof Error ? e.message : t('errorLoad'))
       setComments([])
     } finally {
       setLoading(false)
@@ -99,16 +101,16 @@ export function ArticleComments({ articleId }: Props) {
         { method: 'PUT', headers: await authHeaders(), body: JSON.stringify({ body: editBody.trim() }) }
       )
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? 'Erro ao editar.')
+      if (!res.ok) throw new Error(data.error ?? t('errorEdit'))
       setComments((prev) => prev.map((x) => (x.id === editingId ? data.comment : x)))
       cancelEdit()
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erro ao editar comentário.')
+      setError(e instanceof Error ? e.message : t('errorEdit'))
     }
   }
 
   const handleDelete = async (commentId: string) => {
-    if (!confirm('Excluir este comentário?')) return
+    if (!confirm(t('deleteConfirm'))) return
     setDeletingId(commentId)
     setError(null)
     try {
@@ -117,10 +119,10 @@ export function ArticleComments({ articleId }: Props) {
         { method: 'DELETE', headers: await authHeaders() }
       )
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? 'Erro ao excluir.')
+      if (!res.ok) throw new Error(data.error ?? t('errorDelete'))
       setComments((prev) => prev.filter((x) => x.id !== commentId))
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erro ao excluir comentário.')
+      setError(e instanceof Error ? e.message : t('errorDelete'))
     } finally {
       setDeletingId(null)
     }
@@ -139,11 +141,11 @@ export function ArticleComments({ articleId }: Props) {
         body: JSON.stringify({ body: text }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? 'Erro ao publicar comentário')
+      if (!res.ok) throw new Error(data.error ?? t('errorPost'))
       setBody('')
       setComments((prev) => [...prev, data.comment])
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erro ao publicar comentário')
+      setError(e instanceof Error ? e.message : t('errorPost'))
     } finally {
       setSubmitting(false)
     }
@@ -151,13 +153,13 @@ export function ArticleComments({ articleId }: Props) {
 
   return (
     <div className="mt-12 border-t border-slate-600/30 pt-6">
-      <h2 className="mb-4 text-lg font-semibold text-[#f5f5f5]">Comentários</h2>
+      <h2 className="mb-4 text-lg font-semibold text-[#f5f5f5]">{t('title')}</h2>
 
       <form onSubmit={handleSubmit} className="mb-6">
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          placeholder="Escreva seu comentário..."
+          placeholder={t('placeholder')}
           rows={3}
           className="w-full rounded-xl border border-slate-600/40 bg-slate-900 px-4 py-3 text-sm text-[#f5f5f5] placeholder:text-slate-500 focus:border-slate-500/50 focus:outline-none"
           disabled={submitting}
@@ -168,7 +170,7 @@ export function ArticleComments({ articleId }: Props) {
             disabled={!body.trim() || submitting}
             className="rounded-xl bg-[#3b82f6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2563eb] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {submitting ? 'Enviando...' : 'Comentar'}
+            {submitting ? t('submitting') : t('submit')}
           </button>
         </div>
       </form>
@@ -180,9 +182,9 @@ export function ArticleComments({ articleId }: Props) {
       )}
 
       {loading ? (
-        <p className="text-sm text-slate-400">Carregando comentários...</p>
+        <p className="text-sm text-slate-400">{t('loading')}</p>
       ) : comments.length === 0 ? (
-        <p className="text-sm text-slate-400">Nenhum comentário ainda. Seja o primeiro!</p>
+        <p className="text-sm text-slate-400">{t('empty')}</p>
       ) : (
         <ul className="space-y-4">
           {comments.map((c) => (
@@ -216,7 +218,7 @@ export function ArticleComments({ articleId }: Props) {
                     </div>
                     <div className="flex flex-col gap-0.5 text-left">
                       <span className="font-medium text-[#f5f5f5]">
-                        {c.author_name || 'Usuário'}
+                        {c.author_name || t('anonymous')}
                       </span>
                       <span className="text-slate-500">
                         {new Date(c.created_at).toLocaleDateString('pt-BR', {
@@ -239,14 +241,14 @@ export function ArticleComments({ articleId }: Props) {
                           onClick={saveEdit}
                           className="rounded-lg bg-[#3b82f6] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#2563eb]"
                         >
-                          Salvar
+                          {t('save')}
                         </button>
                         <button
                           type="button"
                           onClick={cancelEdit}
                           className="rounded-lg border border-slate-500/50 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700/50"
                         >
-                          Cancelar
+                          {t('cancel')}
                         </button>
                       </>
                     ) : (
@@ -255,7 +257,7 @@ export function ArticleComments({ articleId }: Props) {
                           type="button"
                           onClick={() => startEdit(c)}
                           className="rounded p-1.5 text-slate-400 transition hover:bg-slate-700/50 hover:text-[#f5f5f5]"
-                          title="Editar"
+                          title={t('save')}
                         >
                           <Pencil className="h-3.5 w-3.5" />
                         </button>
@@ -264,7 +266,7 @@ export function ArticleComments({ articleId }: Props) {
                           onClick={() => handleDelete(c.id)}
                           disabled={deletingId === c.id}
                           className="rounded p-1.5 text-slate-400 transition hover:bg-red-900/30 hover:text-red-400 disabled:opacity-50"
-                          title="Excluir"
+                          title={t('deleteConfirm')}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
@@ -298,7 +300,7 @@ export function ArticleComments({ articleId }: Props) {
           onClick={() => setProfileView(null)}
           role="dialog"
           aria-modal="true"
-          aria-label="Perfil do autor"
+          aria-label={t('viewProfile')}
         >
           <div
             className="w-full max-w-sm rounded-2xl border border-slate-600/40 bg-slate-800 p-6 shadow-xl"
@@ -309,7 +311,7 @@ export function ArticleComments({ articleId }: Props) {
                 type="button"
                 onClick={() => setProfileView(null)}
                 className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-700/50 hover:text-white"
-                aria-label="Fechar"
+                aria-label={t('closeProfile')}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -331,7 +333,7 @@ export function ArticleComments({ articleId }: Props) {
                 )}
               </div>
               <h3 className="text-lg font-semibold text-[#f5f5f5]">
-                {profileView.author_name || 'Usuário'}
+                {profileView.author_name || t('anonymous')}
               </h3>
               {profileView.author_bio && (
                 <p className="mt-3 max-w-[280px] text-sm leading-relaxed text-slate-400 line-clamp-3">
@@ -365,7 +367,7 @@ export function ArticleComments({ articleId }: Props) {
                 )}
                 {!normalizeSocialUrl(profileView.author_linkedin, 'linkedin') &&
                   !normalizeSocialUrl(profileView.author_instagram, 'instagram') && (
-                  <p className="text-sm text-slate-500">Sem redes sociais informadas.</p>
+                  <p className="text-sm text-slate-500">{t('noSocials')}</p>
                 )}
               </div>
             </div>
