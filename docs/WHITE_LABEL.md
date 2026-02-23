@@ -21,6 +21,19 @@ Em cada deploy (ex.: um projeto Vercel por cliente), configure o `.env`:
 
 Coloque o logo (e favicon/og se quiser) na pasta `public/`. Sem configurar nada, o app usa os padrões da marca MaxisTalks.
 
+## Venda da plataforma white-label (só para donos)
+
+A página pública `/plataforma` (formulário de interesse em comprar o sistema) e a área no admin **Interesses /plataforma** são voltadas **apenas para o deploy dos donos do produto**. Nos deploys dos clientes que já compraram o white-label, essa funcionalidade não deve aparecer.
+
+Controle por variável de ambiente:
+
+| Variável | Descrição | Quando usar |
+|----------|-----------|-------------|
+| `NEXT_PUBLIC_ENABLE_PLATAFORMA_SALES` | Habilita página `/plataforma` e seção "Interesses /plataforma" no admin | **Apenas no deploy dos donos.** Use `true` ou `1`. Nos deploys dos clientes, **não defina** ou use `false`. |
+
+- **Deploy dos donos:** defina `NEXT_PUBLIC_ENABLE_PLATAFORMA_SALES=true`. O menu do admin terá a seção "White-label" com o link "Interesses /plataforma", o card na home do admin e a rota `/admin/plataforma-interesse` e a página `/plataforma` ficarão acessíveis.
+- **Deploy dos clientes:** não defina a variável ou defina `false`. O menu não mostra a seção White-label, não há card de leads, `/admin/plataforma-interesse` redireciona para `/admin`, `/plataforma` redireciona para `/` e as APIs de leads retornam 403.
+
 ## Multi-tenant (banco de dados)
 
 1. Rode a migration que cria a tabela `tenants`:

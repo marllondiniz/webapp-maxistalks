@@ -5,9 +5,10 @@ import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, BarChart3, Calendar, FileText, Users, UserCheck, LogOut, Menu, X, Wrench, Palette } from 'lucide-react'
+import { LayoutDashboard, BarChart3, Calendar, FileText, Users, UserCheck, LogOut, Menu, X, Wrench, Palette, ClipboardList } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { useBrand } from '@/app/(components)/BrandProvider'
+import { isPlataformaSalesEnabled } from '@/lib/plataformaSales'
 
 const NAV_LINK_KEYS = [
   'navOverview',
@@ -18,9 +19,10 @@ const NAV_LINK_KEYS = [
   'navContent',
   'navTools',
   'navCustomization',
+  'navPlataformaLeads',
 ] as const
 
-const NAV_LINKS = [
+const NAV_LINKS_MAIN = [
   { href: '/admin', labelKey: NAV_LINK_KEYS[0], icon: LayoutDashboard },
   { href: '/admin/dashboard', labelKey: NAV_LINK_KEYS[1], icon: BarChart3 },
   { href: '/admin/usuarios', labelKey: NAV_LINK_KEYS[2], icon: Users },
@@ -29,6 +31,12 @@ const NAV_LINKS = [
   { href: '/admin/conteudo', labelKey: NAV_LINK_KEYS[5], icon: FileText },
   { href: '/admin/ferramentas', labelKey: NAV_LINK_KEYS[6], icon: Wrench },
   { href: '/admin/customizacao', labelKey: NAV_LINK_KEYS[7], icon: Palette },
+] as const
+
+const NAV_SECTION_WHITELABEL = 'navSectionWhitelabel'
+
+const NAV_LINKS_WHITELABEL = [
+  { href: '/admin/plataforma-interesse', labelKey: NAV_LINK_KEYS[8], icon: ClipboardList },
 ] as const
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -140,7 +148,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
         <div className="flex flex-1 flex-col overflow-y-auto p-4">
             <nav className="space-y-1">
-              {NAV_LINKS.map((link) => {
+              {NAV_LINKS_MAIN.map((link) => {
                 const active = pathname === link.href
                 const Icon = link.icon
                 return (
@@ -159,6 +167,32 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </Link>
                 )
               })}
+              {isPlataformaSalesEnabled() && (
+              <div className="pt-4">
+                <p className="mb-2 px-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  {t(NAV_SECTION_WHITELABEL)}
+                </p>
+                {NAV_LINKS_WHITELABEL.map((link) => {
+                  const active = pathname === link.href
+                  const Icon = link.icon
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={closeSidebar}
+                      className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                        active
+                          ? 'bg-[#3b82f6] text-white'
+                          : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                      }`}
+                    >
+                      <Icon className="h-5 w-5 flex-shrink-0" />
+                      {t(link.labelKey)}
+                    </Link>
+                  )
+                })}
+              </div>
+              )}
             </nav>
             <div className="mt-auto border-t border-white/10 pt-4">
               <button

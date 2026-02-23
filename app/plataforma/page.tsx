@@ -1,10 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 import { LanguageToggle } from '@/app/(components)/LanguageToggle'
+import { formatPhoneBR } from '@/lib/phone'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -115,10 +117,240 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
 
 export default function PlataformaPage() {
   const t = useTranslations('Plataforma')
+  const [form, setForm] = useState({ nome: '', email: '', telefone: '', empresa: '', mensagem: '' })
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [submitMessage, setSubmitMessage] = useState('')
+
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalStep, setModalStep] = useState<1 | 2>(1)
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
+  const [emailError, setEmailError] = useState<string | null>(null)
+
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  const isValidEmail = (email: string) => email.trim().length > 0 && EMAIL_REGEX.test(email.trim())
+
+  const openModal = (plan?: string) => {
+    setSelectedPlan(plan || null)
+    setModalStep(1)
+    setSubmitStatus('idle')
+    setSubmitMessage('')
+    setModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setModalOpen(false)
+    setModalStep(1)
+    setSelectedPlan(null)
+    setForm({ nome: '', email: '', telefone: '', empresa: '', mensagem: '' })
+    setSubmitStatus('idle')
+    setSubmitMessage('')
+    setEmailError(null)
+  }
+
+  const handleInterestSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setEmailError(null)
+    if (!isValidEmail(form.email)) {
+      setEmailError(t('interestEmailInvalid'))
+      return
+    }
+    setSubmitStatus('loading')
+    setSubmitMessage('')
+    const mensagemFinal = form.mensagem?.trim() || undefined
+    try {
+      const res = await fetch('/api/plataforma-interesse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: form.nome.trim(),
+          email: form.email.trim(),
+          telefone: form.telefone.trim() || undefined,
+          empresa: form.empresa.trim() || undefined,
+          mensagem: mensagemFinal,
+          plano_interesse: selectedPlan || undefined,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setSubmitStatus('error')
+        setSubmitMessage(data?.error || t('interestError'))
+        return
+      }
+      setSubmitStatus('success')
+      setSubmitMessage(data?.message || t('interestSuccess'))
+      setForm({ nome: '', email: '', telefone: '', empresa: '', mensagem: '' })
+      setModalStep(2)
+    } catch {
+      setSubmitStatus('error')
+      setSubmitMessage(t('interestError'))
+    }
+  }
 
   return (
     <main className="relative min-h-screen bg-[#060c1f] text-white">
       <div className="pointer-events-none fixed inset-0 z-50 noise-texture" />
+
+      {/* ── MODAL TENHO INTERESSE (steps) ── */}
+      {modalOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={(e) => e.target === e.currentTarget && closeModal()}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-title"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="glass-card w-full max-w-lg overflow-hidden rounded-2xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex max-h-[85vh] flex-col overflow-hidden">
+              <div className="flex items-center justify-between border-b border-white/10 px-6 py-4 flex-shrink-0">
+                <p id="modal-title" className="text-sm font-medium text-slate-400">
+                  {t('modalStepLabel', { current: modalStep, total: 2 })}
+                </p>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                aria-label={t('modalClose')}
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 md:p-8">
+              {modalStep === 1 && (
+                <>
+                  <h2 className="text-xl font-bold text-white md:text-2xl">{t('interestTitle')}</h2>
+                  <p className="mt-1 text-sm text-slate-400">{t('interestSubtitle')}</p>
+                  {selectedPlan && (
+                    <p className="mt-3 rounded-lg bg-white/5 px-4 py-2 text-sm text-slate-300">
+                      <span className="font-medium text-white">{t('modalPlanSelected')}:</span>{' '}
+                      {selectedPlan === 'general'
+                        ? t('modalStep1OptionGeneral')
+                        : t(selectedPlan === 'starter' ? 'starterName' : selectedPlan === 'pro' ? 'proName' : 'enterpriseName')}
+                    </p>
+                  )}
+                  <form onSubmit={handleInterestSubmit} className="mt-6 space-y-4">
+                    <div>
+                      <label htmlFor="modal-nome" className="mb-1 block text-xs font-medium text-slate-400">
+                        {t('interestName')} *
+                      </label>
+                      <input
+                        id="modal-nome"
+                        type="text"
+                        required
+                        minLength={2}
+                        value={form.nome}
+                        onChange={(e) => setForm((p) => ({ ...p, nome: e.target.value }))}
+                        className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]"
+                        placeholder={t('interestNamePlaceholder')}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="modal-email" className="mb-1 block text-xs font-medium text-slate-400">
+                        {t('interestEmail')} *
+                      </label>
+                      <input
+                        id="modal-email"
+                        type="email"
+                        required
+                        value={form.email}
+                        onChange={(e) => {
+                          setForm((p) => ({ ...p, email: e.target.value }))
+                          setEmailError(null)
+                        }}
+                        className={`w-full rounded-xl border bg-[#0f172a] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 ${emailError ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500' : 'border-white/10 focus:border-[var(--brand-primary)] focus:ring-[var(--brand-primary)]'}`}
+                        placeholder={t('interestEmailPlaceholder')}
+                      />
+                      {emailError && <p className="mt-1 text-xs text-rose-400">{emailError}</p>}
+                    </div>
+                    <div>
+                      <label htmlFor="modal-telefone" className="mb-1 block text-xs font-medium text-slate-400">
+                        {t('interestPhone')}
+                      </label>
+                      <input
+                        id="modal-telefone"
+                        type="tel"
+                        value={form.telefone}
+                        onChange={(e) => setForm((p) => ({ ...p, telefone: formatPhoneBR(e.target.value) }))}
+                        className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]"
+                        placeholder={t('interestPhonePlaceholder')}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="modal-empresa" className="mb-1 block text-xs font-medium text-slate-400">
+                        {t('interestCompany')}
+                      </label>
+                      <input
+                        id="modal-empresa"
+                        type="text"
+                        value={form.empresa}
+                        onChange={(e) => setForm((p) => ({ ...p, empresa: e.target.value }))}
+                        className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]"
+                        placeholder={t('interestCompanyPlaceholder')}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="modal-mensagem" className="mb-1 block text-xs font-medium text-slate-400">
+                        {t('interestMessage')}
+                      </label>
+                      <textarea
+                        id="modal-mensagem"
+                        rows={3}
+                        value={form.mensagem}
+                        onChange={(e) => setForm((p) => ({ ...p, mensagem: e.target.value }))}
+                        className="w-full resize-none rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]"
+                        placeholder={t('interestMessagePlaceholder')}
+                      />
+                    </div>
+                    {submitStatus === 'error' && submitMessage && (
+                      <p className="text-sm text-rose-400">{submitMessage}</p>
+                    )}
+                    <div className="flex flex-col gap-3 pt-2 sm:flex-row-reverse">
+                      <button
+                        type="submit"
+                        disabled={submitStatus === 'loading'}
+                        className="btn-glow flex-1 rounded-xl bg-[var(--brand-primary)] py-3.5 text-sm font-bold uppercase tracking-wider text-white transition hover:bg-[var(--brand-primary-hover)] disabled:opacity-50"
+                      >
+                        {submitStatus === 'loading' ? t('interestSending') : t('interestSubmit')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => closeModal()}
+                        className="rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-slate-300 transition hover:border-white/20 hover:text-white"
+                      >
+                        {t('modalBack')}
+                      </button>
+                    </div>
+                  </form>
+                </>
+              )}
+
+              {modalStep === 2 && (
+                <>
+                  <div className="rounded-xl bg-emerald-500/10 p-5 text-center">
+                    <p className="font-medium text-emerald-400">{submitMessage}</p>
+                    <button
+                      type="button"
+                      onClick={closeModal}
+                      className="mt-6 text-sm text-slate-400 underline hover:text-white"
+                    >
+                      {t('modalClose')}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* ── HERO ── */}
       <section className="hero-glow relative flex min-h-screen flex-col overflow-hidden">
@@ -189,8 +421,6 @@ export default function PlataformaPage() {
               {t('heroSecondary')}
             </a>
           </motion.div>
-
-          {/* Stats bar */}
           <motion.div
             variants={fadeUp}
             className="mt-20 flex flex-wrap items-center justify-center gap-8 md:gap-16"
@@ -448,10 +678,9 @@ export default function PlataformaPage() {
                     })}
                   </ul>
 
-                  <a
-                    href={`https://wa.me/5527992655289?text=${encodeURIComponent(t(`${key}WaMessage`))}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={() => openModal(key)}
                     className={`block w-full rounded-2xl py-3.5 text-center text-sm font-bold uppercase tracking-wider transition ${
                       highlight
                         ? 'btn-glow bg-[var(--brand-primary)] text-white hover:bg-[var(--brand-primary-hover)]'
@@ -459,7 +688,7 @@ export default function PlataformaPage() {
                     }`}
                   >
                     {t(`${key}Cta`)}
-                  </a>
+                  </button>
                 </motion.div>
               ))}
             </motion.div>
@@ -525,17 +754,16 @@ export default function PlataformaPage() {
             </motion.p>
 
             <motion.div variants={fadeUp} className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <a
-                href={`https://wa.me/5527992655289?text=${encodeURIComponent(t('finalCtaWaMessage'))}`}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
+                onClick={() => openModal()}
                 className="btn-glow inline-flex items-center gap-2.5 rounded-2xl bg-[var(--brand-primary)] px-10 py-4 text-[15px] font-bold uppercase tracking-wider text-white transition hover:bg-[var(--brand-primary-hover)]"
               >
                 {t('finalCtaButton')}
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
-              </a>
+              </button>
               <Link
                 href="/"
                 className="text-sm text-slate-500 transition hover:text-slate-300"

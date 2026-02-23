@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { getBrandConfig } from '@/lib/brand'
+import { isPlataformaSalesEnabled } from '@/lib/plataformaSales'
 
 /** Metadata apenas da rota /plataforma. Não altera as demais páginas do site (MaxisTalks). */
 export async function generateMetadata(): Promise<Metadata> {
@@ -50,5 +52,8 @@ export default function PlataformaLayout({
 }: {
   children: React.ReactNode
 }) {
+  if (!isPlataformaSalesEnabled()) {
+    redirect('/')
+  }
   return <>{children}</>
 }

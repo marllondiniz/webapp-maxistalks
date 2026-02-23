@@ -597,3 +597,33 @@ export async function getEventInteressados(eventId: string): Promise<EventIntere
   })
 }
 
+export type PlataformaLeadRecord = {
+  id: string
+  tenant_id: string | null
+  nome: string
+  email: string
+  telefone: string | null
+  empresa: string | null
+  mensagem: string | null
+  plano_interesse: string | null
+  atendido: boolean | null
+  created_at: string
+}
+
+export async function getPlataformaLeads(tenantId: string | null): Promise<PlataformaLeadRecord[]> {
+  const supabase = getSupabaseAdmin()
+  let q = supabase
+    .from('plataforma_leads')
+    .select('id, tenant_id, nome, email, telefone, empresa, mensagem, plano_interesse, atendido, created_at')
+    .order('created_at', { ascending: false })
+  if (tenantId) {
+    q = q.or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
+  }
+  const { data, error } = await q
+  if (error) {
+    console.error('Erro ao buscar plataforma_leads:', error)
+    return []
+  }
+  return (data ?? []) as PlataformaLeadRecord[]
+}
+

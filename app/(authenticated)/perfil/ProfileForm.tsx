@@ -16,6 +16,7 @@ import type { ProfileRecord } from '@/lib/profile'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { formatPhoneBR, getPhoneDigits } from '@/lib/phone'
 
 type ProfileFormProps = {
   profile: ProfileRecord | null
@@ -438,22 +439,6 @@ function parseCidadeEstado(value: string | null | undefined): { cidade: string; 
   // fallback: considera tudo como cidade; remove barras/espacos no final (ex: "Guarapari / /" -> "Guarapari")
   const cidadeOnly = raw.replace(/\s*\/\s*\/?\s*$/g, '').trim()
   return { cidade: cidadeOnly, estado: '' }
-}
-
-function formatPhoneBR(value: string): string {
-  const digits = value.replace(/\D/g, '')
-  // Se vier com 55 na frente (ex.: 5527999165355), usa DDD+número (11 dígitos) para exibir e não corta os dois últimos
-  const toFormat =
-    digits.startsWith('55') && digits.length > 11
-      ? digits.slice(2, 13)
-      : digits.slice(0, 11)
-  if (toFormat.length <= 2) return toFormat ? `(${toFormat}` : ''
-  if (toFormat.length <= 7) return `(${toFormat.slice(0, 2)}) ${toFormat.slice(2)}`
-  return `(${toFormat.slice(0, 2)}) ${toFormat.slice(2, 7)}-${toFormat.slice(7)}`
-}
-
-function getPhoneDigits(phone: string): string {
-  return phone.replace(/\D/g, '')
 }
 
 function toggleMultiSelect<T>(arr: T[], item: T, max: number): T[] {
