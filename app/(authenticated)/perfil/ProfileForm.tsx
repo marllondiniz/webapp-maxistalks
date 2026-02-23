@@ -441,10 +441,15 @@ function parseCidadeEstado(value: string | null | undefined): { cidade: string; 
 }
 
 function formatPhoneBR(value: string): string {
-  const digits = value.replace(/\D/g, '').slice(0, 11)
-  if (digits.length <= 2) return digits ? `(${digits}` : ''
-  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
-  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
+  const digits = value.replace(/\D/g, '')
+  // Se vier com 55 na frente (ex.: 5527999165355), usa DDD+número (11 dígitos) para exibir e não corta os dois últimos
+  const toFormat =
+    digits.startsWith('55') && digits.length > 11
+      ? digits.slice(2, 13)
+      : digits.slice(0, 11)
+  if (toFormat.length <= 2) return toFormat ? `(${toFormat}` : ''
+  if (toFormat.length <= 7) return `(${toFormat.slice(0, 2)}) ${toFormat.slice(2)}`
+  return `(${toFormat.slice(0, 2)}) ${toFormat.slice(2, 7)}-${toFormat.slice(7)}`
 }
 
 function getPhoneDigits(phone: string): string {

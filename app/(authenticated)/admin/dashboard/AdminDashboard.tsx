@@ -33,6 +33,7 @@ import type {
   ContentStats,
 } from '@/lib/queries'
 import type { EventRecord } from '@/lib/queries'
+import { normalizePhoneForWhatsApp } from '@/lib/phone'
 
 type Props = {
   registrations: EventRegistrationWithDetails[]
@@ -400,7 +401,7 @@ export function AdminDashboard({
                             </p>
                           )}
                           <div className="mt-3 flex flex-wrap gap-2">
-                            {u.telefone && <a href={`https://wa.me/55${u.telefone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/15 px-3 py-1.5 text-sm font-medium text-emerald-400"><MessageCircle className="h-3.5 w-3.5" /> WhatsApp</a>}
+                            {u.telefone && <a href={`https://wa.me/${normalizePhoneForWhatsApp(u.telefone)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/15 px-3 py-1.5 text-sm font-medium text-emerald-400"><MessageCircle className="h-3.5 w-3.5" /> WhatsApp</a>}
                             {u.instagram && <a href={`https://instagram.com/${u.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="rounded-lg bg-[#3b82f6]/15 px-3 py-1.5 text-sm font-medium text-[#3b82f6]">{u.instagram}</a>}
                           </div>
                         </div>
@@ -458,7 +459,7 @@ export function AdminDashboard({
                               </td>
                               <td className="px-5 py-3">
                                 <div className="flex flex-col gap-1">
-                                  {u.telefone && <a href={`https://wa.me/55${u.telefone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:underline"><MessageCircle className="h-3 w-3" /> WA</a>}
+                                  {u.telefone && <a href={`https://wa.me/${normalizePhoneForWhatsApp(u.telefone)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:underline"><MessageCircle className="h-3 w-3" /> WA</a>}
                                   {u.instagram && <a href={`https://instagram.com/${u.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-xs text-[#3b82f6] hover:underline truncate max-w-[80px]">{u.instagram}</a>}
                                   {u.linkedin && <a href={u.linkedin.startsWith('http') ? u.linkedin : `https://${u.linkedin}`} target="_blank" rel="noopener noreferrer" className="text-xs text-[#0a66c2] hover:underline">LinkedIn</a>}
                                   {!u.telefone && !u.instagram && !u.linkedin && <span className="text-slate-600">—</span>}
@@ -518,7 +519,7 @@ export function AdminDashboard({
                             <p className="text-xs text-slate-400">{formatEventDate(r.event_data_horario)}</p>
                           </div>
                           {r.user_telefone && (
-                            <a href={`https://wa.me/55${r.user_telefone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer"
+                            <a href={`https://wa.me/${normalizePhoneForWhatsApp(r.user_telefone)}`} target="_blank" rel="noopener noreferrer"
                               className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/15 px-3 py-1.5 text-sm font-medium text-emerald-400">
                               <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
                             </a>
@@ -557,7 +558,7 @@ export function AdminDashboard({
                               </td>
                               <td className="px-5 py-3">
                                 <div className="flex flex-col gap-1">
-                                  {r.user_telefone && <a href={`https://wa.me/55${r.user_telefone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:underline"><MessageCircle className="h-3 w-3" /> WhatsApp</a>}
+                                  {r.user_telefone && <a href={`https://wa.me/${normalizePhoneForWhatsApp(r.user_telefone)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:underline"><MessageCircle className="h-3 w-3" /> WhatsApp</a>}
                                   {r.user_instagram && <a href={`https://instagram.com/${r.user_instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-xs text-[#3b82f6] hover:underline">{r.user_instagram}</a>}
                                   {!r.user_telefone && !r.user_instagram && <span className="text-slate-600">—</span>}
                                 </div>

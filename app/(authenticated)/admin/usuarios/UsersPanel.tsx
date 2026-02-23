@@ -12,6 +12,7 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import type { UserWithProfile, EventRegistrationWithDetails } from '@/lib/queries'
+import { normalizePhoneForWhatsApp } from '@/lib/phone'
 
 const PAGE_SIZE = 50
 
@@ -256,7 +257,7 @@ export function UsersPanel({ allUsers, registrations }: Props) {
                 )}
                 <div className="mt-3 flex flex-wrap gap-2">
                   {u.telefone && (
-                    <a href={`https://wa.me/55${u.telefone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/20 px-3 py-2 text-sm font-medium text-emerald-400">
+                    <a href={`https://wa.me/${normalizePhoneForWhatsApp(u.telefone)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/20 px-3 py-2 text-sm font-medium text-emerald-400">
                       <MessageCircle className="h-4 w-4" /> WhatsApp
                     </a>
                   )}
@@ -310,7 +311,7 @@ export function UsersPanel({ allUsers, registrations }: Props) {
                     <td className="px-4 py-3 sm:px-5">
                       <div className="flex flex-col gap-1">
                         {u.telefone && (
-                          <a href={`https://wa.me/55${u.telefone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-emerald-400 hover:underline text-xs">
+                          <a href={`https://wa.me/${normalizePhoneForWhatsApp(u.telefone)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-emerald-400 hover:underline text-xs">
                             <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
                           </a>
                         )}

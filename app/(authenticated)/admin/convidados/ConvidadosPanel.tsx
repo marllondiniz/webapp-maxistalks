@@ -23,6 +23,7 @@ import {
   Undo2,
 } from 'lucide-react'
 import type { EventRecord, EventInteressado } from '@/lib/queries'
+import { normalizePhoneForWhatsApp } from '@/lib/phone'
 import { saveGuestSelection, markInvitesSent, markInvitesUnsent } from './actions'
 import { useTranslations } from 'next-intl'
 
@@ -469,7 +470,7 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
               {selectedWithPhone.map((u) => {
                 const isSent = sentIds.has(u.userId)
                 const waText = selectedEvent ? buildWAText(template, u, selectedEvent) : ''
-                const waUrl = `https://api.whatsapp.com/send?phone=55${u.telefone!.replace(/\D/g, '')}&text=${encodeURIComponent(waText)}`
+                const waUrl = `https://api.whatsapp.com/send?phone=${normalizePhoneForWhatsApp(u.telefone!)}&text=${encodeURIComponent(waText)}`
                 return (
                   <div key={u.userId} className={`flex items-center gap-3 px-5 py-3 ${isSent ? 'opacity-60' : ''}`}>
                     <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold ${
