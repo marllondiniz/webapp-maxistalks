@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { LayoutDashboard, BarChart3, Calendar, FileText, Users, UserCheck, LogOut, Menu, X, Wrench } from 'lucide-react'
+import { LayoutDashboard, BarChart3, Calendar, FileText, Users, UserCheck, LogOut, Menu, X, Wrench, Palette } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { useBrand } from '@/app/(components)/BrandProvider'
 
@@ -16,6 +16,7 @@ const NAV_LINKS = [
   { href: '/admin/eventos', label: 'Eventos', icon: Calendar },
   { href: '/admin/conteudo', label: 'Conteúdo', icon: FileText },
   { href: '/admin/ferramentas', label: 'Ferramentas', icon: Wrench },
+  { href: '/admin/customizacao', label: 'Customização', icon: Palette },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

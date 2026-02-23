@@ -36,6 +36,21 @@ export function useBrand(): BrandConfig {
       baseUrl: (process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_SITE_URL || 'https://maxistalks.com').replace(/\/$/, ''),
       storageKeyPrefix: process.env.NEXT_PUBLIC_STORAGE_KEY_PREFIX || 'maxistalks',
       tenantId: null,
+      addressLine1: null,
+      addressLine2: null,
+      addressCep: null,
+      localSubheading: null,
+      mapEmbedUrl: null,
+      mapLinkUrl: null,
+      aboutLogoUrl: null,
+      aboutShortText: null,
+      aboutLongText: null,
+      aboutButtonLabel: null,
+      aboutButtonUrl: null,
+      footerLogoUrl: null,
+      instagramUrl: null,
+      youtubeUrl: null,
+      footerCopyrightName: null,
     }
   }
   return ctx

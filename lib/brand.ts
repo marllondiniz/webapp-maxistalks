@@ -16,6 +16,24 @@ export type BrandConfig = {
   storageKeyPrefix: string
   /** UUID do tenant no banco (null quando vem de env ou tenant não encontrado). */
   tenantId: string | null
+  // Landing page — Local/Endereço
+  addressLine1: string | null
+  addressLine2: string | null
+  addressCep: string | null
+  localSubheading: string | null
+  mapEmbedUrl: string | null
+  mapLinkUrl: string | null
+  // Landing page — Seção "Sobre"
+  aboutLogoUrl: string | null
+  aboutShortText: string | null
+  aboutLongText: string | null
+  aboutButtonLabel: string | null
+  aboutButtonUrl: string | null
+  // Landing page — Footer
+  footerLogoUrl: string | null
+  instagramUrl: string | null
+  youtubeUrl: string | null
+  footerCopyrightName: string | null
 }
 
 const DEFAULT_BRAND: BrandConfig = {
@@ -30,6 +48,21 @@ const DEFAULT_BRAND: BrandConfig = {
   baseUrl: 'https://maxistalks.com',
   storageKeyPrefix: 'maxistalks',
   tenantId: null,
+  addressLine1: null,
+  addressLine2: null,
+  addressCep: null,
+  localSubheading: null,
+  mapEmbedUrl: null,
+  mapLinkUrl: null,
+  aboutLogoUrl: null,
+  aboutShortText: null,
+  aboutLongText: null,
+  aboutButtonLabel: null,
+  aboutButtonUrl: null,
+  footerLogoUrl: null,
+  instagramUrl: null,
+  youtubeUrl: null,
+  footerCopyrightName: null,
 }
 
 /**
@@ -51,6 +84,21 @@ export function getBrandFromEnv(): BrandConfig {
     baseUrl,
     storageKeyPrefix: process.env.NEXT_PUBLIC_STORAGE_KEY_PREFIX || DEFAULT_BRAND.storageKeyPrefix,
     tenantId: null,
+    addressLine1: null,
+    addressLine2: null,
+    addressCep: null,
+    localSubheading: null,
+    mapEmbedUrl: null,
+    mapLinkUrl: null,
+    aboutLogoUrl: null,
+    aboutShortText: null,
+    aboutLongText: null,
+    aboutButtonLabel: null,
+    aboutButtonUrl: null,
+    footerLogoUrl: null,
+    instagramUrl: null,
+    youtubeUrl: null,
+    footerCopyrightName: null,
   }
 }
 
@@ -77,7 +125,11 @@ export async function getTenantByDomain(host: string): Promise<BrandConfig | nul
     const supabase = getSupabaseAdmin()
     const { data, error } = await supabase
       .from('tenants')
-      .select('id, name, tagline, logo_url, favicon_url, og_image_url, primary_color, primary_color_hover, support_email, base_url, storage_key_prefix')
+      .select(`id, name, tagline, logo_url, favicon_url, og_image_url,
+        primary_color, primary_color_hover, support_email, base_url, storage_key_prefix,
+        address_line1, address_line2, address_cep, local_subheading, map_embed_url, map_link_url,
+        about_logo_url, about_short_text, about_long_text, about_button_label, about_button_url,
+        footer_logo_url, instagram_url, youtube_url, footer_copyright_name`)
       .eq('domain', domain)
       .maybeSingle()
 
@@ -98,6 +150,21 @@ export async function getTenantByDomain(host: string): Promise<BrandConfig | nul
       baseUrl: data.base_url ?? DEFAULT_BRAND.baseUrl,
       storageKeyPrefix: data.storage_key_prefix ?? DEFAULT_BRAND.storageKeyPrefix,
       tenantId: data.id ?? null,
+      addressLine1: data.address_line1 ?? null,
+      addressLine2: data.address_line2 ?? null,
+      addressCep: data.address_cep ?? null,
+      localSubheading: data.local_subheading ?? null,
+      mapEmbedUrl: data.map_embed_url ?? null,
+      mapLinkUrl: data.map_link_url ?? null,
+      aboutLogoUrl: data.about_logo_url ?? null,
+      aboutShortText: data.about_short_text ?? null,
+      aboutLongText: data.about_long_text ?? null,
+      aboutButtonLabel: data.about_button_label ?? null,
+      aboutButtonUrl: data.about_button_url ?? null,
+      footerLogoUrl: data.footer_logo_url ?? null,
+      instagramUrl: data.instagram_url ?? null,
+      youtubeUrl: data.youtube_url ?? null,
+      footerCopyrightName: data.footer_copyright_name ?? null,
     }
   } catch {
     return null
