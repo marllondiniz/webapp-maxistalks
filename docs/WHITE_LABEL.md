@@ -29,10 +29,11 @@ Controle por variável de ambiente:
 
 | Variável | Descrição | Quando usar |
 |----------|-----------|-------------|
-| `NEXT_PUBLIC_ENABLE_PLATAFORMA_SALES` | Habilita página `/plataforma` e seção "Interesses /plataforma" no admin | **Apenas no deploy dos donos.** Use `true` ou `1`. Nos deploys dos clientes, **não defina** ou use `false`. |
+| `ENABLE_PLATAFORMA_SALES` | **(Recomendado no Vercel)** Habilita página `/plataforma` e seção "Interesses /plataforma" no admin. Lido no servidor em tempo de execução. | No deploy dos donos: `true` ou `1`. Nos clientes: não defina ou `false`. |
+| `NEXT_PUBLIC_ENABLE_PLATAFORMA_SALES` | Mesmo efeito, mas embutido no build. | Use se preferir; após adicionar no Vercel é necessário **fazer um novo deploy** para o valor aparecer. |
 
-- **Deploy dos donos:** defina `NEXT_PUBLIC_ENABLE_PLATAFORMA_SALES=true`. O menu do admin terá a seção "White-label" com o link "Interesses /plataforma", o card na home do admin e a rota `/admin/plataforma-interesse` e a página `/plataforma` ficarão acessíveis.
-- **Deploy dos clientes:** não defina a variável ou defina `false`. O menu não mostra a seção White-label, não há card de leads, `/admin/plataforma-interesse` redireciona para `/admin`, `/plataforma` redireciona para `/` e as APIs de leads retornam 403.
+- **Deploy dos donos (Vercel):** defina **`ENABLE_PLATAFORMA_SALES=true`** (sem `NEXT_PUBLIC_`). O servidor lê essa variável em toda requisição, então o menu do admin terá a seção "White-label" e o link "Interesses /plataforma" após o deploy. Alternativamente use `NEXT_PUBLIC_ENABLE_PLATAFORMA_SALES=true` e garanta que um **novo deploy** foi feito depois de salvar a variável.
+- **Deploy dos clientes:** não defina nenhuma das duas ou defina `false`. O menu não mostra a seção White-label, não há card de leads, `/admin/plataforma-interesse` redireciona para `/admin`, `/plataforma` redireciona para `/` e as APIs de leads retornam 403.
 
 ## Multi-tenant (banco de dados)
 
