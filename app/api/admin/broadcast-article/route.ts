@@ -3,7 +3,7 @@ import { Resend } from 'resend'
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin'
 import { getBrandConfig, getBrandLogoUrl, getBrandConfigFromRequest } from '@/lib/brand'
 
-const DEFAULT_SEGMENT_ID = '6ed286d1-f405-4419-87f4-1e8c5bc7a5bf'
+const DEFAULT_AUDIENCE_ID = '6ed286d1-f405-4419-87f4-1e8c5bc7a5bf'
 
 function escapeHtml(text: string): string {
   return text
@@ -64,8 +64,12 @@ export async function POST(request: Request) {
       process.env.RESEND_FROM_EMAIL ||
       `${brand.name} <no-reply@${new URL(brand.baseUrl).hostname}>`
 
-    const segmentId =
-      process.env.RESEND_SEGMENT_ID || DEFAULT_SEGMENT_ID
+    // Audience por tenant (multi-tenant); fallback: env ou audience padrão
+    const audienceId =
+      brand.resendAudienceId ??
+      process.env.RESEND_AUDIENCE_ID ??
+      process.env.RESEND_SEGMENT_ID ??
+      DEFAULT_AUDIENCE_ID
 
     const articleUrl = `${brand.baseUrl.replace(/\/$/, '')}/blog/${article.id}`
 
@@ -193,7 +197,7 @@ export async function POST(request: Request) {
     let cursor: string | undefined
     do {
       const listOptions: { audienceId: string; limit?: number; after?: string } = {
-        audienceId: segmentId,
+        audienceId,
         limit: 100,
       }
       if (cursor) listOptions.after = cursor

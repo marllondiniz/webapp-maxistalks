@@ -31,11 +31,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Adicionar contato ao Resend
+    const host = request.headers.get('host') ?? undefined
+    const brand = await getBrandConfig(host)
+
+    // Audience por tenant (multi-tenant); fallback: env ou audience padrão
+    const audienceId =
+      brand.resendAudienceId ??
+      process.env.RESEND_AUDIENCE_ID ??
+      '6ed286d1-f405-4419-87f4-1e8c5bc7a5bf'
+
+    // Adicionar contato ao Resend na audience do tenant
     try {
       await resend.contacts.create({
-        email: email,
-        audienceId: "6ed286d1-f405-4419-87f4-1e8c5bc7a5bf",
+        email,
+        audienceId,
       })
     } catch (contactError: any) {
       // Se o contato já existir, não é um erro crítico
@@ -46,9 +55,6 @@ export async function POST(request: NextRequest) {
         // Continuar mesmo se falhar ao adicionar contato
       }
     }
-
-    const host = request.headers.get('host') ?? undefined
-    const brand = await getBrandConfig(host)
     const logoUrl = getBrandLogoUrl(brand)
     const fromEmail = process.env.RESEND_FROM_EMAIL || `${brand.name} <no-reply@${new URL(brand.baseUrl).hostname}>`
     const notificationFromEmail = process.env.RESEND_FROM_EMAIL || fromEmail

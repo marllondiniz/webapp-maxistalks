@@ -248,7 +248,7 @@ export async function InicioContent() {
         <div className="mb-3">
           <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">
             <AlertCircle className="h-3.5 w-3.5 text-amber-400" />
-            Registrar meu desafio
+            Qual a sua maior dificuldade hoje?
           </h3>
           <p className="mt-1 text-sm text-slate-500">
             Compartilhe seu maior desafio. Isso nos ajuda a criar conteúdos e ferramentas mais relevantes para você.

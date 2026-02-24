@@ -1,45 +1,30 @@
 # White label
 
-O app pode ser usado como **single-tenant** (uma marca por deploy, via variáveis de ambiente) ou **multi-tenant** (várias marcas no mesmo deploy, resolvidas por domínio no banco).
+O app é **multi-tenant**: um único deploy, vários domínios (clientes). Cada domínio é resolvido pelo **Host** da requisição e pela tabela `tenants` no banco.
 
-## Single-tenant (variáveis de ambiente)
+---
 
-Em cada deploy (ex.: um projeto Vercel por cliente), configure o `.env`:
+## Decisões e notas importantes
 
-| Variável | Descrição | Exemplo |
-|----------|-----------|---------|
-| `NEXT_PUBLIC_APP_NAME` | Nome da marca | `Minha Marca` |
-| `NEXT_PUBLIC_APP_TAGLINE` | Slogan | `Palco para quem gera valor` |
-| `NEXT_PUBLIC_LOGO_PATH` | Caminho do logo (em `public/`) | `/logo.png` |
-| `NEXT_PUBLIC_FAVICON_PATH` | Favicon (opcional) | `/favicon.ico` |
-| `NEXT_PUBLIC_OG_IMAGE_PATH` | Imagem para redes sociais (opcional) | `/og.png` |
-| `NEXT_PUBLIC_PRIMARY_COLOR` | Cor primária (hex sem `#`) | `3b82f6` |
-| `NEXT_PUBLIC_PRIMARY_COLOR_HOVER` | Cor primária hover | `2563eb` |
-| `NEXT_PUBLIC_SUPPORT_EMAIL` | E-mail de contato | `contato@minhamarca.com` |
-| `NEXT_PUBLIC_BASE_URL` | URL do site | `https://minhamarca.com` |
-| `NEXT_PUBLIC_STORAGE_KEY_PREFIX` | Prefixo do localStorage (auth e cookies) | `minhamarca` |
+**Estratégia:** o produto opera **sempre em modo multi-tenant**. Cada domínio (ex.: maxistalks.com, cliente.com) é resolvido pelo **Host** da requisição → tabela `tenants` (campo `domain`). Quando não há tenant para o host (ex.: localhost em desenvolvimento), usa-se fallback das variáveis de ambiente.
 
-Coloque o logo (e favicon/og se quiser) na pasta `public/`. Sem configurar nada, o app usa os padrões da marca MaxisTalks.
+**Resolução do tenant:** `getBrandConfig(host)` → busca em `tenants` por `domain` (normalizado, sem porta). Tudo que depende de marca (nome, logo, cores, base_url, features, newsletter) vem da brand desse tenant.
+
+**Venda da plataforma (/plataforma e Interesses no admin):** só para o(s) dono(s). No banco: `tenants.enable_plataforma_sales = true` apenas para o tenant dono (ex.: maxistalks.com). Clientes: `false` (padrão). Não é necessário variável de ambiente no multi-tenant.
+
+**Newsletter (Resend):** cada tenant tem sua própria **Audience** no Resend. Coluna `tenants.resend_audience_id` = UUID da audience. Inscrição e broadcast usam essa audience; listas ficam isoladas por cliente. Ao criar um novo tenant: criar Audience no Resend e preencher `resend_audience_id`.
+
+**E-mail “De” (remetente):** hoje o código usa `nome do tenant <no-reply@hostname do base_url>`. Para esse endereço funcionar, o **domínio do tenant precisa estar verificado no Resend** (DNS). Alternativa: usar um único domínio de envio (ex.: `no-reply@mail.maxistalks.com`) via variável `RESEND_FROM_EMAIL` no env; aí o nome exibido continua sendo o do tenant.
+
+**Onboarding de novo cliente (checklist):** (1) Inserir registro em `tenants` (domain, name, logo_url, base_url, etc.). (2) No Resend, criar Audience e preencher `resend_audience_id`. (3) DNS do domínio do cliente apontando para o deploy. (4) Opcional: verificar domínio no Resend se for enviar de no-reply@domínio-do-cliente.
+
+---
 
 ## Venda da plataforma white-label (só para donos)
 
 A página pública `/plataforma` (formulário de interesse em comprar o sistema) e a área no admin **Interesses /plataforma** são voltadas **apenas para o(s) dono(s) do produto**. Nos clientes que já compraram o white-label, essa funcionalidade não deve aparecer.
 
-### Single-tenant (um deploy por cliente)
-
-Controle por variável de ambiente:
-
-| Variável | Descrição | Quando usar |
-|----------|-----------|-------------|
-| `ENABLE_PLATAFORMA_SALES` | **(Recomendado no Vercel)** Habilita página `/plataforma` e seção "Interesses /plataforma" no admin. Lido no servidor em tempo de execução. | No deploy dos donos: `true` ou `1`. Nos clientes: não defina ou `false`. |
-| `NEXT_PUBLIC_ENABLE_PLATAFORMA_SALES` | Mesmo efeito, mas embutido no build. | Use se preferir; após adicionar no Vercel é necessário **fazer um novo deploy** para o valor aparecer. |
-
-- **Deploy dos donos (Vercel):** defina **`ENABLE_PLATAFORMA_SALES=true`**. O menu do admin terá a seção "White-label" e o link "Interesses /plataforma".
-- **Deploy dos clientes:** não defina nenhuma das duas ou defina `false`. O menu não mostra a seção White-label, `/plataforma` redireciona para `/` e as APIs de leads retornam 403.
-
-### Multi-tenant (vários domínios no mesmo deploy)
-
-No multi-tenant, o controle é **por tenant** na tabela `tenants`: a coluna **`enable_plataforma_sales`** (boolean) define se aquele domínio (marca) é “dono” e pode ver/usar a venda da plataforma.
+O controle é **por tenant** na tabela `tenants`: a coluna **`enable_plataforma_sales`** (boolean) define se aquele domínio (marca) é “dono” e pode ver/usar a venda da plataforma.
 
 - **Tenant dono (ex.: maxistalks.com):** no banco, `enable_plataforma_sales = true`. Esse domínio vê o menu "White-label", o card e a página `/plataforma`, e as APIs de leads funcionam.
 - **Tenant cliente (ex.: cliente.com):** `enable_plataforma_sales = false` (padrão). Esse domínio não vê a seção, `/plataforma` redireciona para `/` e as APIs retornam 403.
@@ -51,7 +36,7 @@ A migration `20260223130000_add_tenants_enable_plataforma_sales.sql` adiciona a 
 1. Rode a migration que cria a tabela `tenants`:
    - `supabase/migrations/20260213100000_create_tenants_white_label.sql`
 
-2. A resolução do tenant é feita pelo **host** da requisição (ex.: `maxistalks.com`, `cliente.com`). O layout lê o header `Host`, chama `getBrandConfig(host)` e usa primeiro o registro em `tenants` cujo `domain` coincide; se não houver, usa as variáveis de ambiente.
+2. A resolução do tenant é feita pelo **host** da requisição (ex.: `maxistalks.com`, `cliente.com`). O layout lê o header `Host`, chama `getBrandConfig(host)` e usa o registro em `tenants` cujo `domain` coincide; se não houver (ex.: localhost), usa fallback das variáveis de ambiente.
 
 3. Para adicionar um novo cliente (marca), insira um registro em `tenants`:
 
@@ -100,11 +85,14 @@ INSERT INTO tenants (
 | `base_url` | text | URL base do site |
 | `storage_key_prefix` | text | Prefixo para localStorage |
 | `enable_plataforma_sales` | boolean | Se true, este tenant (dono) vê /plataforma e Interesses no admin. Para clientes: false (padrão). |
+| `resend_audience_id` | text | ID da Audience no Resend para newsletter/broadcast deste tenant. Cada tenant deve ter sua própria Audience no Resend; preencher ao criar o cliente. |
 | `created_at` / `updated_at` | timestamptz | Metadados |
 
 A migration já insere o tenant padrão para `maxistalks.com`. Para desenvolvimento em `localhost`, cadastre um tenant com `domain = 'localhost'` ou use as variáveis de ambiente.
 
-## Isolamento por tenant (multi-tenant)
+**Newsletter (Resend) por tenant:** Para cada novo cliente, crie uma Audience no Resend, copie o ID (UUID) e preencha `resend_audience_id` no registro do tenant. A inscrição na newsletter e o disparo de artigos usam essa audience, isolando a lista por cliente.
+
+## Isolamento por tenant
 
 A migration `20260213120000_add_tenant_id_to_core_tables.sql` adiciona a coluna `tenant_id` (FK para `tenants.id`) nas tabelas:
 

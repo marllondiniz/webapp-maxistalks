@@ -39,6 +39,7 @@ export function useBrand(): BrandConfig {
       enablePlataformaSales:
         process.env.NEXT_PUBLIC_ENABLE_PLATAFORMA_SALES === 'true' ||
         process.env.NEXT_PUBLIC_ENABLE_PLATAFORMA_SALES === '1',
+      resendAudienceId: null,
       addressLine1: null,
       addressLine2: null,
       addressCep: null,
