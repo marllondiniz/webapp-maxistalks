@@ -99,7 +99,8 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
 
   useEffect(() => {
     if (profileStatus === 'no-user') {
-      router.replace('/login')
+      const redirect = pathname ? encodeURIComponent(pathname) : ''
+      router.replace(redirect ? `/login?redirect=${redirect}` : '/login')
       return
     }
     if (profileStatus === 'incomplete' && pathname && pathname !== '/perfil') {

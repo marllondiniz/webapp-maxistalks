@@ -13,6 +13,16 @@ import { useBrand } from '@/app/(components)/BrandProvider'
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 
+/** Redirecionamento pós-login só para paths internos (ex.: /blog/123 vindo do email). */
+function isSafeRedirect(path: string | null): path is string {
+  return (
+    typeof path === 'string' &&
+    path.startsWith('/') &&
+    !path.startsWith('//') &&
+    path !== '/login'
+  )
+}
+
 type AuthMode = 'signIn' | 'signUp' | 'reset'
 
 export default function LoginClient() {
@@ -21,6 +31,8 @@ export default function LoginClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const modeParam = searchParams.get('mode')
+  const redirectTo = searchParams.get('redirect')
+  const safeRedirect = isSafeRedirect(redirectTo) ? redirectTo : null
 
   const initialMode = useMemo<AuthMode>(() => {
     if (modeParam === 'signUp' || modeParam === 'cadastro') return 'signUp'
@@ -56,11 +68,11 @@ export default function LoginClient() {
         router.replace('/perfil')
         return
       }
-      router.replace('/inicio')
+      router.replace(safeRedirect ?? '/inicio')
     }
     checkSession()
     return () => { isMounted = false }
-  }, [router])
+  }, [router, safeRedirect])
   const [mode, setMode] = useState<AuthMode>(initialMode)
 
   useEffect(() => {
@@ -164,12 +176,12 @@ export default function LoginClient() {
           }
 
           setFeedback({ type: 'success', text: t('loginSuccess') })
-          router.replace('/inicio')
+          router.replace(safeRedirect ?? '/inicio')
           return
         }
 
         setFeedback({ type: 'success', text: t('loginSuccess') })
-        router.replace('/inicio')
+        router.replace(safeRedirect ?? '/inicio')
       }
 
       if (mode === 'signUp') {

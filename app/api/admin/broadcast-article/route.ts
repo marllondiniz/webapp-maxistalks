@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
+import { randomBytes } from 'crypto'
 import { Resend } from 'resend'
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin'
 import { getBrandConfig, getBrandLogoUrl, getBrandConfigFromRequest } from '@/lib/brand'
 
 const DEFAULT_AUDIENCE_ID = '6ed286d1-f405-4419-87f4-1e8c5bc7a5bf'
+const AUTH_LINK_TOKEN_EXPIRY_HOURS = 24
 
 function escapeHtml(text: string): string {
   return text
@@ -71,7 +73,8 @@ export async function POST(request: Request) {
       process.env.RESEND_SEGMENT_ID ??
       DEFAULT_AUDIENCE_ID
 
-    const articleUrl = `${brand.baseUrl.replace(/\/$/, '')}/blog/${article.id}`
+    const baseUrl = brand.baseUrl.replace(/\/$/, '')
+    const articleUrlDefault = `${baseUrl}/blog/${article.id}`
 
     const icone = article.icone ? `${article.icone} ` : ''
     const resumo = article.resumo
@@ -95,33 +98,40 @@ export async function POST(request: Request) {
 
     const gallery = galleryData ?? []
     const galleryPhotos = gallery.slice(0, 6)
-    const galleryRows: string[] = []
-    for (let i = 0; i < galleryPhotos.length; i += 3) {
-      const row = galleryPhotos.slice(i, i + 3)
-      galleryRows.push(
-        `<tr>${row
-          .map(
-            (p: { image_url: string }) =>
-              `<td style="padding:6px;width:33.33%;vertical-align:top;">
-                <a href="${articleUrl}" style="display:block;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:transform 0.2s;">
+
+    function buildGalleryRows(articleLink: string): string {
+      const rows: string[] = []
+      for (let i = 0; i < galleryPhotos.length; i += 3) {
+        const row = galleryPhotos.slice(i, i + 3)
+        rows.push(
+          `<tr>${row
+            .map(
+              (p: { image_url: string }) =>
+                `<td style="padding:6px;width:33.33%;vertical-align:top;">
+                <a href="${articleLink}" style="display:block;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:transform 0.2s;">
                   <img src="${p.image_url}" alt="" width="100%" style="display:block;height:130px;object-fit:cover;" />
                 </a>
               </td>`
-          )
-          .join('')}</tr>`
-      )
+            )
+            .join('')}</tr>`
+        )
+      }
+      return rows.join('')
     }
-    const galleryHtml =
-      gallery.length > 0
-        ? `
+
+    function buildEmailHtml(articleLink: string): string {
+      const galleryRowsHtml = gallery.length > 0 ? buildGalleryRows(articleLink) : ''
+      const galleryHtml =
+        gallery.length > 0
+          ? `
             <div style="margin:32px 0;padding:24px 0;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">
               <h2 style="margin:0 0 6px;font-size:14px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#3b82f6;">📸 Como foi o evento</h2>
               <p style="margin:0 0 20px;font-size:14px;color:#64748b;line-height:1.6;">Veja um pouquinho de como foi. No site tem o álbum completo!</p>
-              <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">${galleryRows.join('')}</table>
+              <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">${galleryRowsHtml}</table>
             </div>`
-        : ''
+          : ''
 
-    const html = `<!DOCTYPE html>
+      return `<!DOCTYPE html>
 <html lang="pt-BR">
   <head>
     <meta charset="utf-8" />
@@ -162,7 +172,7 @@ export async function POST(request: Request) {
                   ${galleryHtml}
 
                   <div style="text-align:center;margin-top:32px;">
-                    <a href="${articleUrl}"
+                    <a href="${articleLink}"
                        style="display:inline-block;background:#3b82f6;color:#ffffff;font-size:15px;font-weight:700;text-decoration:none;padding:16px 40px;border-radius:12px;letter-spacing:0.02em;box-shadow:0 4px 12px rgba(59,130,246,0.3);">
                       Ler conteúdo completo →
                     </a>
@@ -189,6 +199,7 @@ export async function POST(request: Request) {
     </table>
   </body>
 </html>`
+    }
 
     const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -243,9 +254,47 @@ export async function POST(request: Request) {
       })
     }
 
+    // Quem tem conta (perfil) neste tenant: link de login automático (entra já logado). Demais: link direto do artigo.
+    const emailsLower = toSendNew.map((e) => e.toLowerCase().trim())
+    const emailsSet = new Set(emailsLower)
+    let profilesQuery = supabaseAdmin
+      .from('profiles')
+      .select('id, email')
+      .not('email', 'is', null)
+      .in('email', toSendNew)
+    if (tenantId) profilesQuery = profilesQuery.eq('tenant_id', tenantId)
+    const { data: profilesWithAccount } = await profilesQuery
+
+    const emailToUserId = new Map<string, string>()
+    for (const p of profilesWithAccount ?? []) {
+      const em = (p.email as string)?.toLowerCase().trim()
+      if (em && emailsSet.has(em)) emailToUserId.set(em, p.id)
+    }
+
+    const redirectPath = `/blog/${article.id}`
+    const expiresAt = new Date(Date.now() + AUTH_LINK_TOKEN_EXPIRY_HOURS * 60 * 60 * 1000)
+
+    const linkByEmail = new Map<string, string>()
+    for (const email of toSendNew) {
+      const key = email.toLowerCase().trim()
+      const userId = emailToUserId.get(key)
+      if (userId) {
+        const token = randomBytes(32).toString('hex')
+        await supabaseAdmin.from('auth_link_tokens').insert({
+          token,
+          user_id: userId,
+          redirect_path: redirectPath,
+          expires_at: expiresAt.toISOString(),
+        })
+        linkByEmail.set(email, `${baseUrl}/api/auth/link?token=${token}`)
+      } else {
+        linkByEmail.set(email, articleUrlDefault)
+      }
+    }
+
     const subject = `${icone}${article.titulo}`
 
-    // Batch API: até 100 e-mails por requisição (evita rate limit 2 req/s)
+    // Batch API: até 100 e-mails por requisição; cada destinatário recebe HTML com seu link (login automático ou direto)
     const BATCH_SIZE = 100
     const batches: string[][] = []
     for (let i = 0; i < toSendNew.length; i += BATCH_SIZE) {
@@ -261,7 +310,7 @@ export async function POST(request: Request) {
         from: fromEmail,
         to: email,
         subject,
-        html,
+        html: buildEmailHtml(linkByEmail.get(email) ?? articleUrlDefault),
       }))
 
       const maxRetries = 4
