@@ -1,10 +1,59 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getEvents, getActiveEventBanners } from '@/lib/queries'
-import { getTenantIdForRequest } from '@/lib/brand'
+import { getBrandForRequest, getTenantIdForRequest } from '@/lib/brand'
 import { EventDetailClient } from './EventDetailClient'
 
 type Props = {
   params: Promise<{ id: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params
+  const [brand, tenantId] = await Promise.all([getBrandForRequest(), getTenantIdForRequest()])
+  const [eventos, banners] = await Promise.all([
+    getEvents(tenantId),
+    getActiveEventBanners(tenantId),
+  ])
+
+  const event = eventos.find((e) => e.id === id || (e as typeof e & { slug?: string | null }).slug === id)
+  if (!event) {
+    return {
+      title: `${brand.name} | ${brand.tagline}`,
+      description: brand.tagline,
+    }
+  }
+
+  const banner = banners.find((b) => b.event_id === event.id) ?? null
+  const descriptionBase = event.descricao
+    ? event.descricao.replace(/<[^>]+>/g, '').slice(0, 200)
+    : `${event.local_nome} — ${new Date(event.data_horario).toLocaleString('pt-BR')}`
+
+  const url = new URL(`/eventos/${(event as typeof event & { slug?: string | null }).slug ?? event.id}`, brand.baseUrl)
+
+  return {
+    title: event.titulo,
+    description: descriptionBase,
+    openGraph: {
+      title: event.titulo,
+      description: descriptionBase,
+      url,
+      siteName: brand.name,
+      images: banner
+        ? [
+            {
+              url: banner.image_url,
+            },
+          ]
+        : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: event.titulo,
+      description: descriptionBase,
+      images: banner ? [banner.image_url] : undefined,
+    },
+  }
 }
 
 export default async function EventDetailPage({ params }: Props) {
@@ -15,7 +64,7 @@ export default async function EventDetailPage({ params }: Props) {
     getActiveEventBanners(tenantId),
   ])
 
-  const event = eventos.find((e) => e.id === id)
+  const event = eventos.find((e) => e.id === id || (e as typeof e & { slug?: string | null }).slug === id)
   if (!event) {
     notFound()
   }

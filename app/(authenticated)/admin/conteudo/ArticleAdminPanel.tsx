@@ -17,6 +17,7 @@ const MAX_FILE_SIZE = 3 * 1024 * 1024 // 3MB
 type FormState = {
   titulo: string
   autor_handle: string
+  slug: string
   categoria: string
   resumo: string
   conteudo: string
@@ -29,6 +30,7 @@ type FormState = {
 const defaultForm: FormState = {
   titulo: '',
   autor_handle: '@maxistalks',
+  slug: '',
   categoria: 'dicas',
   resumo: '',
   conteudo: '',
@@ -105,6 +107,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
     setForm({
       titulo: article.titulo,
       autor_handle: article.autor_handle || '@maxistalks',
+      slug: article.slug || '',
       categoria: article.categoria || 'dicas',
       resumo: article.resumo || '',
       conteudo: article.conteudo || '',
@@ -240,6 +243,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
     const payload: Record<string, unknown> = {
       titulo: form.titulo,
       autor_handle: form.autor_handle || '@maxistalks',
+      slug: form.slug || null,
       categoria: form.categoria,
       resumo: form.resumo || null,
       conteudo: form.conteudo || null,
@@ -422,6 +426,20 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
               className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white"
               required
             />
+          </label>
+
+          <label className="space-y-2 md:col-span-2">
+            <span className="text-xs font-semibold uppercase text-slate-400">Slug (URL do artigo)</span>
+            <input
+              type="text"
+              value={form.slug}
+              onChange={(e) => setForm((prev) => ({ ...prev, slug: e.target.value }))}
+              placeholder="ex: comunidade-oficial-no-whatsapp"
+              className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white"
+            />
+            <p className="text-[11px] text-slate-500">
+              Opcional. Se deixar em branco, geramos automaticamente a partir do título.
+            </p>
           </label>
 
           <label className="space-y-2">

@@ -20,6 +20,7 @@ type DescriptionSection = {
 
 type FormState = {
   titulo: string
+  slug: string
   descricaoSections: DescriptionSection[]
   data_horario: string
   local_nome: string
@@ -45,6 +46,7 @@ const createEmptySection = (initialContent = ''): DescriptionSection => ({
 
 const createDefaultForm = (): FormState => ({
   titulo: '',
+  slug: '',
   descricaoSections: [createEmptySection()],
   data_horario: '',
   local_nome: '',
@@ -267,6 +269,7 @@ export function EventAdminPanel({ initialEvents }: Props) {
 
     const payload = {
       titulo: form.titulo,
+      slug: form.slug || null,
       descricao: descricaoPayload,
       data_horario: parsedDate.toISOString(),
       local_nome: form.local_nome,
@@ -484,6 +487,7 @@ export function EventAdminPanel({ initialEvents }: Props) {
 
     setForm({
       titulo: evento.titulo ?? '',
+      slug: (evento as EventRecord & { slug?: string | null }).slug ?? '',
       descricaoSections,
       data_horario: formatDateForInput(evento.data_horario),
       local_nome: evento.local_nome ?? '',
@@ -578,6 +582,20 @@ export function EventAdminPanel({ initialEvents }: Props) {
               className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
               required
             />
+          </label>
+
+          <label className="space-y-2">
+            <span className="text-xs font-semibold uppercase text-slate-400">Slug (URL do evento)</span>
+            <input
+              type="text"
+              value={form.slug}
+              onChange={(event) => handleChange('slug', event.target.value)}
+              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
+              placeholder="ex: maxistalks-sao-paulo-marco-2026"
+            />
+            <p className="text-[11px] text-slate-500">
+              Opcional. Se deixar em branco, geramos automaticamente a partir do título.
+            </p>
           </label>
 
           <label className="space-y-2">

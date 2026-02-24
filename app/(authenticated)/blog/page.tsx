@@ -79,10 +79,12 @@ export default async function BlogPage({
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        {artigosFiltrados.map((artigo) => (
+        {artigosFiltrados.map((artigo) => {
+          const detailPath = artigo.slug ? `/blog/${artigo.slug}` : `/blog/${artigo.id}`
+          return (
           <Link
             key={artigo.id}
-            href={`/blog/${artigo.id}`}
+            href={detailPath}
             className="group overflow-hidden rounded-xl border border-slate-600/30 bg-slate-800/80 shadow-lg transition hover:border-slate-500/40 hover:shadow-xl"
           >
             <div className="flex flex-col">
@@ -126,7 +128,7 @@ export default async function BlogPage({
               </div>
             </div>
           </Link>
-        ))}
+        )})}
       </div>
 
       {artigosFiltrados.length === 0 && (

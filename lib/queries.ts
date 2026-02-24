@@ -7,6 +7,7 @@ export type EventRecord = {
   titulo: string
   descricao: string | null
   data_horario: string
+  slug?: string | null
   local_nome: string
   local_detalhe: string | null
   localizacao_maps?: string | null
@@ -44,6 +45,7 @@ export type ArticleRecord = {
   id: string
   titulo: string
   autor_handle: string
+  slug?: string | null
   categoria: string | null
   resumo: string | null
   conteudo: string | null
@@ -218,6 +220,20 @@ export async function getArticleById(id: string, tenantId?: string | null): Prom
 
   if (error) {
     console.error('Erro ao buscar artigo:', error)
+    return null
+  }
+
+  return data ?? null
+}
+
+export async function getArticleBySlugOrId(slugOrId: string, tenantId?: string | null): Promise<ArticleRecord | null> {
+  const supabase = getSupabaseServer()
+  let query = supabase.from('articles').select('*').or(`id.eq.${slugOrId},slug.eq.${slugOrId}`)
+  if (tenantId) query = query.eq('tenant_id', tenantId)
+  const { data, error } = await query.maybeSingle()
+
+  if (error) {
+    console.error('Erro ao buscar artigo por slug ou id:', error)
     return null
   }
 

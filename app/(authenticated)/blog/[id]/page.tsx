@@ -1,18 +1,66 @@
+import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getArticleById, getArticleGallery } from '@/lib/queries'
-import { getTenantIdForRequest } from '@/lib/brand'
+import { getArticleBySlugOrId, getArticleGallery } from '@/lib/queries'
+import { getBrandForRequest, getTenantIdForRequest } from '@/lib/brand'
 import { ChevronLeft } from 'lucide-react'
 import { ArticleGalleryCarousel } from './ArticleGalleryCarousel'
 import { ArticleComments } from './ArticleComments'
 import { getTranslations, getLocale } from 'next-intl/server'
 
-export default async function ArticlePage({
-  params,
-}: {
+type ArticlePageParams = {
   params: Promise<{ id: string }>
-}) {
+}
+
+export async function generateMetadata({ params }: ArticlePageParams): Promise<Metadata> {
+  const { id } = await params
+  const [brand, tenantId, t] = await Promise.all([
+    getBrandForRequest(),
+    getTenantIdForRequest(),
+    getTranslations('UserBlogDetail'),
+  ])
+  const artigo = await getArticleBySlugOrId(id, tenantId)
+
+  if (!artigo) {
+    return {
+      title: `${brand.name} | ${brand.tagline}`,
+      description: brand.tagline,
+    }
+  }
+
+  const url = new URL(`/blog/${artigo.slug ?? artigo.id}`, brand.baseUrl)
+  const description =
+    artigo.resumo ||
+    (artigo.conteudo ? artigo.conteudo.replace(/<[^>]+>/g, '').slice(0, 160) : brand.tagline)
+
+  return {
+    title: artigo.titulo,
+    description,
+    openGraph: {
+      title: artigo.titulo,
+      description,
+      url,
+      siteName: brand.name,
+      type: 'article',
+      images: artigo.image_url
+        ? [
+            {
+              url: artigo.image_url,
+            },
+          ]
+        : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: artigo.titulo,
+      description,
+      images: artigo.image_url ? [artigo.image_url] : undefined,
+    },
+  }
+}
+
+export default async function ArticlePage({ params }: ArticlePageParams) {
   const { id } = await params
   const [t, locale, tenantId] = await Promise.all([
     getTranslations('UserBlogDetail'),
@@ -20,7 +68,7 @@ export default async function ArticlePage({
     getTenantIdForRequest(),
   ])
   const [artigo, gallery] = await Promise.all([
-    getArticleById(id, tenantId),
+    getArticleBySlugOrId(id, tenantId),
     getArticleGallery(id),
   ])
 
