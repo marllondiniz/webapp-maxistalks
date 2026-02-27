@@ -643,3 +643,30 @@ export async function getPlataformaLeads(tenantId: string | null): Promise<Plata
   return (data ?? []) as PlataformaLeadRecord[]
 }
 
+export type ChallengeRecord = {
+  id: string
+  titulo: string
+  descricao: string | null
+  progresso_padrao: number | null
+  semana_referencia: string | null
+  ordem: number | null
+  created_at: string
+}
+
+export async function getChallenges(): Promise<ChallengeRecord[]> {
+  const supabase = getSupabaseAdmin()
+  const { data, error } = await supabase
+    .from('challenges')
+    .select('id, titulo, descricao, progresso_padrao, semana_referencia, ordem, created_at')
+    .order('ordem', { ascending: true })
+    .order('created_at', { ascending: true })
+
+  if (error) {
+    console.error('Erro ao buscar desafios:', error)
+    return []
+  }
+
+  return (data ?? []) as ChallengeRecord[]
+}
+
+
