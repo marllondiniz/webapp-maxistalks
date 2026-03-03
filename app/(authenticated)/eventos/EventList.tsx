@@ -37,12 +37,15 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
   } | null>(null)
 
   const [eventStates, setEventStates] = useState(() =>
-    events.map((event) => ({
-      ...event,
-      participantes_confirmados: event.participantes_confirmados ?? 0,
-      capacidade_maxima: event.capacidade_maxima ?? 0,
-    }))
-  )
+    events
+      .slice()
+      .sort((a, b) => new Date(b.created_at ?? '').getTime() - new Date(a.created_at ?? '').getTime())
+      .map((event) => ({
+        ...event,
+        participantes_confirmados: event.participantes_confirmados ?? 0,
+        capacidade_maxima: event.capacidade_maxima ?? 0,
+      }))
+  );
 
   useEffect(() => {
     let isMounted = true

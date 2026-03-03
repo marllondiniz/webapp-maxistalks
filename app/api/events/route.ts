@@ -3,7 +3,6 @@ import { getSupabaseAdmin } from '@/lib/supabaseAdmin'
 import { getBrandConfigFromRequest } from '@/lib/brand'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 0
 
 export async function GET(request: Request) {
   try {
@@ -64,7 +63,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json(
       { events: eventsWithBanners },
-      { headers: { 'Cache-Control': 'no-store, max-age=0' } }
     )
   } catch {
     return NextResponse.json({ events: [] })
