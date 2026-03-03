@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin'
 import { getBrandConfigFromRequest } from '@/lib/brand'
 
+export const dynamic = 'force-dynamic'
+
 export type PainWithUser = {
   id: string
   user_id: string

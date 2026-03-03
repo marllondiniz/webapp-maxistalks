@@ -17,6 +17,7 @@ export type EventRecord = {
   capacidade_maxima: number | null
   destaque: boolean | null
   banner_id?: string | null
+  created_at?: string
 }
 
 export type EventBannerRecord = {
@@ -662,7 +663,9 @@ export async function getChallenges(): Promise<ChallengeRecord[]> {
     .order('created_at', { ascending: true })
 
   if (error) {
-    console.error('Erro ao buscar desafios:', error)
+    if (error.code !== 'PGRST205') {
+      console.error('Erro ao buscar desafios:', error)
+    }
     return []
   }
 

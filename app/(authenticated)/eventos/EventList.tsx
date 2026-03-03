@@ -214,6 +214,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
     })
   }
 
+  // Últimos eventos (mais recentemente criados) primeiro; depois por data do evento
   const normalizedEvents = useMemo(() => {
     const now = new Date()
     return [...eventStates].sort((a, b) => {
@@ -221,6 +222,11 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
       const bPast = new Date(b.data_horario) < now
       if (aPast && !bPast) return 1
       if (!aPast && bPast) return -1
+      const aCreated = a.created_at
+      const bCreated = b.created_at
+      if (aCreated && bCreated) {
+        return new Date(bCreated).getTime() - new Date(aCreated).getTime()
+      }
       return new Date(b.data_horario).getTime() - new Date(a.data_horario).getTime()
     })
   }, [eventStates])
