@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
@@ -49,6 +49,18 @@ export default function MaxisTalksPage() {
       .then(({ events: e }) => setEvents(e ?? []))
       .catch(() => setEvents([]))
   }, [])
+
+  // Ordenar do mais recente para o mais antigo (created_at ou data_horario)
+  const eventsSorted = useMemo(() => {
+    return [...events].sort((a, b) => {
+      const aCreated = (a as { created_at?: string }).created_at
+      const bCreated = (b as { created_at?: string }).created_at
+      if (aCreated && bCreated) {
+        return new Date(bCreated).getTime() - new Date(aCreated).getTime()
+      }
+      return new Date(b.data_horario).getTime() - new Date(a.data_horario).getTime()
+    })
+  }, [events])
 
   return (
     <main className="relative min-h-screen bg-[#060c1f] text-white">
@@ -136,7 +148,7 @@ export default function MaxisTalksPage() {
               {t('tagUpcoming')}
             </p>
 
-            {events.length > 0 ? (
+            {eventsSorted.length > 0 ? (
               <>
                 {/* Mobile: carrossel horizontal */}
                 <div
@@ -144,7 +156,7 @@ export default function MaxisTalksPage() {
                   style={{ WebkitOverflowScrolling: 'touch' }}
                 >
                   <div className="flex w-max gap-4">
-                    {events.slice(0, 12).map((event, i) => {
+                    {eventsSorted.slice(0, 12).map((event, i) => {
                       const isPast = new Date(event.data_horario) < new Date()
                       const nomePalestrante = event.banner?.subtitulo || null
                       const temaPalestra = event.banner?.titulo || getTituloOpcional(event.descricao) || event.titulo
@@ -231,7 +243,7 @@ export default function MaxisTalksPage() {
 
                 {/* Desktop: grid */}
                 <div className="hidden grid-cols-2 gap-5 sm:grid lg:grid-cols-3">
-                {events.slice(0, 12).map((event, i) => {
+                {eventsSorted.slice(0, 12).map((event, i) => {
                   const isPast = new Date(event.data_horario) < new Date()
                   const nomePalestrante = event.banner?.subtitulo || null
                   const temaPalestra = event.banner?.titulo || getTituloOpcional(event.descricao) || event.titulo

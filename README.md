@@ -52,6 +52,10 @@ maxis-talks/
 └── tsconfig.json
 ```
 
+## 📌 Depois do deploy
+
+Se as alterações não aparecerem em produção (ex.: botão Newsletter em eventos, página /plataforma), veja **[docs/DEPLOY-E-ALTERACOES.md](docs/DEPLOY-E-ALTERACOES.md)** — lá está o SQL para rodar no Supabase e as variáveis de ambiente na Vercel.
+
 ## 🎯 Próximos Passos
 
 - Adicionar formulário de captura de leads
