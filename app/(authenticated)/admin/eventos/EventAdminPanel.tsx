@@ -1,8 +1,8 @@
 'use client'
 
-import { FormEvent, useMemo, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Pencil, Plus, Upload, Image as ImageIcon, Check, Trash2, Info, Lightbulb, Loader2, Save, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
+import { Pencil, Plus, Upload, Image as ImageIcon, Check, Trash2, Info, Lightbulb, Loader2, Save, Calendar, ChevronDown, ChevronUp, Send } from 'lucide-react'
 import type { EventBannerRecord, EventRecord } from '@/lib/queries'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { RichTextEditor } from '@/components/RichTextEditor'
@@ -162,7 +162,18 @@ export function EventAdminPanel({ initialEvents }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingBanner, setEditingBanner] = useState<EventBannerRecord | null>(null)
   const [isCreatePanelCollapsed, setIsCreatePanelCollapsed] = useState(true)
+  const [broadcastingId, setBroadcastingId] = useState<string | null>(null)
+  const [broadcastFeedback, setBroadcastFeedback] = useState<{ id: string; msg: string; ok: boolean } | null>(null)
+  const [newsletterCooldownUntil, setNewsletterCooldownUntil] = useState<Record<string, number>>({})
+  const [now, setNow] = useState(() => Date.now())
   const supabase = useMemo(() => getSupabaseClient(), [])
+
+  useEffect(() => {
+    const hasActive = Object.values(newsletterCooldownUntil).some((until) => until > Date.now())
+    if (!hasActive) return
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [newsletterCooldownUntil])
 
   const handleChange = (field: keyof FormState, value: string | boolean) => {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -511,6 +522,44 @@ export function EventAdminPanel({ initialEvents }: Props) {
 
     setFeedback('Editando evento. Atualize as informações e salve.')
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const NEWSLETTER_COOLDOWN_MS = 15_000
+
+  const handleBroadcast = async (eventId: string) => {
+    if (newsletterCooldownUntil[eventId] != null && now < newsletterCooldownUntil[eventId]) {
+      const secs = Math.ceil((newsletterCooldownUntil[eventId] - now) / 1000)
+      setBroadcastFeedback({ id: eventId, msg: `Aguarde ${secs}s para reenviar.`, ok: false })
+      return
+    }
+    if (!confirm('Enviar este evento por e-mail para todos os leads da newsletter?')) return
+    setBroadcastingId(eventId)
+    setBroadcastFeedback(null)
+    try {
+      const res = await fetch('/api/admin/broadcast-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventId }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        setBroadcastFeedback({ id: eventId, msg: json.error || 'Erro ao enviar.', ok: false })
+      } else {
+        const successMsg =
+          json.message ||
+          (json.sent > 0
+            ? `Enviado para ${json.sent} contato(s).${json.alreadyReceived ? ` (${json.alreadyReceived} já tinham recebido)` : ''}`
+            : 'Newsletter enviada com sucesso!')
+        setBroadcastFeedback({ id: eventId, msg: successMsg, ok: true })
+        if (json.sent > 0) {
+          setNewsletterCooldownUntil((prev) => ({ ...prev, [eventId]: Date.now() + NEWSLETTER_COOLDOWN_MS }))
+        }
+      }
+    } catch {
+      setBroadcastFeedback({ id: eventId, msg: 'Erro de conexão. Tente novamente.', ok: false })
+    } finally {
+      setBroadcastingId(null)
+    }
   }
 
   const handleCancelEdit = () => {
@@ -965,27 +1014,54 @@ export function EventAdminPanel({ initialEvents }: Props) {
                     </p>
                   )}
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleEdit(evento)}
-                    className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-[#334155] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:border-white/20 hover:bg-[#34343b]"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-3.5 w-3.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                    </svg>
-                    {t('editAction')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(evento.id)}
-                    className="flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-red-300 transition hover:border-red-500/50 hover:bg-red-500/20"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-3.5 w-3.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                    </svg>
-                    {t('deleteAction')}
-                  </button>
+                <div className="flex flex-col items-end gap-2">
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleEdit(evento)}
+                      className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-[#334155] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:border-white/20 hover:bg-[#34343b]"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-3.5 w-3.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                      </svg>
+                      {t('editAction')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleBroadcast(evento.id)}
+                      disabled={
+                        broadcastingId === evento.id ||
+                        (newsletterCooldownUntil[evento.id] != null && now < newsletterCooldownUntil[evento.id])
+                      }
+                      className="flex items-center gap-1.5 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-green-300 transition hover:border-green-500/50 hover:bg-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {broadcastingId === evento.id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Send className="h-3.5 w-3.5" />
+                      )}
+                      {broadcastingId === evento.id
+                        ? 'Enviando...'
+                        : newsletterCooldownUntil[evento.id] != null && now < newsletterCooldownUntil[evento.id]
+                          ? `Aguarde ${Math.ceil((newsletterCooldownUntil[evento.id] - now) / 1000)}s`
+                          : 'Newsletter'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(evento.id)}
+                      className="flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-red-300 transition hover:border-red-500/50 hover:bg-red-500/20"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-3.5 w-3.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                      </svg>
+                      {t('deleteAction')}
+                    </button>
+                  </div>
+                  {broadcastFeedback?.id === evento.id && (
+                    <p className={`text-xs font-medium ${broadcastFeedback.ok ? 'text-green-400' : 'text-red-400'}`}>
+                      {broadcastFeedback.msg}
+                    </p>
+                  )}
                 </div>
               </div>
             ))}

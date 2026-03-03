@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   if (list === '1') {
     const { tenantId } = await getBrandConfigFromRequest(request)
     const supabaseAdmin = getSupabaseAdmin()
-    let query = supabaseAdmin.from('events').select('*').order('data_horario', { ascending: true })
+    let query = supabaseAdmin.from('events').select('*').order('data_horario', { ascending: false })
     if (tenantId) query = query.eq('tenant_id', tenantId)
     const { data, error } = await query
 

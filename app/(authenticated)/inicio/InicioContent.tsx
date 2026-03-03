@@ -163,8 +163,7 @@ export async function InicioContent() {
   )
   const agora = new Date()
   const eventosFuturos = eventosOrdenados.filter((e) => new Date(e.data_horario) >= agora)
-  const eventosParaMostrar =
-    eventosFuturos.length > 0 ? eventosFuturos.slice(0, 4) : eventosOrdenados.slice(0, 4)
+  const eventosParaMostrar = eventosFuturos.slice(0, 4)
   const proximoEvento = eventosParaMostrar[0]
   const destaqueBanner: EventBannerRecord | null =
     proximoEvento?.id ? banners.find((b) => b.event_id === proximoEvento.id) ?? null : null
@@ -175,7 +174,7 @@ export async function InicioContent() {
       {liveSession && <LiveSessionBanner session={liveSession} />}
 
       {/* Próximos eventos - único bloco */}
-      {eventosOrdenados.length > 0 ? (
+      {eventosParaMostrar.length > 0 ? (
         <div className="pb-4">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-300">

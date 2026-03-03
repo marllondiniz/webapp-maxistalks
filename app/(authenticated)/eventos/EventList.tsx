@@ -221,7 +221,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
       const bPast = new Date(b.data_horario) < now
       if (aPast && !bPast) return 1
       if (!aPast && bPast) return -1
-      return new Date(a.data_horario).getTime() - new Date(b.data_horario).getTime()
+      return new Date(b.data_horario).getTime() - new Date(a.data_horario).getTime()
     })
   }, [eventStates])
 

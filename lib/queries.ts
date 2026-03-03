@@ -121,12 +121,12 @@ export async function getActiveLiveSession(tenantId?: string | null): Promise<Li
 
 export async function getEvents(tenantId?: string | null): Promise<EventRecord[]> {
   const supabase = getSupabaseServer()
-  let query = supabase.from('events').select('*').order('created_at', { ascending: true, nullsFirst: false })
+  let query = supabase.from('events').select('*').order('created_at', { ascending: false, nullsFirst: false })
   if (tenantId) query = query.or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
   const { data, error } = await query
 
   if (error?.code === '42703') {
-    let fallbackQuery = supabase.from('events').select('*').order('data_horario', { ascending: true })
+    let fallbackQuery = supabase.from('events').select('*').order('data_horario', { ascending: false })
     if (tenantId) fallbackQuery = fallbackQuery.or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
     const { data: fallback, error: err } = await fallbackQuery
     if (err) {

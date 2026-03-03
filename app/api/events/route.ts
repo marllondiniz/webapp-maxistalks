@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     let eventsQuery = supabase
       .from('events')
       .select('id, titulo, descricao, data_horario, local_nome, destaque, created_at')
-      .order('created_at', { ascending: true, nullsFirst: false })
+      .order('created_at', { ascending: false, nullsFirst: false })
     if (tenantId) eventsQuery = eventsQuery.or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
 
     let bannersQuery = supabase
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
       let fallbackQuery = supabase
         .from('events')
         .select('id, titulo, descricao, data_horario, local_nome, destaque')
-        .order('data_horario', { ascending: true })
+        .order('data_horario', { ascending: false })
       if (tenantId) fallbackQuery = fallbackQuery.or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
       const { data: fallbackData, error: fallbackError } = await fallbackQuery
       if (fallbackError) {
