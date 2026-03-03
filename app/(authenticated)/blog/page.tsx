@@ -80,7 +80,7 @@ export default async function BlogPage({
 
       <div className="grid gap-5 sm:grid-cols-2">
         {artigosFiltrados.map((artigo) => {
-          const detailPath = artigo.slug ? `/blog/${artigo.slug}` : `/blog/${artigo.id}`
+          const detailPath = `/blog/${artigo.id}`
           return (
           <Link
             key={artigo.id}

@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     getActiveEventBanners(tenantId),
   ])
 
-  const event = eventos.find((e) => e.id === id || (e as typeof e & { slug?: string | null }).slug === id)
+  const event = eventos.find((e) => e.id === id)
   if (!event) {
     return {
       title: `${brand.name} | ${brand.tagline}`,
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? event.descricao.replace(/<[^>]+>/g, '').slice(0, 200)
     : `${event.local_nome} — ${new Date(event.data_horario).toLocaleString('pt-BR')}`
 
-  const url = new URL(`/eventos/${(event as typeof event & { slug?: string | null }).slug ?? event.id}`, brand.baseUrl)
+  const url = new URL(`/eventos/${event.id}`, brand.baseUrl)
 
   return {
     title: event.titulo,
@@ -64,7 +64,7 @@ export default async function EventDetailPage({ params }: Props) {
     getActiveEventBanners(tenantId),
   ])
 
-  const event = eventos.find((e) => e.id === id || (e as typeof e & { slug?: string | null }).slug === id)
+  const event = eventos.find((e) => e.id === id)
   if (!event) {
     notFound()
   }

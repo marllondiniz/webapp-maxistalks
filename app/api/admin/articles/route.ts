@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabaseAdmin'
 import { getBrandConfigFromRequest } from '@/lib/brand'
-import { slugify } from '@/lib/slug'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -25,16 +24,12 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { slug, titulo, ...rest } = body
-    const normalizedSlug = slugify(slug || titulo || null)
+    const { slug: _slug, titulo, ...rest } = body
     const { tenantId } = await getBrandConfigFromRequest(request)
     const supabaseAdmin = getSupabaseAdmin()
     const basePayload: Record<string, unknown> = {
       ...rest,
       titulo,
-    }
-    if (normalizedSlug) {
-      basePayload.slug = normalizedSlug
     }
     const insertPayload = tenantId ? { ...basePayload, tenant_id: tenantId } : basePayload
     const { data, error } = await supabaseAdmin.from('articles').insert(insertPayload).select('*').single()
@@ -55,7 +50,7 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = await request.json()
-    const { id, slug, titulo, ...rest } = body
+    const { id, slug: _slug, titulo, ...rest } = body
 
     if (!id) {
       return NextResponse.json({ error: 'ID do artigo é obrigatório.' }, { status: 400 })
@@ -63,15 +58,11 @@ export async function PUT(request: Request) {
 
     const { tenantId } = await getBrandConfigFromRequest(request)
     const supabaseAdmin = getSupabaseAdmin()
-    const normalizedSlug = slugify(slug || titulo || null)
     const updatePayload: Record<string, unknown> = {
       ...rest,
     }
     if (titulo) {
       updatePayload.titulo = titulo
-    }
-    if (normalizedSlug) {
-      updatePayload.slug = normalizedSlug
     }
     let updateQuery = supabaseAdmin.from('articles').update(updatePayload).eq('id', id)
     if (tenantId) updateQuery = updateQuery.eq('tenant_id', tenantId)

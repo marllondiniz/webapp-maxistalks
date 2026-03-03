@@ -304,7 +304,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                       </div>
                     </div>
                     <div className="mt-1.5 flex w-full min-w-0 flex-col items-center space-y-1">
-                      <Link href={`/eventos/${event.slug ?? event.id}`}>
+                      <Link href={`/eventos/${event.id}`}>
                         {eventBanner?.subtitulo && (
                           <h3 className="text-xl font-bold tracking-tight text-[#f5f5f5] transition hover:text-white sm:text-2xl">
                             {eventBanner.subtitulo}
@@ -424,7 +424,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                 </div>
 
                 <Link
-                  href={`/eventos/${event.slug ?? event.id}`}
+                  href={`/eventos/${event.id}`}
                   className="flex w-full min-w-0 items-center justify-center rounded-full border border-slate-600/30 bg-slate-800 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-[#f5f5f5] transition hover:border-slate-500/40 hover:bg-slate-700/50"
                 >
                   {t('learnMore')}

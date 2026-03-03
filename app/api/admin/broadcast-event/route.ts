@@ -72,8 +72,8 @@ export async function POST(request: Request) {
       DEFAULT_AUDIENCE_ID
 
     const baseUrl = brand.baseUrl.replace(/\/$/, '')
-    const eventSlug = event.slug ?? event.id
-    const eventUrlDefault = `${baseUrl}/eventos/${eventSlug}`
+    const eventIdForUrl = event.id
+    const eventUrlDefault = `${baseUrl}/eventos/${eventIdForUrl}`
 
     const eventDate = new Date(event.data_horario)
     const formattedDate = eventDate.toLocaleDateString('pt-BR', {
@@ -264,7 +264,7 @@ export async function POST(request: Request) {
       if (em && emailsSet.has(em)) emailToUserId.set(em, p.id)
     }
 
-    const redirectPath = `/eventos/${eventSlug}`
+    const redirectPath = `/eventos/${eventIdForUrl}`
     const expiresAt = new Date(Date.now() + AUTH_LINK_TOKEN_EXPIRY_HOURS * 60 * 60 * 1000)
 
     const linkByEmail = new Map<string, string>()

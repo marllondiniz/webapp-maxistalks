@@ -62,6 +62,16 @@ export default function MaxisTalksPage() {
     })
   }, [events])
 
+  // Número da edição por ordem cronológica da data do evento (mais antigo = Ed. 01)
+  const editionByEventId = useMemo(() => {
+    const byDate = [...events].sort(
+      (a, b) => new Date(a.data_horario).getTime() - new Date(b.data_horario).getTime()
+    )
+    const map = new Map<string, number>()
+    byDate.forEach((ev, idx) => map.set(ev.id, idx + 1))
+    return map
+  }, [events])
+
   return (
     <main className="relative min-h-screen bg-[#060c1f] text-white">
       {/* Global noise overlay */}
@@ -179,7 +189,7 @@ export default function MaxisTalksPage() {
                               />
                                   <div className="absolute left-4 top-4 flex items-center gap-2">
                                 <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium tracking-wider text-white/90 backdrop-blur-sm">
-                                  {t('cardEdition', { n: String(i + 1).padStart(2, '0') })}
+                                  {t('cardEdition', { n: String(editionByEventId.get(event.id) ?? i + 1).padStart(2, '0') })}
                                 </span>
                                 {isPast && (
                                   <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/95 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur">
@@ -194,7 +204,7 @@ export default function MaxisTalksPage() {
                           ) : (
                             <div className="relative flex aspect-[3/4] items-center justify-center bg-gradient-to-br from-blue-600/10 to-transparent p-8">
                               <span className="absolute left-4 top-4 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium tracking-wider text-white/90 backdrop-blur-sm">
-                                {t('cardEdition', { n: String(i + 1).padStart(2, '0') })}
+                                {t('cardEdition', { n: String(editionByEventId.get(event.id) ?? i + 1).padStart(2, '0') })}
                               </span>
                               <p className="text-center text-lg font-bold text-white/80">{event.titulo}</p>
                             </div>
@@ -269,7 +279,7 @@ export default function MaxisTalksPage() {
                           />
                           <div className="absolute left-4 top-4 flex items-center gap-2">
                             <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium tracking-wider text-white/90 backdrop-blur-sm">
-                              {t('cardEdition', { n: String(i + 1).padStart(2, '0') })}
+                              {t('cardEdition', { n: String(editionByEventId.get(event.id) ?? i + 1).padStart(2, '0') })}
                             </span>
                             {isPast && (
                             <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/95 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur">
@@ -284,7 +294,7 @@ export default function MaxisTalksPage() {
                       ) : (
                         <div className="relative flex aspect-[3/4] items-center justify-center bg-gradient-to-br from-blue-600/10 to-transparent p-8">
                           <span className="absolute left-4 top-4 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium tracking-wider text-white/90 backdrop-blur-sm">
-                            {t('cardEdition', { n: String(i + 1).padStart(2, '0') })}
+                            {t('cardEdition', { n: String(editionByEventId.get(event.id) ?? i + 1).padStart(2, '0') })}
                           </span>
                           <p className="text-center text-lg font-bold text-white/80">{event.titulo}</p>
                         </div>

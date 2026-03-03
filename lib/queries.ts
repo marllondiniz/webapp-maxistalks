@@ -227,20 +227,6 @@ export async function getArticleById(id: string, tenantId?: string | null): Prom
   return data ?? null
 }
 
-export async function getArticleBySlugOrId(slugOrId: string, tenantId?: string | null): Promise<ArticleRecord | null> {
-  const supabase = getSupabaseServer()
-  let query = supabase.from('articles').select('*').or(`id.eq.${slugOrId},slug.eq.${slugOrId}`)
-  if (tenantId) query = query.eq('tenant_id', tenantId)
-  const { data, error } = await query.maybeSingle()
-
-  if (error) {
-    console.error('Erro ao buscar artigo por slug ou id:', error)
-    return null
-  }
-
-  return data ?? null
-}
-
 export async function getProfile(userId: string): Promise<ProfileRecord | null> {
   const supabase = getSupabaseServer()
   const { data, error } = await supabase

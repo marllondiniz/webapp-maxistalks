@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getArticleBySlugOrId, getArticleGallery } from '@/lib/queries'
+import { getArticleById, getArticleGallery } from '@/lib/queries'
 import { getBrandForRequest, getTenantIdForRequest } from '@/lib/brand'
 import { ChevronLeft } from 'lucide-react'
 import { ArticleGalleryCarousel } from './ArticleGalleryCarousel'
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: ArticlePageParams): Promise<M
     getTenantIdForRequest(),
     getTranslations('UserBlogDetail'),
   ])
-  const artigo = await getArticleBySlugOrId(id, tenantId)
+  const artigo = await getArticleById(id, tenantId)
 
   if (!artigo) {
     return {
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: ArticlePageParams): Promise<M
     }
   }
 
-  const url = new URL(`/blog/${artigo.slug ?? artigo.id}`, brand.baseUrl)
+  const url = new URL(`/blog/${artigo.id}`, brand.baseUrl)
   const description =
     artigo.resumo ||
     (artigo.conteudo ? artigo.conteudo.replace(/<[^>]+>/g, '').slice(0, 160) : brand.tagline)
@@ -68,7 +68,7 @@ export default async function ArticlePage({ params }: ArticlePageParams) {
     getTenantIdForRequest(),
   ])
   const [artigo, gallery] = await Promise.all([
-    getArticleBySlugOrId(id, tenantId),
+    getArticleById(id, tenantId),
     getArticleGallery(id),
   ])
 
