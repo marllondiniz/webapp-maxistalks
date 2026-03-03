@@ -25,7 +25,8 @@ export async function POST(request: Request) {
       )
     }
 
-    const { eventId } = await request.json()
+    const body = await request.json()
+    const { eventId, testEmail } = body as { eventId?: string; testEmail?: string }
 
     if (!eventId) {
       return NextResponse.json(
@@ -76,15 +77,19 @@ export async function POST(request: Request) {
     const eventUrlDefault = `${baseUrl}/eventos/${eventIdForUrl}`
 
     const eventDate = new Date(event.data_horario)
+    const tzBrazil = 'America/Sao_Paulo'
     const formattedDate = eventDate.toLocaleDateString('pt-BR', {
+      timeZone: tzBrazil,
       weekday: 'long',
       day: 'numeric',
       month: 'long',
       year: 'numeric',
     })
     const formattedTime = eventDate.toLocaleTimeString('pt-BR', {
+      timeZone: tzBrazil,
       hour: '2-digit',
       minute: '2-digit',
+      hour12: false,
     })
 
     function buildEmailHtml(eventLink: string): string {
@@ -198,54 +203,62 @@ export async function POST(request: Request) {
 
     const resend = new Resend(process.env.RESEND_API_KEY)
 
-    const allContacts: { email: string; unsubscribed?: boolean }[] = []
-    let cursor: string | undefined
-    do {
-      const listOptions: { audienceId: string; limit?: number; after?: string } = {
-        audienceId,
-        limit: 100,
-      }
-      if (cursor) listOptions.after = cursor
-      const listRes = await resend.contacts.list(listOptions)
-      if (listRes.error) {
-        console.error('Erro ao listar contatos no Resend:', listRes.error)
+    let toSendNew: string[]
+    let alreadySentSet = new Set<string>()
+    const isTestSend = Boolean(testEmail?.trim())
+
+    if (isTestSend) {
+      toSendNew = [testEmail!.trim()]
+    } else {
+      const allContacts: { email: string; unsubscribed?: boolean }[] = []
+      let cursor: string | undefined
+      do {
+        const listOptions: { audienceId: string; limit?: number; after?: string } = {
+          audienceId,
+          limit: 100,
+        }
+        if (cursor) listOptions.after = cursor
+        const listRes = await resend.contacts.list(listOptions)
+        if (listRes.error) {
+          console.error('Erro ao listar contatos no Resend:', listRes.error)
+          return NextResponse.json(
+            { error: 'Erro ao listar contatos da newsletter. Verifique o Resend.' },
+            { status: 500 }
+          )
+        }
+        const data = listRes.data?.data ?? []
+        allContacts.push(...data.map((c) => ({ email: c.email, unsubscribed: c.unsubscribed })))
+        cursor = listRes.data?.has_more ? data[data.length - 1]?.id : undefined
+      } while (cursor)
+
+      const toSend = allContacts.filter((c) => !c.unsubscribed)
+      const uniqueEmails = Array.from(new Map(toSend.map((c) => [c.email.toLowerCase().trim(), c.email])).values())
+
+      if (uniqueEmails.length === 0) {
         return NextResponse.json(
-          { error: 'Erro ao listar contatos da newsletter. Verifique o Resend.' },
-          { status: 500 }
+          { error: 'Nenhum contato ativo no segmento. Adicione contatos no Resend.' },
+          { status: 400 }
         )
       }
-      const data = listRes.data?.data ?? []
-      allContacts.push(...data.map((c) => ({ email: c.email, unsubscribed: c.unsubscribed })))
-      cursor = listRes.data?.has_more ? data[data.length - 1]?.id : undefined
-    } while (cursor)
 
-    const toSend = allContacts.filter((c) => !c.unsubscribed)
-    const uniqueEmails = Array.from(new Map(toSend.map((c) => [c.email.toLowerCase().trim(), c.email])).values())
+      const { data: alreadySentRows } = await supabaseAdmin
+        .from('event_newsletter_sent')
+        .select('email')
+        .eq('event_id', eventId)
 
-    if (uniqueEmails.length === 0) {
-      return NextResponse.json(
-        { error: 'Nenhum contato ativo no segmento. Adicione contatos no Resend.' },
-        { status: 400 }
+      alreadySentSet = new Set(
+        (alreadySentRows ?? []).map((r) => (r.email ?? '').toLowerCase().trim())
       )
-    }
+      toSendNew = uniqueEmails.filter((email) => !alreadySentSet.has(email.toLowerCase().trim()))
 
-    const { data: alreadySentRows } = await supabaseAdmin
-      .from('event_newsletter_sent')
-      .select('email')
-      .eq('event_id', eventId)
-
-    const alreadySentSet = new Set(
-      (alreadySentRows ?? []).map((r) => (r.email ?? '').toLowerCase().trim())
-    )
-    const toSendNew = uniqueEmails.filter((email) => !alreadySentSet.has(email.toLowerCase().trim()))
-
-    if (toSendNew.length === 0) {
-      return NextResponse.json({
-        success: true,
-        sent: 0,
-        total: uniqueEmails.length,
-        message: 'Todos os contatos já receberam este evento. Nenhum envio necessário.',
-      })
+      if (toSendNew.length === 0) {
+        return NextResponse.json({
+          success: true,
+          sent: 0,
+          total: uniqueEmails.length,
+          message: 'Todos os contatos já receberam este evento. Nenhum envio necessário.',
+        })
+      }
     }
 
     const emailsLower = toSendNew.map((e) => e.toLowerCase().trim())
@@ -354,7 +367,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: lastError }, { status: 500 })
     }
 
-    if (sent > 0) {
+    if (sent > 0 && !isTestSend) {
       const insertRows = toSendNew.map((email) => ({
         event_id: eventId,
         email: email.toLowerCase().trim(),

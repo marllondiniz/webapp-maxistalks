@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
@@ -42,6 +42,14 @@ export default function MaxisTalksPage() {
   const t = useTranslations('Landing')
   const [events, setEvents] = useState<EventPreview[]>([])
   const [previewEvent, setPreviewEvent] = useState<EventPreview | null>(null)
+  const carouselRef = useRef<HTMLDivElement>(null)
+
+  const scrollCarousel = (direction: 'left' | 'right') => {
+    const el = carouselRef.current
+    if (!el) return
+    const step = 320 + 24
+    el.scrollBy({ left: direction === 'right' ? step : -step, behavior: 'smooth' })
+  }
 
   useEffect(() => {
     fetch('/api/events', { cache: 'no-store' })
@@ -159,193 +167,123 @@ export default function MaxisTalksPage() {
             </p>
 
             {eventsSorted.length > 0 ? (
-              <>
-                {/* Mobile: carrossel horizontal */}
+              <div className="relative w-full">
+                {/* Setas desktop: arrastar / navegar */}
+                <div className="absolute left-0 right-0 top-1/2 z-10 hidden -translate-y-1/2 md:pointer-events-none md:flex md:justify-between md:px-2">
+                  <button
+                    type="button"
+                    onClick={() => scrollCarousel('left')}
+                    aria-label="Ver eventos anteriores"
+                    className="pointer-events-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/20 bg-[#0f172a]/90 text-white shadow-lg backdrop-blur-sm transition hover:border-white/40 hover:bg-[#1e293b] focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  >
+                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => scrollCarousel('right')}
+                    aria-label="Ver próximos eventos"
+                    className="pointer-events-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/20 bg-[#0f172a]/90 text-white shadow-lg backdrop-blur-sm transition hover:border-white/40 hover:bg-[#1e293b] focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  >
+                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
                 <div
-                  className="scrollbar-hide -mx-6 w-[calc(100%+48px)] overflow-x-auto px-4 py-2 sm:hidden"
+                  ref={carouselRef}
+                  className="scrollbar-hide -mx-6 w-[calc(100%+48px)] overflow-x-auto px-4 py-2 md:-mx-8 md:w-[calc(100%+64px)] md:px-6 md:snap-x md:snap-mandatory"
                   style={{ WebkitOverflowScrolling: 'touch' }}
                 >
-                  <div className="flex w-max gap-4">
-                    {eventsSorted.slice(0, 12).map((event, i) => {
-                      const isPast = new Date(event.data_horario) < new Date()
-                      const nomePalestrante = event.banner?.subtitulo || null
-                      const temaPalestra = event.banner?.titulo || getTituloOpcional(event.descricao) || event.titulo
-                      return (
-                        <div
-                          key={event.id}
-                          role="button"
-                          tabIndex={0}
-                          onClick={() => setPreviewEvent(event)}
-                          onKeyDown={(e) => e.key === 'Enter' && setPreviewEvent(event)}
-                          className="glass-card group w-[280px] shrink-0 cursor-pointer overflow-hidden"
-                        >
-                          {event.banner?.image_url ? (
-                            <div className="relative aspect-[3/4] overflow-hidden">
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={event.banner.image_url}
-                                alt={nomePalestrante || event.titulo}
-                                className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-[1.02]"
-                              />
-                                  <div className="absolute left-4 top-4 flex items-center gap-2">
-                                <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium tracking-wider text-white/90 backdrop-blur-sm">
-                                  {t('cardEdition', { n: String(editionByEventId.get(event.id) ?? i + 1).padStart(2, '0') })}
-                                </span>
-                                {isPast && (
-                                  <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/95 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur">
-                                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    {t('cardDone')}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="relative flex aspect-[3/4] items-center justify-center bg-gradient-to-br from-blue-600/10 to-transparent p-8">
-                              <span className="absolute left-4 top-4 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium tracking-wider text-white/90 backdrop-blur-sm">
+                  <div className="flex w-max gap-4 md:gap-6">
+                  {eventsSorted.slice(0, 12).map((event, i) => {
+                    const isPast = new Date(event.data_horario) < new Date()
+                    const nomePalestrante = event.banner?.subtitulo || null
+                    const temaPalestra = event.banner?.titulo || getTituloOpcional(event.descricao) || event.titulo
+                    return (
+                      <motion.div
+                        key={event.id}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => setPreviewEvent(event)}
+                        onKeyDown={(e) => e.key === 'Enter' && setPreviewEvent(event)}
+                        whileHover={{ y: -4 }}
+                        transition={{ type: 'spring', stiffness: 300 }}
+                        className="glass-card group w-[280px] shrink-0 cursor-pointer overflow-hidden md:w-[320px] md:snap-center md:snap-always"
+                      >
+                        {event.banner?.image_url ? (
+                          <div className="relative aspect-[3/4] overflow-hidden">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={event.banner.image_url}
+                              alt={nomePalestrante || event.titulo}
+                              className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-[1.02]"
+                            />
+                            <div className="absolute left-4 top-4 flex items-center gap-2">
+                              <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium tracking-wider text-white/90 backdrop-blur-sm">
                                 {t('cardEdition', { n: String(editionByEventId.get(event.id) ?? i + 1).padStart(2, '0') })}
                               </span>
-                              <p className="text-center text-lg font-bold text-white/80">{event.titulo}</p>
+                              {isPast && (
+                                <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/95 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur">
+                                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                  {t('cardDone')}
+                                </span>
+                              )}
                             </div>
-                          )}
-                          <div className="border-t border-white/[0.05] px-5 py-4">
-                            <p className="text-[11px] text-slate-500">{formatEventDate(event.data_horario)}</p>
-                            <h3 className="mt-1 text-lg font-bold text-white">{nomePalestrante || event.titulo}</h3>
-                            {event.banner?.palestrante_instagram && (
-                              <a
-                                href={`https://instagram.com/${event.banner.palestrante_instagram.replace(/^@/, '')}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()}
-                                className="mt-1 inline-block text-xs font-semibold text-blue-400 hover:text-blue-300"
-                              >
-                                @{event.banner.palestrante_instagram.replace(/^@/, '')}
-                              </a>
-                            )}
-                            {event.banner?.palestrante_descricao && (
-                              <p className="mt-1 text-xs text-slate-400 line-clamp-2">{event.banner.palestrante_descricao}</p>
-                            )}
                           </div>
-                          <div className="mx-5 mb-5 rounded-xl bg-[#1e293b]/80 px-4 py-3">
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-                              {t('cardThemeLabel')}
-                            </p>
-                            <p className="mt-1 font-semibold text-white line-clamp-2">{temaPalestra}</p>
-                          </div>
-                          <div className="border-t border-white/[0.05] p-5" onClick={(e) => e.stopPropagation()}>
-                            <Link
-                              href={isPast ? '#' : '/login?mode=signUp'}
-                              className={`block w-full rounded-xl py-3.5 text-center text-sm font-bold uppercase tracking-wider transition ${
-                                isPast
-                                  ? 'cursor-default bg-white/[0.06] text-slate-400'
-                                  : 'btn-glow bg-[var(--brand-primary)] text-white hover:bg-[var(--brand-primary-hover)]'
-                              }`}
-                            >
-                              {isPast ? t('cardButtonPast') : t('cardButtonUpcoming')}
-                            </Link>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                {/* Desktop: grid */}
-                <div className="hidden grid-cols-2 gap-5 sm:grid lg:grid-cols-3">
-                {eventsSorted.slice(0, 12).map((event, i) => {
-                  const isPast = new Date(event.data_horario) < new Date()
-                  const nomePalestrante = event.banner?.subtitulo || null
-                  const temaPalestra = event.banner?.titulo || getTituloOpcional(event.descricao) || event.titulo
-                  return (
-                    <motion.div
-                      key={event.id}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => setPreviewEvent(event)}
-                      onKeyDown={(e) => e.key === 'Enter' && setPreviewEvent(event)}
-                      whileHover={{ y: -4 }}
-                      transition={{ type: 'spring', stiffness: 300 }}
-                      className="glass-card group cursor-pointer overflow-hidden"
-                    >
-                      {/* Foto do palestrante */}
-                      {event.banner?.image_url ? (
-                        <div className="relative aspect-[3/4] overflow-hidden">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={event.banner.image_url}
-                            alt={nomePalestrante || event.titulo}
-                            className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-[1.02]"
-                          />
-                          <div className="absolute left-4 top-4 flex items-center gap-2">
-                            <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium tracking-wider text-white/90 backdrop-blur-sm">
+                        ) : (
+                          <div className="relative flex aspect-[3/4] items-center justify-center bg-gradient-to-br from-blue-600/10 to-transparent p-8">
+                            <span className="absolute left-4 top-4 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium tracking-wider text-white/90 backdrop-blur-sm">
                               {t('cardEdition', { n: String(editionByEventId.get(event.id) ?? i + 1).padStart(2, '0') })}
                             </span>
-                            {isPast && (
-                            <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/95 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur">
-                              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                              </svg>
-                              {t('cardDone')}
-                            </span>
-                            )}
+                            <p className="text-center text-lg font-bold text-white/80">{event.titulo}</p>
                           </div>
+                        )}
+                        <div className="border-t border-white/[0.05] px-5 py-4">
+                          <p className="text-[11px] text-slate-500">{formatEventDate(event.data_horario)}</p>
+                          <h3 className="mt-1 text-lg font-bold text-white">{nomePalestrante || event.titulo}</h3>
+                          {event.banner?.palestrante_instagram && (
+                            <a
+                              href={`https://instagram.com/${event.banner.palestrante_instagram.replace(/^@/, '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="mt-1 inline-block text-xs font-semibold text-blue-400 hover:text-blue-300"
+                            >
+                              @{event.banner.palestrante_instagram.replace(/^@/, '')}
+                            </a>
+                          )}
+                          {event.banner?.palestrante_descricao && (
+                            <p className="mt-1 text-xs text-slate-400 line-clamp-2">{event.banner.palestrante_descricao}</p>
+                          )}
                         </div>
-                      ) : (
-                        <div className="relative flex aspect-[3/4] items-center justify-center bg-gradient-to-br from-blue-600/10 to-transparent p-8">
-                          <span className="absolute left-4 top-4 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-medium tracking-wider text-white/90 backdrop-blur-sm">
-                            {t('cardEdition', { n: String(editionByEventId.get(event.id) ?? i + 1).padStart(2, '0') })}
-                          </span>
-                          <p className="text-center text-lg font-bold text-white/80">{event.titulo}</p>
+                        <div className="mx-5 mb-5 rounded-xl bg-[#1e293b]/80 px-4 py-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                            {t('cardThemeLabel')}
+                          </p>
+                          <p className="mt-1 font-semibold text-white line-clamp-2">{temaPalestra}</p>
                         </div>
-                      )}
-
-                      {/* Nome, Instagram, quem é */}
-                      <div className="border-t border-white/[0.05] px-5 py-4">
-                        <p className="text-[11px] text-slate-500">{formatEventDate(event.data_horario)}</p>
-                        <h3 className="mt-1 text-lg font-bold text-white">{nomePalestrante || event.titulo}</h3>
-                        {event.banner?.palestrante_instagram && (
-                          <a
-                            href={`https://instagram.com/${event.banner.palestrante_instagram.replace(/^@/, '')}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="mt-1 inline-block text-xs font-semibold text-blue-400 hover:text-blue-300"
+                        <div className="border-t border-white/[0.05] p-5" onClick={(e) => e.stopPropagation()}>
+                          <Link
+                            href={isPast ? '#' : '/login?mode=signUp'}
+                            className={`block w-full rounded-xl py-3.5 text-center text-sm font-bold uppercase tracking-wider transition ${
+                              isPast
+                                ? 'cursor-default bg-white/[0.06] text-slate-400'
+                                : 'btn-glow bg-[var(--brand-primary)] text-white hover:bg-[var(--brand-primary-hover)]'
+                            }`}
                           >
-                            @{event.banner.palestrante_instagram.replace(/^@/, '')}
-                          </a>
-                        )}
-                        {event.banner?.palestrante_descricao && (
-                          <p className="mt-1 text-xs text-slate-400 line-clamp-2">{event.banner.palestrante_descricao}</p>
-                        )}
-                      </div>
-
-                      {/* Tema da palestra */}
-                      <div className="mx-5 mb-5 rounded-xl bg-[#1e293b]/80 px-4 py-3">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-                          {t('cardThemeLabel')}
-                        </p>
-                        <p className="mt-1 font-semibold text-white line-clamp-2">{temaPalestra}</p>
-                      </div>
-
-                      {/* Footer */}
-                      <div className="border-t border-white/[0.05] p-5" onClick={(e) => e.stopPropagation()}>
-                        <Link
-                          href={isPast ? '#' : '/login?mode=signUp'}
-                          className={`block w-full rounded-xl py-3.5 text-center text-sm font-bold uppercase tracking-wider transition ${
-                            isPast
-                              ? 'cursor-default bg-white/[0.06] text-slate-400'
-                              : 'btn-glow bg-[var(--brand-primary)] text-white hover:bg-[var(--brand-primary-hover)]'
-                          }`}
-                        >
-                          {isPast ? t('cardButtonPast') : t('cardButtonUpcoming')}
-                        </Link>
-                      </div>
-                    </motion.div>
-                  )
-                })}
+                            {isPast ? t('cardButtonPast') : t('cardButtonUpcoming')}
+                          </Link>
+                        </div>
+                      </motion.div>
+                    )
+                  })}
+                  </div>
                 </div>
-              </>
+              </div>
             ) : (
               <div className="glass-card px-8 py-16 text-center">
                 <p className="text-base text-slate-400">Novos eventos em breve</p>

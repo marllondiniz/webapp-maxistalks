@@ -164,6 +164,8 @@ export function EventAdminPanel({ initialEvents }: Props) {
   const [broadcastFeedback, setBroadcastFeedback] = useState<{ id: string; msg: string; ok: boolean } | null>(null)
   const [newsletterCooldownUntil, setNewsletterCooldownUntil] = useState<Record<string, number>>({})
   const [now, setNow] = useState(() => Date.now())
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [broadcastingTestId, setBroadcastingTestId] = useState<string | null>(null)
   const supabase = useMemo(() => getSupabaseClient(), [])
 
   useEffect(() => {
@@ -172,6 +174,19 @@ export function EventAdminPanel({ initialEvents }: Props) {
     const id = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(id)
   }, [newsletterCooldownUntil])
+
+  useEffect(() => {
+    let isMounted = true
+    getSupabaseClient()
+      .auth.getUser()
+      .then(({ data }) => {
+        if (isMounted && data?.user?.email) setUserEmail(data.user.email)
+      })
+      .catch(() => {})
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const handleChange = (field: keyof FormState, value: string | boolean) => {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -555,6 +570,36 @@ export function EventAdminPanel({ initialEvents }: Props) {
       setBroadcastFeedback({ id: eventId, msg: 'Erro de conexão. Tente novamente.', ok: false })
     } finally {
       setBroadcastingId(null)
+    }
+  }
+
+  const handleBroadcastTest = async (eventId: string) => {
+    if (!userEmail) {
+      setBroadcastFeedback({ id: eventId, msg: 'Faça login para enviar teste para seu e-mail.', ok: false })
+      return
+    }
+    setBroadcastingTestId(eventId)
+    setBroadcastFeedback(null)
+    try {
+      const res = await fetch('/api/admin/broadcast-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventId, testEmail: userEmail }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        setBroadcastFeedback({ id: eventId, msg: json.error || 'Erro ao enviar.', ok: false })
+      } else {
+        setBroadcastFeedback({
+          id: eventId,
+          msg: `E-mail de teste enviado para ${userEmail}. Confira sua caixa de entrada.`,
+          ok: true,
+        })
+      }
+    } catch {
+      setBroadcastFeedback({ id: eventId, msg: 'Erro de conexão. Tente novamente.', ok: false })
+    } finally {
+      setBroadcastingTestId(null)
     }
   }
 
@@ -1010,9 +1055,24 @@ export function EventAdminPanel({ initialEvents }: Props) {
                     </button>
                     <button
                       type="button"
+                      onClick={() => handleBroadcastTest(evento.id)}
+                      disabled={broadcastingTestId === evento.id || broadcastingId === evento.id}
+                      className="flex items-center gap-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-blue-300 transition hover:border-blue-500/50 hover:bg-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                      title={userEmail ? `Enviar e-mail de teste para ${userEmail}` : 'Faça login para enviar teste'}
+                    >
+                      {broadcastingTestId === evento.id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Send className="h-3.5 w-3.5" />
+                      )}
+                      {broadcastingTestId === evento.id ? 'Enviando...' : 'Enviar teste'}
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => handleBroadcast(evento.id)}
                       disabled={
                         broadcastingId === evento.id ||
+                        broadcastingTestId === evento.id ||
                         (newsletterCooldownUntil[evento.id] != null && now < newsletterCooldownUntil[evento.id])
                       }
                       className="flex items-center gap-1.5 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-green-300 transition hover:border-green-500/50 hover:bg-green-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
