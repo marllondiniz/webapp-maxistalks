@@ -32,6 +32,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Erro ao buscar avaliações.' }, { status: 500 })
     }
 
+    const { data: eventData } = await supabaseAdmin
+      .from('events')
+      .select('titulo, data_horario, local_nome')
+      .eq('id', eventId)
+      .single()
+
     const { count: totalSent } = await supabaseAdmin
       .from('event_evaluation_sent')
       .select('*', { count: 'exact', head: true })
@@ -103,6 +109,9 @@ export async function GET(request: Request) {
       }))
 
     return NextResponse.json({
+      eventTitle: eventData?.titulo ?? null,
+      eventDate: eventData?.data_horario ?? null,
+      eventLocal: eventData?.local_nome ?? null,
       totalSent: totalSent ?? 0,
       totalResponses,
       avgNotaGeral: Math.round(avgNotaGeral * 10) / 10,
