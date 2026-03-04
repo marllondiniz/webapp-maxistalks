@@ -24,13 +24,13 @@ const PLAN_LABELS: Record<string, { label: string; color: string }> = {
   starter: { label: 'Starter', color: 'bg-sky-500/15 text-sky-400 border-sky-500/20' },
   pro: { label: 'Pro', color: 'bg-violet-500/15 text-violet-400 border-violet-500/20' },
   enterprise: { label: 'Enterprise', color: 'bg-amber-500/15 text-amber-400 border-amber-500/20' },
-  general: { label: 'Só quero conhecer', color: 'bg-slate-500/15 text-slate-400 border-slate-500/20' },
+  general: { label: 'Só quero conhecer', color: 'bg-slate-500/15 text-[var(--brand-text-muted)] border-slate-500/20' },
 }
 
 function PlanBadge({ plano }: { plano: string | null }) {
   if (!plano) return <span className="text-slate-600">—</span>
   const cfg = PLAN_LABELS[plano]
-  if (!cfg) return <span className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-xs text-slate-400">{plano}</span>
+  if (!cfg) return <span className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-xs text-[var(--brand-text-muted)]">{plano}</span>
   return (
     <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-semibold ${cfg.color}`}>
       {cfg.label}
@@ -62,7 +62,7 @@ export default async function AdminPlataformaInteressePage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-white">{t('title')}</h1>
-            <p className="text-sm text-slate-400">{t('subtitle')}</p>
+            <p className="text-sm text-[var(--brand-text-muted)]">{t('subtitle')}</p>
           </div>
         </div>
       </header>
@@ -74,7 +74,7 @@ export default async function AdminPlataformaInteressePage() {
           { label: t('statPending'), value: pendentes, color: 'text-amber-400' },
           { label: t('statAttended'), value: atendidos, color: 'text-emerald-400' },
         ].map(({ label, value, color }) => (
-          <div key={label} className="rounded-2xl border border-white/10 bg-[#1e293b] p-5">
+          <div key={label} className="rounded-2xl border border-white/10 bg-[var(--brand-surface)] p-5">
             <p className={`text-3xl font-bold ${color}`}>{value}</p>
             <p className="mt-1 text-xs font-medium text-slate-500 uppercase tracking-wider">{label}</p>
           </div>
@@ -83,9 +83,9 @@ export default async function AdminPlataformaInteressePage() {
 
       {/* Cards */}
       {leads.length === 0 ? (
-        <div className="rounded-2xl border border-white/10 bg-[#1e293b] py-20 text-center">
+        <div className="rounded-2xl border border-white/10 bg-[var(--brand-surface)] py-20 text-center">
           <MessageSquare className="mx-auto mb-4 h-10 w-10 text-slate-600" />
-          <p className="text-slate-400">{t('empty')}</p>
+          <p className="text-[var(--brand-text-muted)]">{t('empty')}</p>
           <Link
             href="/plataforma"
             target="_blank"
@@ -101,7 +101,7 @@ export default async function AdminPlataformaInteressePage() {
           {leads.map((lead) => (
             <div
               key={lead.id}
-              className={`rounded-2xl border bg-[#1e293b] p-5 transition ${
+              className={`rounded-2xl border bg-[var(--brand-surface)] p-5 transition ${
                 lead.atendido
                   ? 'border-emerald-500/20 opacity-70'
                   : 'border-white/10 hover:border-white/20'
@@ -148,7 +148,7 @@ export default async function AdminPlataformaInteressePage() {
                     )}
 
                     {lead.empresa && (
-                      <span className="inline-flex items-center gap-1.5 text-sm text-slate-400">
+                      <span className="inline-flex items-center gap-1.5 text-sm text-[var(--brand-text-muted)]">
                         <Building2 className="h-3.5 w-3.5 flex-shrink-0 text-slate-600" />
                         {lead.empresa}
                       </span>
@@ -157,7 +157,7 @@ export default async function AdminPlataformaInteressePage() {
 
                   {/* Mensagem */}
                   {lead.mensagem && (
-                    <p className="max-w-xl rounded-lg border border-white/5 bg-white/[0.03] px-3 py-2 text-sm leading-relaxed text-slate-400">
+                    <p className="max-w-xl rounded-lg border border-white/5 bg-white/[0.03] px-3 py-2 text-sm leading-relaxed text-[var(--brand-text-muted)]">
                       &ldquo;{lead.mensagem}&rdquo;
                     </p>
                   )}

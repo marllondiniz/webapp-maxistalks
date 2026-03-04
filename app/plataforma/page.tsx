@@ -102,7 +102,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
       <summary className="flex cursor-pointer list-none items-center justify-between px-6 py-5 font-semibold text-white [&::-webkit-details-marker]:hidden">
         {question}
         <svg
-          className="h-5 w-5 flex-shrink-0 text-slate-400 transition-transform duration-300 group-open:rotate-45"
+          className="h-5 w-5 flex-shrink-0 text-[var(--brand-text-muted)] transition-transform duration-300 group-open:rotate-45"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -110,7 +110,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
         </svg>
       </summary>
-      <p className="px-6 pb-5 text-sm leading-relaxed text-slate-400">{answer}</p>
+      <p className="px-6 pb-5 text-sm leading-relaxed text-[var(--brand-text-muted)]">{answer}</p>
     </details>
   )
 }
@@ -187,7 +187,7 @@ export default function PlataformaPage() {
   }
 
   return (
-    <main className="relative min-h-screen bg-[#060c1f] text-white">
+    <main className="relative min-h-screen bg-[var(--brand-bg)] text-white">
       <div className="pointer-events-none fixed inset-0 z-50 noise-texture" />
 
       {/* ── MODAL TENHO INTERESSE (steps) ── */}
@@ -208,13 +208,13 @@ export default function PlataformaPage() {
           >
             <div className="flex max-h-[85vh] flex-col overflow-hidden">
               <div className="flex items-center justify-between border-b border-white/10 px-6 py-4 flex-shrink-0">
-                <p id="modal-title" className="text-sm font-medium text-slate-400">
+                <p id="modal-title" className="text-sm font-medium text-[var(--brand-text-muted)]">
                   {t('modalStepLabel', { current: modalStep, total: 2 })}
                 </p>
               <button
                 type="button"
                 onClick={closeModal}
-                className="rounded-lg p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                className="rounded-lg p-1.5 text-[var(--brand-text-muted)] transition hover:bg-white/10 hover:text-white"
                 aria-label={t('modalClose')}
               >
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -227,7 +227,7 @@ export default function PlataformaPage() {
               {modalStep === 1 && (
                 <>
                   <h2 className="text-xl font-bold text-white md:text-2xl">{t('interestTitle')}</h2>
-                  <p className="mt-1 text-sm text-slate-400">{t('interestSubtitle')}</p>
+                  <p className="mt-1 text-sm text-[var(--brand-text-muted)]">{t('interestSubtitle')}</p>
                   {selectedPlan && (
                     <p className="mt-3 rounded-lg bg-white/5 px-4 py-2 text-sm text-slate-300">
                       <span className="font-medium text-white">{t('modalPlanSelected')}:</span>{' '}
@@ -238,7 +238,7 @@ export default function PlataformaPage() {
                   )}
                   <form onSubmit={handleInterestSubmit} className="mt-6 space-y-4">
                     <div>
-                      <label htmlFor="modal-nome" className="mb-1 block text-xs font-medium text-slate-400">
+                      <label htmlFor="modal-nome" className="mb-1 block text-xs font-medium text-[var(--brand-text-muted)]">
                         {t('interestName')} *
                       </label>
                       <input
@@ -248,12 +248,12 @@ export default function PlataformaPage() {
                         minLength={2}
                         value={form.nome}
                         onChange={(e) => setForm((p) => ({ ...p, nome: e.target.value }))}
-                        className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]"
+                        className="w-full rounded-xl border border-white/10 bg-[var(--brand-surface-alt)] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]"
                         placeholder={t('interestNamePlaceholder')}
                       />
                     </div>
                     <div>
-                      <label htmlFor="modal-email" className="mb-1 block text-xs font-medium text-slate-400">
+                      <label htmlFor="modal-email" className="mb-1 block text-xs font-medium text-[var(--brand-text-muted)]">
                         {t('interestEmail')} *
                       </label>
                       <input
@@ -265,13 +265,13 @@ export default function PlataformaPage() {
                           setForm((p) => ({ ...p, email: e.target.value }))
                           setEmailError(null)
                         }}
-                        className={`w-full rounded-xl border bg-[#0f172a] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 ${emailError ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500' : 'border-white/10 focus:border-[var(--brand-primary)] focus:ring-[var(--brand-primary)]'}`}
+                        className={`w-full rounded-xl border bg-[var(--brand-surface-alt)] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 ${emailError ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500' : 'border-white/10 focus:border-[var(--brand-primary)] focus:ring-[var(--brand-primary)]'}`}
                         placeholder={t('interestEmailPlaceholder')}
                       />
                       {emailError && <p className="mt-1 text-xs text-rose-400">{emailError}</p>}
                     </div>
                     <div>
-                      <label htmlFor="modal-telefone" className="mb-1 block text-xs font-medium text-slate-400">
+                      <label htmlFor="modal-telefone" className="mb-1 block text-xs font-medium text-[var(--brand-text-muted)]">
                         {t('interestPhone')}
                       </label>
                       <input
@@ -279,12 +279,12 @@ export default function PlataformaPage() {
                         type="tel"
                         value={form.telefone}
                         onChange={(e) => setForm((p) => ({ ...p, telefone: formatPhoneBR(e.target.value) }))}
-                        className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]"
+                        className="w-full rounded-xl border border-white/10 bg-[var(--brand-surface-alt)] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]"
                         placeholder={t('interestPhonePlaceholder')}
                       />
                     </div>
                     <div>
-                      <label htmlFor="modal-empresa" className="mb-1 block text-xs font-medium text-slate-400">
+                      <label htmlFor="modal-empresa" className="mb-1 block text-xs font-medium text-[var(--brand-text-muted)]">
                         {t('interestCompany')}
                       </label>
                       <input
@@ -292,12 +292,12 @@ export default function PlataformaPage() {
                         type="text"
                         value={form.empresa}
                         onChange={(e) => setForm((p) => ({ ...p, empresa: e.target.value }))}
-                        className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]"
+                        className="w-full rounded-xl border border-white/10 bg-[var(--brand-surface-alt)] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]"
                         placeholder={t('interestCompanyPlaceholder')}
                       />
                     </div>
                     <div>
-                      <label htmlFor="modal-mensagem" className="mb-1 block text-xs font-medium text-slate-400">
+                      <label htmlFor="modal-mensagem" className="mb-1 block text-xs font-medium text-[var(--brand-text-muted)]">
                         {t('interestMessage')}
                       </label>
                       <textarea
@@ -305,7 +305,7 @@ export default function PlataformaPage() {
                         rows={3}
                         value={form.mensagem}
                         onChange={(e) => setForm((p) => ({ ...p, mensagem: e.target.value }))}
-                        className="w-full resize-none rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]"
+                        className="w-full resize-none rounded-xl border border-white/10 bg-[var(--brand-surface-alt)] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]"
                         placeholder={t('interestMessagePlaceholder')}
                       />
                     </div>
@@ -339,7 +339,7 @@ export default function PlataformaPage() {
                     <button
                       type="button"
                       onClick={closeModal}
-                      className="mt-6 text-sm text-slate-400 underline hover:text-white"
+                      className="mt-6 text-sm text-[var(--brand-text-muted)] underline hover:text-white"
                     >
                       {t('modalClose')}
                     </button>
@@ -399,7 +399,7 @@ export default function PlataformaPage() {
 
           <motion.p
             variants={fadeUp}
-            className="mx-auto mb-12 max-w-2xl text-balance text-center text-base leading-relaxed text-slate-400 md:text-xl"
+            className="mx-auto mb-12 max-w-2xl text-balance text-center text-base leading-relaxed text-[var(--brand-text-muted)] md:text-xl"
           >
             {t('heroSubheadline')}
           </motion.p>
@@ -459,7 +459,7 @@ export default function PlataformaPage() {
             <motion.h2 variants={fadeUp} className="text-2xl font-bold text-white md:text-3xl">
               {t('previewTitle')}
             </motion.h2>
-            <motion.p variants={fadeUp} className="mx-auto mt-3 max-w-xl text-base text-slate-400 md:text-lg">
+            <motion.p variants={fadeUp} className="mx-auto mt-3 max-w-xl text-base text-[var(--brand-text-muted)] md:text-lg">
               {t('previewSubtitle')}
             </motion.p>
             <motion.div variants={fadeUp} className="mt-8">
@@ -516,7 +516,7 @@ export default function PlataformaPage() {
                   </div>
                   <div>
                     <h3 className="font-bold text-white">{t(`feature${key.charAt(0).toUpperCase() + key.slice(1)}Title`)}</h3>
-                    <p className="mt-1.5 text-sm leading-relaxed text-slate-400">
+                    <p className="mt-1.5 text-sm leading-relaxed text-[var(--brand-text-muted)]">
                       {t(`feature${key.charAt(0).toUpperCase() + key.slice(1)}Desc`)}
                     </p>
                   </div>
@@ -558,7 +558,7 @@ export default function PlataformaPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-white">{t(`${key}Title`)}</h3>
-                    <p className="mt-1.5 text-sm leading-relaxed text-slate-400">{t(`${key}Desc`)}</p>
+                    <p className="mt-1.5 text-sm leading-relaxed text-[var(--brand-text-muted)]">{t(`${key}Desc`)}</p>
                   </div>
                 </motion.div>
               ))}
@@ -600,7 +600,7 @@ export default function PlataformaPage() {
                   </div>
                   <div>
                     <h3 className="font-bold text-white">{t(`${key}Title`)}</h3>
-                    <p className="mt-1.5 text-sm leading-relaxed text-slate-400">{t(`${key}Desc`)}</p>
+                    <p className="mt-1.5 text-sm leading-relaxed text-[var(--brand-text-muted)]">{t(`${key}Desc`)}</p>
                   </div>
                 </motion.div>
               ))}
@@ -656,10 +656,10 @@ export default function PlataformaPage() {
                     <div className="mt-3 flex items-end gap-1">
                       <span className="text-4xl font-black text-white">{t(`${key}Price`)}</span>
                       {t(`${key}Suffix`) && (
-                        <span className="mb-1 text-sm text-slate-400">{t(`${key}Suffix`)}</span>
+                        <span className="mb-1 text-sm text-[var(--brand-text-muted)]">{t(`${key}Suffix`)}</span>
                       )}
                     </div>
-                    <p className="mt-2 text-sm text-slate-400">{t(`${key}Desc`)}</p>
+                    <p className="mt-2 text-sm text-[var(--brand-text-muted)]">{t(`${key}Desc`)}</p>
                   </div>
 
                   <ul className="mb-8 flex-1 space-y-3">
@@ -748,7 +748,7 @@ export default function PlataformaPage() {
 
             <motion.p
               variants={fadeUp}
-              className="mx-auto mt-5 max-w-md text-base leading-relaxed text-slate-400 md:text-lg"
+              className="mx-auto mt-5 max-w-md text-base leading-relaxed text-[var(--brand-text-muted)] md:text-lg"
             >
               {t('finalCtaBody')}
             </motion.p>
@@ -776,7 +776,7 @@ export default function PlataformaPage() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="border-t border-white/[0.06] bg-[#060c1f]/95 px-6 py-10 backdrop-blur">
+      <footer className="border-t border-white/[0.06] bg-[var(--brand-bg)]/95 px-6 py-10 backdrop-blur">
         <div className="mx-auto flex max-w-4xl flex-col items-center justify-between gap-6 md:flex-row md:flex-wrap">
           <Link href="/" className="relative h-12 w-36 shrink-0">
             <Image

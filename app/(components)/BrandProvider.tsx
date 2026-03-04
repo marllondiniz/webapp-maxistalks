@@ -57,6 +57,16 @@ export function useBrand(): BrandConfig {
       instagramUrl: null,
       youtubeUrl: null,
       footerCopyrightName: null,
+      backgroundColor: process.env.NEXT_PUBLIC_BG_COLOR ? `#${String(process.env.NEXT_PUBLIC_BG_COLOR).replace(/^#/, '')}` : '#060c1f',
+      surfaceColor: process.env.NEXT_PUBLIC_SURFACE_COLOR ? `#${String(process.env.NEXT_PUBLIC_SURFACE_COLOR).replace(/^#/, '')}` : '#1e293b',
+      surfaceAltColor: process.env.NEXT_PUBLIC_SURFACE_ALT_COLOR ? `#${String(process.env.NEXT_PUBLIC_SURFACE_ALT_COLOR).replace(/^#/, '')}` : '#0f172a',
+      textMutedColor: process.env.NEXT_PUBLIC_TEXT_MUTED_COLOR ? `#${String(process.env.NEXT_PUBLIC_TEXT_MUTED_COLOR).replace(/^#/, '')}` : '#94a3b8',
+      headingColor: '#ffffff',
+      bodyTextColor: '#e2e8f0',
+      linkColor: '#3b82f6',
+      linkHoverColor: '#60a5fa',
+      accentColor: '#10b981',
+      buttonTextColor: '#ffffff',
     }
   }
   return ctx

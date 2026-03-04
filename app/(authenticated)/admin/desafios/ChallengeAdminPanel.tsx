@@ -79,39 +79,39 @@ export function ChallengeAdminPanel({ initialChallenges }: Props) {
     <div className="space-y-8">
       <form
         onSubmit={handleSubmit}
-        className="space-y-5 rounded-lg border border-white/10 bg-[#1e293b] p-6 shadow-lg"
+        className="space-y-5 rounded-lg border border-white/10 bg-[var(--brand-surface)] p-6 shadow-lg"
       >
         <div>
           <h3 className="text-lg font-semibold text-white">Novo desafio</h3>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-[var(--brand-text-muted)]">
             Crie desafios semanais para engajar a comunidade.
           </p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">Título</span>
+            <span className="text-xs font-semibold uppercase text-[var(--brand-text-muted)]">Título</span>
             <input
               type="text"
               value={form.titulo}
               onChange={(event) => setForm((prev) => ({ ...prev, titulo: event.target.value }))}
-              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
+              className="w-full rounded-xl border border-white/10 bg-[var(--brand-surface)] px-4 py-3 text-sm text-white"
               required
             />
           </label>
 
           <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">Descrição</span>
+            <span className="text-xs font-semibold uppercase text-[var(--brand-text-muted)]">Descrição</span>
             <textarea
               value={form.descricao}
               onChange={(event) => setForm((prev) => ({ ...prev, descricao: event.target.value }))}
               rows={3}
-              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
+              className="w-full rounded-xl border border-white/10 bg-[var(--brand-surface)] px-4 py-3 text-sm text-white"
             />
           </label>
 
           <label className="space-y-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">Progresso padrão (%)</span>
+            <span className="text-xs font-semibold uppercase text-[var(--brand-text-muted)]">Progresso padrão (%)</span>
             <input
               type="number"
               min="0"
@@ -120,19 +120,19 @@ export function ChallengeAdminPanel({ initialChallenges }: Props) {
               onChange={(event) =>
                 setForm((prev) => ({ ...prev, progresso_padrao: event.target.value }))
               }
-              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
+              className="w-full rounded-xl border border-white/10 bg-[var(--brand-surface)] px-4 py-3 text-sm text-white"
             />
           </label>
 
           <label className="space-y-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">Semana referência</span>
+            <span className="text-xs font-semibold uppercase text-[var(--brand-text-muted)]">Semana referência</span>
             <input
               type="date"
               value={form.semana_referencia}
               onChange={(event) =>
                 setForm((prev) => ({ ...prev, semana_referencia: event.target.value }))
               }
-              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
+              className="w-full rounded-xl border border-white/10 bg-[var(--brand-surface)] px-4 py-3 text-sm text-white"
             />
           </label>
         </div>
@@ -140,28 +140,28 @@ export function ChallengeAdminPanel({ initialChallenges }: Props) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-[#3b82f6] px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
+          className="w-full rounded-xl bg-[var(--brand-primary)] px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {loading ? 'Salvando...' : 'Criar desafio'}
         </button>
 
-        {feedback && <p className="text-center text-xs text-slate-400">{feedback}</p>}
+        {feedback && <p className="text-center text-xs text-[var(--brand-text-muted)]">{feedback}</p>}
       </form>
 
       <section className="space-y-4">
         <h3 className="text-lg font-semibold text-white">Desafios cadastrados</h3>
         {challenges.length === 0 ? (
-          <p className="text-sm text-slate-400">Nenhum desafio cadastrado ainda.</p>
+          <p className="text-sm text-[var(--brand-text-muted)]">Nenhum desafio cadastrado ainda.</p>
         ) : (
           <div className="space-y-3">
             {challenges.map((desafio) => (
               <div
                 key={desafio.id}
-                className="flex flex-col gap-3 rounded-lg border border-white/10 bg-[#1e293b] p-5 shadow-lg md:flex-row md:items-center md:justify-between"
+                className="flex flex-col gap-3 rounded-lg border border-white/10 bg-[var(--brand-surface)] p-5 shadow-lg md:flex-row md:items-center md:justify-between"
               >
                 <div>
                   <h4 className="text-base font-semibold text-white">{desafio.titulo}</h4>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-[var(--brand-text-muted)]">
                     Progresso padrão: {desafio.progresso_padrao ?? 0}%
                   </p>
                 </div>

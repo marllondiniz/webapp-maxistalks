@@ -88,7 +88,7 @@ export default async function ArticlePage({ params }: ArticlePageParams) {
     <article className="mx-auto max-w-2xl">
       <Link
         href="/blog"
-        className="mb-6 inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-[#f5f5f5]"
+        className="mb-6 inline-flex items-center gap-2 text-sm text-[var(--brand-text-muted)] transition hover:text-[#f5f5f5]"
       >
         <ChevronLeft className="h-4 w-4" />
         {t('backToContent')}
@@ -96,14 +96,14 @@ export default async function ArticlePage({ params }: ArticlePageParams) {
 
       <header className="space-y-4">
         {artigo.categoria && (
-          <span className="inline-block rounded-full bg-[#3b82f6]/20 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[#3b82f6]">
+          <span className="inline-block rounded-full bg-[var(--brand-primary)]/20 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--brand-primary)]">
             {artigo.categoria}
           </span>
         )}
         <h1 className="text-2xl font-bold leading-tight text-[#f5f5f5] sm:text-3xl">
           {artigo.titulo}
         </h1>
-        <div className="flex items-center gap-3 text-sm text-slate-400">
+        <div className="flex items-center gap-3 text-sm text-[var(--brand-text-muted)]">
           <span>{artigo.autor_handle || '@maxistalks'}</span>
           {dataPublicacao && (
             <>
@@ -158,7 +158,7 @@ export default async function ArticlePage({ params }: ArticlePageParams) {
       <div className="mt-8 border-t border-slate-600/30 pt-6">
         <Link
           href="/blog"
-          className="inline-flex items-center gap-2 rounded-xl border border-slate-600/40 bg-slate-800/80 px-5 py-3 text-sm font-semibold text-[#f5f5f5] transition hover:border-slate-500/50 hover:bg-slate-700/60"
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-600/40 bg-[var(--brand-surface)]/80 px-5 py-3 text-sm font-semibold text-[#f5f5f5] transition hover:border-slate-500/50 hover:bg-[var(--brand-surface)]/60"
         >
           <ChevronLeft className="h-4 w-4" />
           {t('seeMoreArticles')}

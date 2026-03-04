@@ -75,7 +75,7 @@ export function LiveSessionBanner({ session }: { session: LiveSessionRecord }) {
           <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" />
 
           {/* Caixa do modal */}
-          <div className="relative z-10 flex w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-red-500/20 bg-slate-900 shadow-2xl shadow-black/60">
+          <div className="relative z-10 flex w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-red-500/20 bg-[var(--brand-surface-alt)] shadow-2xl shadow-black/60">
             {/* Cabeçalho */}
             <div className="flex items-center gap-3 border-b border-slate-700/60 px-4 py-3 sm:px-5">
               <span className="relative flex h-2.5 w-2.5 shrink-0">
@@ -90,7 +90,7 @@ export function LiveSessionBanner({ session }: { session: LiveSessionRecord }) {
                   href={session.youtube_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 rounded-lg border border-slate-600/40 bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-slate-500/60 hover:text-white"
+                  className="flex items-center gap-1.5 rounded-lg border border-slate-600/40 bg-[var(--brand-surface)] px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-slate-500/60 hover:text-white"
                 >
                   <Youtube className="h-3.5 w-3.5 text-red-400" />
                   YouTube
@@ -98,7 +98,7 @@ export function LiveSessionBanner({ session }: { session: LiveSessionRecord }) {
               )}
               <button
                 onClick={close}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-600/40 bg-slate-800 text-slate-400 transition hover:border-slate-500/60 hover:text-white"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-600/40 bg-[var(--brand-surface)] text-[var(--brand-text-muted)] transition hover:border-slate-500/60 hover:text-white"
               >
                 <X className="h-4 w-4" />
               </button>

@@ -50,37 +50,37 @@ export function ToolModal({
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" />
 
       {/* Painel */}
-      <div className="relative z-10 flex w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl border border-slate-700/60 bg-slate-900 shadow-2xl shadow-black/60 sm:rounded-2xl">
+      <div className="relative z-10 flex w-full max-w-2xl flex-col overflow-hidden rounded-t-3xl border border-slate-700/60 bg-[var(--brand-surface-alt)] shadow-2xl shadow-black/60 sm:rounded-2xl">
 
         {/* Barra de arrasto (mobile) */}
         <div className="mx-auto mt-3 h-1 w-10 rounded-full bg-slate-600 sm:hidden" />
 
         {/* Cabeçalho */}
         <div className="flex items-start gap-3 px-5 pb-3 pt-4 sm:px-6 sm:pt-5">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-800">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--brand-surface)]">
             {hasVideo ? (
               <Youtube className="h-5 w-5 text-red-400" />
             ) : hasPdf ? (
               <FileDown className="h-5 w-5 text-blue-400" />
             ) : (
-              <Wrench className="h-5 w-5 text-slate-400" />
+              <Wrench className="h-5 w-5 text-[var(--brand-text-muted)]" />
             )}
           </div>
           <div className="min-w-0 flex-1">
             <h2 className="text-lg font-bold leading-snug text-white">{tool.titulo}</h2>
             {hasVideo && hasPdf && (
-              <p className="mt-0.5 text-xs font-medium text-slate-400">{t('lessonAndPdf')}</p>
+              <p className="mt-0.5 text-xs font-medium text-[var(--brand-text-muted)]">{t('lessonAndPdf')}</p>
             )}
             {hasVideo && !hasPdf && (
-              <p className="mt-0.5 text-xs font-medium text-slate-400">{t('videoLesson')}</p>
+              <p className="mt-0.5 text-xs font-medium text-[var(--brand-text-muted)]">{t('videoLesson')}</p>
             )}
             {!hasVideo && hasPdf && (
-              <p className="mt-0.5 text-xs font-medium text-slate-400">{t('downloadMaterial')}</p>
+              <p className="mt-0.5 text-xs font-medium text-[var(--brand-text-muted)]">{t('downloadMaterial')}</p>
             )}
           </div>
           <button
             onClick={close}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-700/60 bg-slate-800 text-slate-400 transition hover:border-slate-600 hover:text-white"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-slate-700/60 bg-[var(--brand-surface)] text-[var(--brand-text-muted)] transition hover:border-slate-600 hover:text-white"
           >
             <X className="h-4 w-4" />
           </button>
@@ -143,7 +143,7 @@ export function ToolModal({
                 href={tool.youtube_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-600/50 bg-slate-800 px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:border-slate-500/70 hover:text-white active:scale-95"
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-600/50 bg-[var(--brand-surface)] px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:border-slate-500/70 hover:text-white active:scale-95"
               >
                 <Youtube className="h-4 w-4 text-red-400" />
                 {t('openYoutube')}

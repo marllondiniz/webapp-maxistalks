@@ -135,22 +135,22 @@ export function UsersPanel({ allUsers, registrations }: Props) {
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-[#1e293b] overflow-hidden">
+    <div className="rounded-xl border border-white/10 bg-[var(--brand-surface)] overflow-hidden">
       <div className="flex flex-wrap items-center gap-2 border-b border-white/10 bg-white/5 px-4 py-3 sm:gap-3 sm:px-5">
         <div className="relative min-w-0 flex-1 sm:max-w-[220px]">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand-text-muted)]" />
           <input
             type="search"
             placeholder={t('searchPlaceholder')}
             value={userSearch}
             onChange={(e) => { setUserSearch(e.target.value); setPage(1) }}
-            className="w-full rounded-lg border border-white/10 bg-[#0f172a] py-2 pl-9 pr-3 text-sm text-white placeholder:text-slate-500 focus:border-[#3b82f6] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]"
+            className="w-full rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] py-2 pl-9 pr-3 text-sm text-white placeholder:text-slate-500 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]"
           />
         </div>
         <select
           value={userFilterPosicao}
           onChange={(e) => { setUserFilterPosicao(e.target.value); setPage(1) }}
-          className="rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:border-[#3b82f6] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]"
+          className="rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] px-3 py-2 text-sm text-white focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]"
         >
           <option value="all">{t('positionAll')}</option>
           <option value="empreendedor">{t('positionEmpreendedor')}</option>
@@ -159,7 +159,7 @@ export function UsersPanel({ allUsers, registrations }: Props) {
         <select
           value={userFilterCidade}
           onChange={(e) => { setUserFilterCidade(e.target.value); setPage(1) }}
-          className="min-w-0 max-w-[180px] rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:border-[#3b82f6] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]"
+          className="min-w-0 max-w-[180px] rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] px-3 py-2 text-sm text-white focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]"
         >
           <option value="all">{t('cityAll')}</option>
           {uniqueCidades.map((c) => (
@@ -169,7 +169,7 @@ export function UsersPanel({ allUsers, registrations }: Props) {
         <select
           value={userFilterSegmento}
           onChange={(e) => { setUserFilterSegmento(e.target.value); setPage(1) }}
-          className="min-w-0 max-w-[160px] rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:border-[#3b82f6] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]"
+          className="min-w-0 max-w-[160px] rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] px-3 py-2 text-sm text-white focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]"
         >
           <option value="all">{t('sectorAll')}</option>
           {uniqueSegmentos.map((s) => (
@@ -179,7 +179,7 @@ export function UsersPanel({ allUsers, registrations }: Props) {
         <select
           value={userSortBy}
           onChange={(e) => setUserSortBy(e.target.value as 'name' | 'recent')}
-          className="rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:border-[#3b82f6] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]"
+          className="rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] px-3 py-2 text-sm text-white focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]"
         >
           <option value="recent">{t('sortRecent')}</option>
           <option value="name">{t('sortName')}</option>
@@ -195,7 +195,7 @@ export function UsersPanel({ allUsers, registrations }: Props) {
       </div>
 
       <div className="flex items-center justify-between border-b border-white/10 px-4 py-2 sm:px-5">
-        <span className="text-sm text-slate-400">
+        <span className="text-sm text-[var(--brand-text-muted)]">
           {sortedUsers.length === allUsers.length
             ? t('usersCountOne', { count: String(allUsers.length) })
             : t('usersCountFiltered', { filtered: String(sortedUsers.length), total: String(allUsers.length) })}
@@ -207,7 +207,7 @@ export function UsersPanel({ allUsers, registrations }: Props) {
               type="button"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={currentPage <= 1}
-              className="rounded-lg border border-white/10 bg-[#0f172a] p-2 text-slate-300 hover:bg-white/5 disabled:opacity-40 disabled:pointer-events-none"
+              className="rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] p-2 text-slate-300 hover:bg-white/5 disabled:opacity-40 disabled:pointer-events-none"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -215,7 +215,7 @@ export function UsersPanel({ allUsers, registrations }: Props) {
               type="button"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage >= totalPages}
-              className="rounded-lg border border-white/10 bg-[#0f172a] p-2 text-slate-300 hover:bg-white/5 disabled:opacity-40 disabled:pointer-events-none"
+              className="rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] p-2 text-slate-300 hover:bg-white/5 disabled:opacity-40 disabled:pointer-events-none"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
@@ -224,7 +224,7 @@ export function UsersPanel({ allUsers, registrations }: Props) {
       </div>
 
       {paginatedUsers.length === 0 ? (
-        <div className="px-4 py-12 text-center text-slate-400 sm:px-5">
+        <div className="px-4 py-12 text-center text-[var(--brand-text-muted)] sm:px-5">
           {t('noUsersFound')}
         </div>
       ) : (
@@ -234,19 +234,19 @@ export function UsersPanel({ allUsers, registrations }: Props) {
               <div key={u.id} className="rounded-xl border border-white/10 bg-white/5 p-4">
                 <p className="font-semibold text-white">{u.nome || '—'}</p>
                 {u.email && (
-                  <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-400">
+                  <p className="mt-1 flex items-center gap-1.5 text-xs text-[var(--brand-text-muted)]">
                     <Mail className="h-3 w-3 flex-shrink-0" />
                     {u.email}
                   </p>
                 )}
                 {u.cidade_estado && (
-                  <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-400">
+                  <p className="mt-0.5 flex items-center gap-1.5 text-xs text-[var(--brand-text-muted)]">
                     <MapPin className="h-3 w-3 flex-shrink-0" />
                     {u.cidade_estado}
                   </p>
                 )}
                 {(u.invited_by_user_id || (registrationsCountByUser.get(u.id) ?? 0) > 0) && (
-                  <p className="mt-1.5 text-xs text-slate-400">
+                  <p className="mt-1.5 text-xs text-[var(--brand-text-muted)]">
                     {u.invited_by_user_id && <span>{t('referredBy')} {referrerNameById.get(u.invited_by_user_id) ?? '—'}</span>}
                     {(registrationsCountByUser.get(u.id) ?? 0) > 0 && (
                       <span className={u.invited_by_user_id ? ' ml-2' : ''}>
@@ -262,7 +262,7 @@ export function UsersPanel({ allUsers, registrations }: Props) {
                     </a>
                   )}
                   {u.instagram && (
-                    <a href={`https://instagram.com/${u.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-[#3b82f6]/20 px-3 py-2 text-sm font-medium text-[#3b82f6]">
+                    <a href={`https://instagram.com/${u.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--brand-primary)]/20 px-3 py-2 text-sm font-medium text-[var(--brand-primary)]">
                       {u.instagram}
                     </a>
                   )}
@@ -278,7 +278,7 @@ export function UsersPanel({ allUsers, registrations }: Props) {
 
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full min-w-[900px] text-sm">
-              <thead className="sticky top-0 bg-[#1e293b] text-left">
+              <thead className="sticky top-0 bg-[var(--brand-surface)] text-left">
                 <tr className="border-b border-white/10">
                   <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">{t('thName')}</th>
                   <th className="px-4 py-3 font-semibold text-slate-300 sm:px-5">{t('thPhone')}</th>
@@ -316,7 +316,7 @@ export function UsersPanel({ allUsers, registrations }: Props) {
                           </a>
                         )}
                         {u.instagram && (
-                          <a href={`https://instagram.com/${u.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-[#3b82f6] hover:underline text-xs">
+                          <a href={`https://instagram.com/${u.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-[var(--brand-primary)] hover:underline text-xs">
                             {u.instagram}
                           </a>
                         )}
@@ -340,18 +340,18 @@ export function UsersPanel({ allUsers, registrations }: Props) {
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage <= 1}
-                className="rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-slate-300 hover:bg-white/5 disabled:opacity-40 disabled:pointer-events-none"
+                className="rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] px-3 py-2 text-sm text-slate-300 hover:bg-white/5 disabled:opacity-40 disabled:pointer-events-none"
               >
                 {t('prev')}
               </button>
-              <span className="text-sm text-slate-400">
+              <span className="text-sm text-[var(--brand-text-muted)]">
                 {t('pageOf', { current: String(currentPage), total: String(totalPages) })}
               </span>
               <button
                 type="button"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage >= totalPages}
-                className="rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-slate-300 hover:bg-white/5 disabled:opacity-40 disabled:pointer-events-none"
+                className="rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] px-3 py-2 text-sm text-slate-300 hover:bg-white/5 disabled:opacity-40 disabled:pointer-events-none"
               >
                 {t('next')}
               </button>

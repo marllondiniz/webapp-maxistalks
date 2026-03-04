@@ -141,9 +141,9 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
   }
 
   return (
-    <div className="flex min-h-screen w-full justify-center bg-[#0f172a] px-0 text-white md:px-6 lg:px-10">
-      <div className="flex min-h-screen w-full max-w-[480px] flex-col bg-[#0f172a] md:max-w-5xl xl:max-w-6xl 2xl:max-w-[1867.5px]">
-        <header className="relative sticky top-0 z-20 bg-[#0f172a]/95 backdrop-blur">
+    <div className="flex min-h-screen w-full justify-center bg-[var(--brand-surface-alt)] px-0 text-white md:px-6 lg:px-10">
+      <div className="flex min-h-screen w-full max-w-[480px] flex-col bg-[var(--brand-surface-alt)] md:max-w-5xl xl:max-w-6xl 2xl:max-w-[1867.5px]">
+        <header className="relative sticky top-0 z-20 bg-[var(--brand-surface-alt)]/95 backdrop-blur">
           <div className="mx-auto flex h-[85.23px] w-full max-w-[1867.5px] items-center justify-between gap-4 px-5 md:px-8 lg:px-10">
             <div className="flex flex-1 justify-start" aria-hidden>
               <div className="h-10 w-10" />
@@ -181,7 +181,7 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
 
         {/* Bottom nav — mobile e desktop */}
         <nav
-          className="fixed inset-x-0 bottom-0 z-30 flex justify-center border-t border-white/10 bg-[#0f172a]/95 backdrop-blur"
+          className="fixed inset-x-0 bottom-0 z-30 flex justify-center border-t border-white/10 bg-[var(--brand-surface-alt)]/95 backdrop-blur"
           aria-label="Navegação principal"
         >
           <div className="grid h-20 w-full max-w-[480px] grid-cols-5 md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1867.5px]">
@@ -209,7 +209,7 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
                   </div>
                   <span
                     className={`text-[11px] uppercase tracking-wider ${
-                      isActive ? 'text-white' : 'text-slate-400'
+                      isActive ? 'text-white' : 'text-[var(--brand-text-muted)]'
                     }`}
                   >
                     {item.label}

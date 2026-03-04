@@ -365,14 +365,14 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
     <div className="space-y-8">
       <form
         onSubmit={handleSubmit}
-        className="space-y-5 rounded-lg border border-white/10 bg-[#1e293b] p-6 shadow-lg"
+        className="space-y-5 rounded-lg border border-white/10 bg-[var(--brand-surface)] p-6 shadow-lg"
       >
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-white">
               {editingId ? t('editArticle') : t('newArticle')}
             </h3>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-[var(--brand-text-muted)]">
               {editingId
                 ? 'Atualize os dados do artigo.'
                 : 'Crie artigos com imagens e defina onde cada conteúdo aparece no app.'}
@@ -402,7 +402,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
               <button
                 type="button"
                 onClick={cancelEdit}
-                className="rounded-lg border border-slate-600/40 px-3 py-2 text-sm text-slate-400 transition hover:bg-slate-700/50 hover:text-white"
+                className="rounded-lg border border-slate-600/40 px-3 py-2 text-sm text-[var(--brand-text-muted)] transition hover:bg-slate-700/50 hover:text-white"
               >
                 {t('cancel')}
               </button>
@@ -414,33 +414,33 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
         <>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">{t('titleLabel')} *</span>
+            <span className="text-xs font-semibold uppercase text-[var(--brand-text-muted)]">{t('titleLabel')} *</span>
             <input
               type="text"
               value={form.titulo}
               onChange={(e) => setForm((prev) => ({ ...prev, titulo: e.target.value }))}
-              className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white"
+              className="w-full rounded-xl border border-white/10 bg-[var(--brand-surface-alt)] px-4 py-3 text-sm text-white"
               required
             />
           </label>
 
           <label className="space-y-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">{t('authorLabel')}</span>
+            <span className="text-xs font-semibold uppercase text-[var(--brand-text-muted)]">{t('authorLabel')}</span>
             <input
               type="text"
               value={form.autor_handle}
               onChange={(e) => setForm((prev) => ({ ...prev, autor_handle: e.target.value }))}
               placeholder="@usuario"
-              className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white"
+              className="w-full rounded-xl border border-white/10 bg-[var(--brand-surface-alt)] px-4 py-3 text-sm text-white"
             />
           </label>
 
           <label className="space-y-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">{t('categoryLabel')}</span>
+            <span className="text-xs font-semibold uppercase text-[var(--brand-text-muted)]">{t('categoryLabel')}</span>
             <select
               value={form.categoria}
               onChange={(e) => setForm((prev) => ({ ...prev, categoria: e.target.value }))}
-              className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white"
+              className="w-full rounded-xl border border-white/10 bg-[var(--brand-surface-alt)] px-4 py-3 text-sm text-white"
             >
               {categorias.map((c) => (
                 <option key={c.value} value={c.value}>{c.label}</option>
@@ -449,11 +449,11 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
           </label>
 
           <label className="space-y-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">Onde aparece *</span>
+            <span className="text-xs font-semibold uppercase text-[var(--brand-text-muted)]">Onde aparece *</span>
             <select
               value={form.tipo_conteudo}
               onChange={(e) => setForm((prev) => ({ ...prev, tipo_conteudo: e.target.value }))}
-              className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white"
+              className="w-full rounded-xl border border-white/10 bg-[var(--brand-surface-alt)] px-4 py-3 text-sm text-white"
             >
               {tiposConteudo.map((t) => (
                 <option key={t.value} value={t.value}>{t.label}</option>
@@ -462,31 +462,31 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
           </label>
 
           <label className="space-y-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">Ícone (emoji)</span>
+            <span className="text-xs font-semibold uppercase text-[var(--brand-text-muted)]">Ícone (emoji)</span>
             <input
               type="text"
               maxLength={2}
               value={form.icone}
               onChange={(e) => setForm((prev) => ({ ...prev, icone: e.target.value }))}
-              className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white"
+              className="w-full rounded-xl border border-white/10 bg-[var(--brand-surface-alt)] px-4 py-3 text-sm text-white"
               placeholder="Ex: 💡"
             />
           </label>
 
           <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">Resumo (prévia nos cards)</span>
+            <span className="text-xs font-semibold uppercase text-[var(--brand-text-muted)]">Resumo (prévia nos cards)</span>
             <textarea
               value={form.resumo}
               onChange={(e) => setForm((prev) => ({ ...prev, resumo: e.target.value }))}
               rows={2}
               placeholder="Breve descrição para aparecer nos cards"
-              className="w-full rounded-xl border border-white/10 bg-[#0f172a] px-4 py-3 text-sm text-white"
+              className="w-full rounded-xl border border-white/10 bg-[var(--brand-surface-alt)] px-4 py-3 text-sm text-white"
             />
           </label>
 
           <div className="space-y-3 md:col-span-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+              <label className="text-xs font-semibold uppercase tracking-wide text-[var(--brand-text-muted)]">
                 Conteúdo completo
               </label>
               <span className="rounded-md bg-blue-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-blue-400">
@@ -504,7 +504,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
           </div>
 
           <div className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">Imagem de capa</span>
+            <span className="text-xs font-semibold uppercase text-[var(--brand-text-muted)]">Imagem de capa</span>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
               <input
                 ref={fileInputRef}
@@ -547,7 +547,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex h-32 w-40 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-white/20 bg-white/5 text-slate-400 transition hover:border-white/30 hover:bg-white/10"
+                  className="flex h-32 w-40 flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-white/20 bg-white/5 text-[var(--brand-text-muted)] transition hover:border-white/30 hover:bg-white/10"
                 >
                   <Upload className="h-8 w-8" />
                   <span className="text-xs font-medium">Adicionar imagem</span>
@@ -561,7 +561,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
 
           {editingId && (
             <div className="space-y-2 md:col-span-2">
-              <span className="text-xs font-semibold uppercase text-slate-400 flex items-center gap-2">
+              <span className="text-xs font-semibold uppercase text-[var(--brand-text-muted)] flex items-center gap-2">
                 <Images className="h-4 w-4" />
                 Fotos "como foi o evento"
               </span>
@@ -615,13 +615,13 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-[#3b82f6] px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
+          className="w-full rounded-xl bg-[var(--brand-primary)] px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {loading ? t('saving') : editingId ? t('save') : t('newArticle')}
         </button>
 
         {feedback && (
-          <p className={`text-center text-sm ${feedback.includes('Erro') ? 'text-red-400' : 'text-slate-400'}`}>
+          <p className={`text-center text-sm ${feedback.includes('Erro') ? 'text-red-400' : 'text-[var(--brand-text-muted)]'}`}>
             {feedback}
           </p>
         )}
@@ -635,7 +635,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
           <select
             value={filterTipo}
             onChange={(e) => setFilterTipo(e.target.value)}
-            className="rounded-lg border border-white/10 bg-[#1e293b] px-3 py-2 text-sm text-white"
+            className="rounded-lg border border-white/10 bg-[var(--brand-surface)] px-3 py-2 text-sm text-white"
           >
             <option value="all">{t('filterAll')}</option>
             {tiposConteudo.map((tipo) => (
@@ -645,13 +645,13 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
         </div>
 
         {filteredArticles.length === 0 ? (
-          <p className="text-sm text-slate-400">{t('noArticles')}</p>
+          <p className="text-sm text-[var(--brand-text-muted)]">{t('noArticles')}</p>
         ) : (
           <div className="space-y-3">
             {filteredArticles.map((article) => (
               <div
                 key={article.id}
-                className="flex flex-col gap-3 rounded-lg border border-white/10 bg-[#1e293b] p-5 shadow-lg md:flex-row md:items-center md:justify-between"
+                className="flex flex-col gap-3 rounded-lg border border-white/10 bg-[var(--brand-surface)] p-5 shadow-lg md:flex-row md:items-center md:justify-between"
               >
                 <div className="flex min-w-0 flex-1 items-center gap-4">
                   {article.image_url ? (
@@ -667,7 +667,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
                   )}
                   <div className="min-w-0">
                     <h4 className="font-semibold text-white">{article.titulo}</h4>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-[var(--brand-text-muted)]">
                       {article.autor_handle} • {article.categoria} • {tipoLabel(article.tipo_conteudo)}
                     </p>
                   </div>

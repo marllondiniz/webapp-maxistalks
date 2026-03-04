@@ -26,10 +26,10 @@ function ToolCard({ tool, onClick }: { tool: ToolRecord; onClick: () => void }) 
   return (
     <button
       onClick={onClick}
-      className="group flex w-full items-stretch overflow-hidden rounded-2xl border border-slate-600/30 bg-slate-800/80 text-center shadow-lg transition hover:border-slate-500/50 hover:bg-slate-800 active:scale-[0.99]"
+      className="group flex w-full items-stretch overflow-hidden rounded-2xl border border-slate-600/30 bg-[var(--brand-surface)]/80 text-center shadow-lg transition hover:border-slate-500/50 hover:bg-[var(--brand-surface)] active:scale-[0.99]"
     >
       {/* Thumbnail ou ícone */}
-      <div className="relative flex h-auto w-28 shrink-0 items-center justify-center overflow-hidden bg-slate-900 sm:w-36">
+      <div className="relative flex h-auto w-28 shrink-0 items-center justify-center overflow-hidden bg-[var(--brand-surface-alt)] sm:w-36">
         {thumb ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -42,7 +42,7 @@ function ToolCard({ tool, onClick }: { tool: ToolRecord; onClick: () => void }) 
             <FileDown className="h-10 w-10 text-blue-400/60" />
           </div>
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-slate-800">
+          <div className="flex h-full w-full items-center justify-center bg-[var(--brand-surface)]">
             <Youtube className="h-10 w-10 text-slate-600" />
           </div>
         )}
@@ -69,7 +69,7 @@ function ToolCard({ tool, onClick }: { tool: ToolRecord; onClick: () => void }) 
       <div className="flex min-w-0 flex-1 flex-col items-center justify-center gap-1 px-4 py-4 text-center">
         <p className="font-bold leading-snug text-white line-clamp-2">{tool.titulo}</p>
         {tool.descricao && (
-          <p className="text-sm text-slate-400 line-clamp-2 leading-relaxed">{tool.descricao}</p>
+          <p className="text-sm text-[var(--brand-text-muted)] line-clamp-2 leading-relaxed">{tool.descricao}</p>
         )}
       </div>
 
@@ -121,7 +121,7 @@ export function ToolList({ tools }: { tools: ToolRecord[] }) {
               className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-wide transition ${
                 isActive
                   ? 'border border-blue-400/40 bg-blue-500/20 text-blue-200'
-                  : 'border border-slate-600/40 bg-slate-800/80 text-slate-300 hover:border-slate-500/50 hover:bg-slate-700/60 hover:text-slate-200'
+                  : 'border border-slate-600/40 bg-[var(--brand-surface)]/80 text-slate-300 hover:border-slate-500/50 hover:bg-[var(--brand-surface)]/60 hover:text-slate-200'
               }`}
             >
               {f.label}
@@ -130,13 +130,13 @@ export function ToolList({ tools }: { tools: ToolRecord[] }) {
         })}
       </div>
 
-      <p className="text-center text-sm text-slate-400">
+      <p className="text-center text-sm text-[var(--brand-text-muted)]">
         {filteredTools.length} {countLabel}
       </p>
 
       <div className="space-y-3">
         {filteredTools.length === 0 ? (
-          <p className="rounded-2xl border border-slate-600/30 bg-slate-800/50 px-6 py-8 text-center text-sm text-slate-400">
+          <p className="rounded-2xl border border-slate-600/30 bg-[var(--brand-surface)]/50 px-6 py-8 text-center text-sm text-[var(--brand-text-muted)]">
             {filterTema === 'aula' ? t('noLessons') : t('noTools')}
           </p>
         ) : (

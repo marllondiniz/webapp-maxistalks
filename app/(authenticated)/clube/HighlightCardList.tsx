@@ -49,7 +49,7 @@ export function HighlightCardList({ cards }: HighlightCardListProps) {
         const isActive = card.status === 'ativo'
         const statusLabel = isActive ? 'Ativo' : 'Expirado'
         const baseClass =
-          'flex h-full flex-col justify-between rounded-xl border border-slate-600/30 bg-slate-800/80 p-5 shadow-lg transition-transform hover:border-slate-500/40 hover:-translate-y-1'
+          'flex h-full flex-col justify-between rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/80 p-5 shadow-lg transition-transform hover:border-slate-500/40 hover:-translate-y-1'
 
         const statusStyles = isActive
           ? 'border-emerald-400/20 text-emerald-300 bg-emerald-500/10'
@@ -92,7 +92,7 @@ export function HighlightCardList({ cards }: HighlightCardListProps) {
                   disabled={disabledCta}
                   className={`w-full rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-wide transition ${
                     disabledCta
-                      ? 'cursor-not-allowed border border-slate-600/40 bg-slate-800 text-[#5f5f66] opacity-60'
+                      ? 'cursor-not-allowed border border-slate-600/40 bg-[var(--brand-surface)] text-[#5f5f66] opacity-60'
                       : 'bg-[#f5f5f5] text-[#0f0f10] hover:brightness-95'
                   }`}
                 >
@@ -103,7 +103,7 @@ export function HighlightCardList({ cards }: HighlightCardListProps) {
                   href={card.href}
                   className={`inline-flex w-full items-center justify-center rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-wide transition ${
                     disabledCta
-                      ? 'cursor-not-allowed border border-slate-600/40 bg-slate-800 text-[#5f5f66] opacity-60'
+                      ? 'cursor-not-allowed border border-slate-600/40 bg-[var(--brand-surface)] text-[#5f5f66] opacity-60'
                       : 'bg-[#f5f5f5] text-[#0f0f10] hover:brightness-95'
                   }`}
                   aria-disabled={disabledCta}

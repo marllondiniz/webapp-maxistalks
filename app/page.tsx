@@ -8,6 +8,7 @@ import { EventPreviewModalLanding, type EventPreviewLanding } from '@/components
 import { useBrand } from '@/app/(components)/BrandProvider'
 import { useTranslations } from 'next-intl'
 import { LanguageToggle } from '@/app/(components)/LanguageToggle'
+import { PreviewOverlay } from '@/app/(components)/PreviewOverlay'
 
 type EventPreview = EventPreviewLanding
 
@@ -37,12 +38,40 @@ const stagger = {
   show: { transition: { staggerChildren: 0.1 } },
 }
 
+type PreviewBrand = {
+  name?: string
+  tagline?: string
+  logoPath?: string
+  whatIsHeading?: string | null
+  whatIsImageUrl?: string | null
+  aboutLogoUrl?: string | null
+  aboutShortText?: string | null
+  aboutLongText?: string | null
+  aboutButtonLabel?: string | null
+  aboutButtonUrl?: string | null
+  addressLine1?: string | null
+  addressLine2?: string | null
+  addressCep?: string | null
+  localSubheading?: string | null
+  footerLogoUrl?: string | null
+  footerCopyrightName?: string | null
+  instagramUrl?: string | null
+  youtubeUrl?: string | null
+}
+
 export default function MaxisTalksPage() {
-  const brand = useBrand()
+  const brandCtx = useBrand()
   const t = useTranslations('Landing')
   const [events, setEvents] = useState<EventPreview[]>([])
   const [previewEvent, setPreviewEvent] = useState<EventPreview | null>(null)
   const carouselRef = useRef<HTMLDivElement>(null)
+  const [isPreview, setIsPreview] = useState(false)
+  const [previewBrand, setPreviewBrand] = useState<PreviewBrand>({})
+
+  const brand = useMemo(() => {
+    if (!isPreview || Object.keys(previewBrand).length === 0) return brandCtx
+    return { ...brandCtx, ...previewBrand }
+  }, [brandCtx, previewBrand, isPreview])
 
   const scrollCarousel = (direction: 'left' | 'right') => {
     const el = carouselRef.current
@@ -50,6 +79,71 @@ export default function MaxisTalksPage() {
     const step = 320 + 24
     el.scrollBy({ left: direction === 'right' ? step : -step, behavior: 'smooth' })
   }
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const inIframe = window.parent !== window
+    if (params.get('preview') === 'true' || inIframe) {
+      setIsPreview(true)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!isPreview) return
+
+    window.parent.postMessage({ type: 'preview-ready' }, window.location.origin)
+
+    const handler = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return
+      if (e.data?.type !== 'brand-preview') return
+
+      const msg = e.data
+
+      const vars: Record<string, string> = {
+        '--brand-primary': `#${msg.primary_color}`,
+        '--brand-primary-hover': `#${msg.primary_color_hover}`,
+        '--brand-bg': `#${msg.background_color}`,
+        '--brand-surface': `#${msg.surface_color}`,
+        '--brand-surface-alt': `#${msg.surface_alt_color}`,
+        '--brand-text-muted': `#${msg.text_muted_color}`,
+        '--brand-heading': `#${msg.heading_color}`,
+        '--brand-body': `#${msg.body_text_color}`,
+        '--brand-link': `#${msg.link_color}`,
+        '--brand-link-hover': `#${msg.link_hover_color}`,
+        '--brand-accent': `#${msg.accent_color}`,
+        '--brand-button-text': `#${msg.button_text_color}`,
+      }
+      Object.entries(vars).forEach(([k, v]) => {
+        if (v && v !== '#' && v !== '#undefined') {
+          document.body.style.setProperty(k, v)
+        }
+      })
+
+      setPreviewBrand({
+        name: msg.name || undefined,
+        tagline: msg.tagline || undefined,
+        logoPath: msg.logo_url || undefined,
+        whatIsHeading: msg.what_is_heading || null,
+        whatIsImageUrl: msg.what_is_image_url || null,
+        aboutLogoUrl: msg.about_logo_url || null,
+        aboutShortText: msg.about_short_text || null,
+        aboutLongText: msg.about_long_text || null,
+        aboutButtonLabel: msg.about_button_label || null,
+        aboutButtonUrl: msg.about_button_url || null,
+        addressLine1: msg.address_line1 || null,
+        addressLine2: msg.address_line2 || null,
+        addressCep: msg.address_cep || null,
+        localSubheading: msg.local_subheading || null,
+        footerLogoUrl: msg.footer_logo_url || null,
+        footerCopyrightName: msg.footer_copyright_name || null,
+        instagramUrl: msg.instagram_url || null,
+        youtubeUrl: msg.youtube_url || null,
+      })
+    }
+
+    window.addEventListener('message', handler)
+    return () => window.removeEventListener('message', handler)
+  }, [isPreview])
 
   useEffect(() => {
     fetch('/api/events', { cache: 'no-store' })
@@ -80,13 +174,17 @@ export default function MaxisTalksPage() {
     return map
   }, [events])
 
+  const PO = ({ id, label, children }: { id: string; label: string; children: React.ReactNode }) =>
+    isPreview ? <PreviewOverlay sectionId={id} label={label}>{children}</PreviewOverlay> : <>{children}</>
+
   return (
-    <main className="relative min-h-screen bg-[#060c1f] text-white">
+    <main className="relative min-h-screen bg-[var(--brand-bg)]">
       {/* Global noise overlay */}
-      <div className="pointer-events-none fixed inset-0 z-50 noise-texture" />
+      {!isPreview && <div className="pointer-events-none fixed inset-0 z-50 noise-texture" />}
 
       {/* ── DOBRA 1 ── Hero + Spoiler */}
-      <section className="hero-glow relative flex min-h-[calc(100vh-48px)] flex-col overflow-hidden">
+      <PO id="section-brand" label="Marca / Hero">
+      <section id="section-brand" className="hero-glow relative flex min-h-[calc(100vh-48px)] flex-col overflow-hidden">
         {/* Background grid */}
         <div className="pointer-events-none absolute inset-0 animated-grid" />
 
@@ -100,10 +198,10 @@ export default function MaxisTalksPage() {
           animate="show"
           className="relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center px-6 py-20 md:py-24"
         >
-          {/* Logo */}
+          {/* Logo — fallback evita erro quando logo está vazio */}
           <motion.div variants={fadeUp} className="mb-6 md:mb-8">
             <Image
-              src={brand.logoPath}
+              src={brand.logoPath || '/maxistalks-logo.png'}
               alt={brand.name}
               width={260}
               height={104}
@@ -117,26 +215,26 @@ export default function MaxisTalksPage() {
             variants={fadeUp}
             className="mb-4 flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[11px] md:text-xs text-slate-100 backdrop-blur-md"
           >
-            <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.9)]" />
-            <span className="font-semibold uppercase tracking-[0.2em] text-slate-300">
-              {t('heroTagline')}
+            <span className="inline-flex h-1.5 w-1.5 rounded-full bg-[var(--brand-accent)] shadow-[0_0_10px_var(--brand-accent)]" />
+            <span className="font-semibold uppercase tracking-[0.2em] text-[var(--brand-body)]">
+              {brand.tagline || t('heroTagline')}
             </span>
           </motion.div>
 
-          {/* Headline */}
+          {/* Headline — cor vem de "Cor dos títulos" (Aparência), sem azul fixo */}
           <motion.h1
             variants={fadeUp}
-            className="mb-5 text-balance text-center font-display text-3xl font-bold leading-[1.1] tracking-tight md:text-5xl lg:text-6xl"
+            className="mb-5 text-balance text-center font-display text-3xl font-bold leading-[1.1] tracking-tight text-[var(--brand-heading)] md:text-5xl lg:text-6xl"
           >
             {t('heroHeadlineLine1')}
             <br />
-            <span className="text-gradient-blue">{t('heroHeadlineLine2', { name: brand.name })}</span>
+            <span>{t('heroHeadlineLine2', { name: brand.name })}</span>
           </motion.h1>
 
           {/* Sub-headline */}
           <motion.p
             variants={fadeUp}
-            className="mx-auto mb-10 max-w-xl text-balance text-center text-base leading-relaxed text-slate-400 md:text-lg"
+            className="mx-auto mb-10 max-w-xl text-balance text-center text-base leading-relaxed text-[var(--brand-text-muted)] md:text-lg"
           >
             {t('heroSubheadline')}
           </motion.p>
@@ -145,7 +243,7 @@ export default function MaxisTalksPage() {
           <motion.div variants={fadeUp} className="mb-16 flex flex-col items-center gap-3">
             <Link
               href="/login?mode=signUp"
-              className="btn-glow flex items-center gap-2.5 rounded-2xl bg-[var(--brand-primary)] px-10 py-4 text-[15px] font-bold uppercase tracking-wider text-white transition hover:bg-[var(--brand-primary-hover)]"
+              className="btn-glow btn-brand-text flex items-center gap-2.5 rounded-2xl bg-[var(--brand-primary)] px-10 py-4 text-[15px] font-bold uppercase tracking-wider transition hover:bg-[var(--brand-primary-hover)]"
             >
               {t('ctaCreateAccount')}
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,7 +252,7 @@ export default function MaxisTalksPage() {
             </Link>
             <p className="text-sm text-slate-500">
               {t('ctaLoginPrefix')}{' '}
-              <Link href="/login" className="text-blue-400 transition hover:text-blue-300 hover:underline">
+              <Link href="/login" className="text-[var(--brand-link)] transition hover:text-[var(--brand-link-hover)] hover:underline">
                 {t('ctaLogin')}
               </Link>
             </p>
@@ -174,7 +272,7 @@ export default function MaxisTalksPage() {
                     type="button"
                     onClick={() => scrollCarousel('left')}
                     aria-label="Ver eventos anteriores"
-                    className="pointer-events-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/20 bg-[#0f172a]/90 text-white shadow-lg backdrop-blur-sm transition hover:border-white/40 hover:bg-[#1e293b] focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="pointer-events-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/20 bg-[var(--brand-surface-alt)]/90 text-white shadow-lg backdrop-blur-sm transition hover:border-white/40 hover:bg-[var(--brand-surface)] focus:outline-none focus:ring-2 focus:ring-blue-400"
                   >
                     <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -184,7 +282,7 @@ export default function MaxisTalksPage() {
                     type="button"
                     onClick={() => scrollCarousel('right')}
                     aria-label="Ver próximos eventos"
-                    className="pointer-events-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/20 bg-[#0f172a]/90 text-white shadow-lg backdrop-blur-sm transition hover:border-white/40 hover:bg-[#1e293b] focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="pointer-events-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/20 bg-[var(--brand-surface-alt)]/90 text-white shadow-lg backdrop-blur-sm transition hover:border-white/40 hover:bg-[var(--brand-surface)] focus:outline-none focus:ring-2 focus:ring-blue-400"
                   >
                     <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -225,7 +323,7 @@ export default function MaxisTalksPage() {
                                 {t('cardEdition', { n: String(editionByEventId.get(event.id) ?? i + 1).padStart(2, '0') })}
                               </span>
                               {isPast && (
-                                <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/95 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur">
+                                <span className="flex items-center gap-1.5 rounded-full bg-[var(--brand-accent)] px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur">
                                   <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                                   </svg>
@@ -244,35 +342,35 @@ export default function MaxisTalksPage() {
                         )}
                         <div className="border-t border-white/[0.05] px-5 py-4">
                           <p className="text-[11px] text-slate-500">{formatEventDate(event.data_horario)}</p>
-                          <h3 className="mt-1 text-lg font-bold text-white">{nomePalestrante || event.titulo}</h3>
+                          <h3 className="mt-1 text-lg font-bold">{nomePalestrante || event.titulo}</h3>
                           {event.banner?.palestrante_instagram && (
                             <a
                               href={`https://instagram.com/${event.banner.palestrante_instagram.replace(/^@/, '')}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(e) => e.stopPropagation()}
-                              className="mt-1 inline-block text-xs font-semibold text-blue-400 hover:text-blue-300"
+                              className="mt-1 inline-block text-xs font-semibold text-[var(--brand-link)] hover:text-[var(--brand-link-hover)]"
                             >
                               @{event.banner.palestrante_instagram.replace(/^@/, '')}
                             </a>
                           )}
                           {event.banner?.palestrante_descricao && (
-                            <p className="mt-1 text-xs text-slate-400 line-clamp-2">{event.banner.palestrante_descricao}</p>
+                            <p className="mt-1 text-xs text-[var(--brand-text-muted)] line-clamp-2">{event.banner.palestrante_descricao}</p>
                           )}
                         </div>
-                        <div className="mx-5 mb-5 rounded-xl bg-[#1e293b]/80 px-4 py-3">
+                        <div className="mx-5 mb-5 rounded-xl bg-[var(--brand-surface)]/80 px-4 py-3">
                           <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                             {t('cardThemeLabel')}
                           </p>
-                          <p className="mt-1 font-semibold text-white line-clamp-2">{temaPalestra}</p>
+                          <p className="mt-1 font-semibold text-[var(--brand-heading)] line-clamp-2">{temaPalestra}</p>
                         </div>
                         <div className="border-t border-white/[0.05] p-5" onClick={(e) => e.stopPropagation()}>
                           <Link
                             href={isPast ? '#' : '/login?mode=signUp'}
                             className={`block w-full rounded-xl py-3.5 text-center text-sm font-bold uppercase tracking-wider transition ${
                               isPast
-                                ? 'cursor-default bg-white/[0.06] text-slate-400'
-                                : 'btn-glow bg-[var(--brand-primary)] text-white hover:bg-[var(--brand-primary-hover)]'
+                                ? 'cursor-default bg-white/[0.06] text-[var(--brand-text-muted)]'
+                                : 'btn-glow btn-brand-text bg-[var(--brand-primary)] hover:bg-[var(--brand-primary-hover)]'
                             }`}
                           >
                             {isPast ? t('cardButtonPast') : t('cardButtonUpcoming')}
@@ -286,7 +384,7 @@ export default function MaxisTalksPage() {
               </div>
             ) : (
               <div className="glass-card px-8 py-16 text-center">
-                <p className="text-base text-slate-400">Novos eventos em breve</p>
+                <p className="text-base text-[var(--brand-text-muted)]">Novos eventos em breve</p>
                 <p className="mt-2 text-sm text-slate-500">
                   Crie sua conta para ser avisado das próximas edições
                 </p>
@@ -295,9 +393,11 @@ export default function MaxisTalksPage() {
           </motion.div>
         </motion.div>
       </section>
+      </PO>
 
       {/* ── O QUE É ── */}
-      <section className="section-glow px-6 py-20 md:py-32">
+      <PO id="section-what-is" label="O que é">
+      <section id="section-what-is" className="section-glow px-6 py-20 md:py-32">
         <div className="mx-auto max-w-4xl md:max-w-2xl">
           <motion.div
             initial="hidden"
@@ -323,10 +423,12 @@ export default function MaxisTalksPage() {
           </motion.div>
         </div>
       </section>
+      </PO>
 
       {/* ── LOCAL ── */}
       {(brand.addressLine1 || brand.mapEmbedUrl) && (
-        <section className="px-6 py-20 md:py-32">
+        <PO id="section-location" label="Local">
+        <section id="section-location" className="px-6 py-20 md:py-32">
           <div className="mx-auto max-w-5xl">
             <motion.div
               initial="hidden"
@@ -349,32 +451,32 @@ export default function MaxisTalksPage() {
               >
                 {/* Info */}
                 <div className="flex flex-1 flex-col justify-center gap-6 p-8 lg:p-10">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10">
-                      <svg className="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--brand-primary)]/10">
+                      <svg className="h-5 w-5 text-[var(--brand-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
                       </svg>
                     </div>
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Formato</p>
-                      <p className="text-lg font-semibold text-white">{t('localFormatValue')}</p>
+                      <p className="text-lg font-semibold text-[var(--brand-heading)]">{t('localFormatValue')}</p>
                     </div>
                   </div>
 
                   {brand.addressLine1 && (
                     <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-500/10">
-                        <svg className="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[var(--brand-primary)]/10">
+                        <svg className="h-5 w-5 text-[var(--brand-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 0V7.5m0 0h3.75" />
                         </svg>
                       </div>
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Endereço</p>
                         {/* label traduzida acima */}
-                        <p className="text-base font-medium text-white">{brand.addressLine1}</p>
-                        {brand.addressLine2 && <p className="text-sm text-slate-300">{brand.addressLine2}</p>}
-                        {brand.addressCep && <p className="text-sm text-slate-400">{brand.addressCep}</p>}
+                        <p className="text-base font-medium text-[var(--brand-heading)]">{brand.addressLine1}</p>
+                        {brand.addressLine2 && <p className="text-sm text-[var(--brand-body)]">{brand.addressLine2}</p>}
+                        {brand.addressCep && <p className="text-sm text-[var(--brand-text-muted)]">{brand.addressCep}</p>}
                       </div>
                     </div>
                   )}
@@ -384,9 +486,9 @@ export default function MaxisTalksPage() {
                       href={brand.mapLinkUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 self-start rounded-xl bg-blue-500/10 px-5 py-3 text-sm font-semibold text-blue-400 transition hover:bg-blue-500/20"
+                      className="inline-flex items-center gap-2 self-start rounded-xl bg-[var(--brand-primary)]/10 px-5 py-3 text-sm font-semibold text-[var(--brand-link)] transition hover:bg-[var(--brand-primary)]/20"
                     >
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="h-4 w-4 text-[var(--brand-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
@@ -415,11 +517,13 @@ export default function MaxisTalksPage() {
             </motion.div>
           </div>
         </section>
+        </PO>
       )}
 
       {/* ── SOBRE ── */}
       {(brand.aboutShortText || brand.aboutLogoUrl) && (
-        <section className="section-glow px-6 py-20 md:py-32">
+        <PO id="section-about" label="Sobre">
+        <section id="section-about" className="section-glow px-6 py-20 md:py-32">
           <div className="mx-auto max-w-2xl">
             <motion.div
               initial="hidden"
@@ -447,13 +551,13 @@ export default function MaxisTalksPage() {
               </motion.h2>
 
               {brand.aboutShortText && (
-                <motion.p variants={fadeUp} className="text-center text-base leading-[1.8] text-slate-300 md:text-lg">
+                <motion.p variants={fadeUp} className="text-center text-base leading-[1.8] text-[var(--brand-body)] md:text-lg">
                   {brand.aboutShortText}
                 </motion.p>
               )}
 
               {brand.aboutLongText && (
-                <motion.p variants={fadeUp} className="mt-4 text-center text-base leading-[1.8] text-slate-400 md:text-lg">
+                <motion.p variants={fadeUp} className="mt-4 text-center text-base leading-[1.8] text-[var(--brand-text-muted)] md:text-lg">
                   {brand.aboutLongText}
                 </motion.p>
               )}
@@ -464,7 +568,7 @@ export default function MaxisTalksPage() {
                     href={brand.aboutButtonUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn-glow inline-flex items-center gap-2 rounded-2xl bg-[var(--brand-primary)] px-8 py-3.5 text-sm font-bold uppercase tracking-wider text-white transition hover:bg-[var(--brand-primary-hover)]"
+                    className="btn-glow btn-brand-text inline-flex items-center gap-2 rounded-2xl bg-[var(--brand-primary)] px-8 py-3.5 text-sm font-bold uppercase tracking-wider transition hover:bg-[var(--brand-primary-hover)]"
                   >
                     {brand.aboutButtonLabel}
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -476,10 +580,12 @@ export default function MaxisTalksPage() {
             </motion.div>
           </div>
         </section>
+        </PO>
       )}
 
       {/* ── CTA FINAL ── */}
-      <section className="px-6 py-20 md:py-32">
+      <PO id="section-theme" label="Cores do Tema">
+      <section id="section-cta" className="px-6 py-20 md:py-32">
         <div className="mx-auto max-w-2xl">
           <motion.div
             initial="hidden"
@@ -490,16 +596,16 @@ export default function MaxisTalksPage() {
           >
             <motion.h2
               variants={fadeUp}
-              className="font-display text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl"
+              className="font-display text-3xl font-bold tracking-tight text-[var(--brand-heading)] md:text-4xl lg:text-5xl"
             >
               {t('finalCtaTitleLine1')}
               <br />
-              <span className="text-gradient-blue">{t('finalCtaGradient')}</span>
+              <span>{t('finalCtaGradient')}</span>
             </motion.h2>
 
             <motion.p
               variants={fadeUp}
-              className="mx-auto mt-5 max-w-md text-base leading-relaxed text-slate-400 md:text-lg"
+              className="mx-auto mt-5 max-w-md text-base leading-relaxed text-[var(--brand-text-muted)] md:text-lg"
             >
               {t('finalCtaBody')}
             </motion.p>
@@ -507,7 +613,7 @@ export default function MaxisTalksPage() {
             <motion.div variants={fadeUp} className="mt-10">
               <Link
                 href="/login?mode=signUp"
-                className="btn-glow inline-flex items-center gap-2.5 rounded-2xl bg-[var(--brand-primary)] px-10 py-4 text-[15px] font-bold uppercase tracking-wider text-white transition hover:bg-[var(--brand-primary-hover)]"
+                className="btn-glow btn-brand-text inline-flex items-center gap-2.5 rounded-2xl bg-[var(--brand-primary)] px-10 py-4 text-[15px] font-bold uppercase tracking-wider transition hover:bg-[var(--brand-primary-hover)]"
               >
                 {t('finalCtaButton')}
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -516,7 +622,7 @@ export default function MaxisTalksPage() {
               </Link>
               <p className="mt-4 text-sm text-slate-500">
                 {t('ctaLoginPrefix')}{' '}
-                <Link href="/login" className="text-blue-400 transition hover:text-blue-300 hover:underline">
+                <Link href="/login" className="text-[var(--brand-link)] transition hover:text-[var(--brand-link-hover)] hover:underline">
                   {t('ctaLogin')}
                 </Link>
               </p>
@@ -524,9 +630,11 @@ export default function MaxisTalksPage() {
           </motion.div>
         </div>
       </section>
+      </PO>
 
       {/* ── FOOTER ── */}
-      <footer className="border-t border-white/[0.06] bg-[#060c1f]/95 px-6 py-12 backdrop-blur">
+      <PO id="section-footer" label="Footer">
+      <footer id="section-footer" className="border-t border-white/[0.06] bg-[var(--brand-bg)]/95 px-6 py-12 backdrop-blur">
         <div className="mx-auto flex max-w-4xl flex-col items-center justify-between gap-8 md:flex-row md:flex-wrap">
           {(brand.footerLogoUrl || brand.logoPath) && (
             <div className="relative h-14 w-40 shrink-0">
@@ -551,7 +659,7 @@ export default function MaxisTalksPage() {
                   href={brand.instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex size-10 items-center justify-center rounded-lg text-slate-400 transition hover:bg-gradient-to-br hover:from-[#f58529] hover:via-[#dd2a7b] hover:to-[#8134af] hover:text-white"
+                  className="group flex size-10 items-center justify-center rounded-lg text-[var(--brand-text-muted)] transition hover:bg-gradient-to-br hover:from-[#f58529] hover:via-[#dd2a7b] hover:to-[#8134af] hover:text-white"
                   aria-label="Instagram"
                 >
                   <svg className="size-6 shrink-0 transition group-hover:scale-105" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -566,7 +674,7 @@ export default function MaxisTalksPage() {
                   href={brand.youtubeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex size-10 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-600 hover:text-white"
+                  className="group flex size-10 items-center justify-center rounded-lg text-[var(--brand-text-muted)] transition hover:bg-red-600 hover:text-white"
                   aria-label="YouTube"
                 >
                   <svg className="size-6 shrink-0 transition group-hover:scale-105" fill="currentColor" viewBox="0 0 24 24">
@@ -581,6 +689,7 @@ export default function MaxisTalksPage() {
           © {new Date().getFullYear()} {brand.footerCopyrightName ?? brand.name}. Todos os direitos reservados.
         </p>
       </footer>
+      </PO>
 
       <EventPreviewModalLanding
         event={previewEvent}
@@ -592,7 +701,7 @@ export default function MaxisTalksPage() {
       {/* Scroll to top */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed bottom-6 right-6 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--brand-primary)] text-white shadow-xl transition hover:bg-[var(--brand-primary-hover)] hover:scale-105"
+        className="fixed bottom-6 right-6 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--brand-primary)] btn-brand-text shadow-xl transition hover:bg-[var(--brand-primary-hover)] hover:scale-105"
         aria-label="Voltar ao topo"
       >
         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

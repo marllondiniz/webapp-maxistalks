@@ -10,7 +10,7 @@ export default async function AdminDesafiosPage() {
         <h2 className="text-xl font-semibold uppercase tracking-wide text-white">
           Gerenciar desafios
         </h2>
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-[var(--brand-text-muted)]">
           Configure os desafios semanais e acompanhe o progresso dos membros.
         </p>
       </div>

@@ -70,7 +70,7 @@ export function PainForm({ tenantId }: { tenantId: string | null }) {
         placeholder={t('placeholder')}
         rows={4}
         maxLength={600}
-        className="w-full resize-none rounded-xl border border-slate-600/40 bg-slate-900 px-4 py-3 text-sm text-[#f5f5f5] placeholder:text-[#54545b] focus:border-slate-500/60 focus:outline-none"
+        className="w-full resize-none rounded-xl border border-slate-600/40 bg-[var(--brand-surface-alt)] px-4 py-3 text-sm text-[#f5f5f5] placeholder:text-[#54545b] focus:border-slate-500/60 focus:outline-none"
       />
       <div className="flex items-center justify-between gap-3">
         <span className="text-xs text-slate-500">{dor.length}/600</span>
@@ -78,7 +78,7 @@ export function PainForm({ tenantId }: { tenantId: string | null }) {
         <button
           type="submit"
           disabled={isPending || !dor.trim()}
-          className="inline-flex items-center gap-2 rounded-full bg-[#3b82f6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2563eb] disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-primary)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Send className="h-3.5 w-3.5" />
           {isPending ? t('sending') : t('submit')}

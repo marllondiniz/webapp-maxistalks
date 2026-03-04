@@ -29,14 +29,14 @@ export function ConvidarAmigo({ userId }: ConvidarAmigoProps) {
   }, [referralUrl])
 
   return (
-    <div className="rounded-xl border border-slate-600/30 bg-slate-800/60 p-4">
+    <div className="rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/60 p-4">
       <div className="flex items-center gap-3 mb-3">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--brand-primary)]/20 text-[var(--brand-primary)]">
           <UserPlus className="h-5 w-5" />
         </div>
         <div>
           <h3 className="text-sm font-bold text-white">{t('title')}</h3>
-          <p className="text-xs text-slate-400">{t('subtitle')}</p>
+          <p className="text-xs text-[var(--brand-text-muted)]">{t('subtitle')}</p>
         </div>
       </div>
       <div className="flex gap-2">
@@ -44,7 +44,7 @@ export function ConvidarAmigo({ userId }: ConvidarAmigoProps) {
           type="text"
           readOnly
           value={referralUrl}
-          className="flex-1 rounded-lg border border-slate-600/50 bg-slate-900/80 px-3 py-2.5 text-sm text-white focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]"
+          className="flex-1 rounded-lg border border-slate-600/50 bg-[var(--brand-surface-alt)]/80 px-3 py-2.5 text-sm text-white focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]"
           aria-label={t('referralLinkLabel')}
         />
         <button

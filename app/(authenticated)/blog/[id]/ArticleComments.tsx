@@ -161,14 +161,14 @@ export function ArticleComments({ articleId }: Props) {
           onChange={(e) => setBody(e.target.value)}
           placeholder={t('placeholder')}
           rows={3}
-          className="w-full rounded-xl border border-slate-600/40 bg-slate-900 px-4 py-3 text-sm text-[#f5f5f5] placeholder:text-slate-500 focus:border-slate-500/50 focus:outline-none"
+          className="w-full rounded-xl border border-slate-600/40 bg-[var(--brand-surface-alt)] px-4 py-3 text-sm text-[#f5f5f5] placeholder:text-slate-500 focus:border-slate-500/50 focus:outline-none"
           disabled={submitting}
         />
         <div className="mt-2 flex justify-end">
           <button
             type="submit"
             disabled={!body.trim() || submitting}
-            className="rounded-xl bg-[#3b82f6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2563eb] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="rounded-xl bg-[var(--brand-primary)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-primary-hover)] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitting ? t('submitting') : t('submit')}
           </button>
@@ -182,15 +182,15 @@ export function ArticleComments({ articleId }: Props) {
       )}
 
       {loading ? (
-        <p className="text-sm text-slate-400">{t('loading')}</p>
+        <p className="text-sm text-[var(--brand-text-muted)]">{t('loading')}</p>
       ) : comments.length === 0 ? (
-        <p className="text-sm text-slate-400">{t('empty')}</p>
+        <p className="text-sm text-[var(--brand-text-muted)]">{t('empty')}</p>
       ) : (
         <ul className="space-y-4">
           {comments.map((c) => (
             <li
               key={c.id}
-              className="rounded-xl border border-slate-600/30 bg-slate-800/50 p-4"
+              className="rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/50 p-4"
             >
               <div className="mb-1 flex flex-wrap items-center justify-between gap-2 text-sm">
                 <div className="flex items-center gap-3">
@@ -211,7 +211,7 @@ export function ArticleComments({ articleId }: Props) {
                           unoptimized
                         />
                       ) : (
-                        <span className="flex h-full w-full items-center justify-center text-slate-400">
+                        <span className="flex h-full w-full items-center justify-center text-[var(--brand-text-muted)]">
                           <User className="h-5 w-5" />
                         </span>
                       )}
@@ -239,14 +239,14 @@ export function ArticleComments({ articleId }: Props) {
                         <button
                           type="button"
                           onClick={saveEdit}
-                          className="rounded-lg bg-[#3b82f6] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#2563eb]"
+                          className="rounded-lg bg-[var(--brand-primary)] px-3 py-1.5 text-xs font-medium text-white hover:bg-[var(--brand-primary-hover)]"
                         >
                           {t('save')}
                         </button>
                         <button
                           type="button"
                           onClick={cancelEdit}
-                          className="rounded-lg border border-slate-500/50 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700/50"
+                          className="rounded-lg border border-slate-500/50 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-[var(--brand-surface)]/50"
                         >
                           {t('cancel')}
                         </button>
@@ -256,7 +256,7 @@ export function ArticleComments({ articleId }: Props) {
                         <button
                           type="button"
                           onClick={() => startEdit(c)}
-                          className="rounded p-1.5 text-slate-400 transition hover:bg-slate-700/50 hover:text-[#f5f5f5]"
+                          className="rounded p-1.5 text-[var(--brand-text-muted)] transition hover:bg-[var(--brand-surface)]/50 hover:text-[#f5f5f5]"
                           title={t('save')}
                         >
                           <Pencil className="h-3.5 w-3.5" />
@@ -265,7 +265,7 @@ export function ArticleComments({ articleId }: Props) {
                           type="button"
                           onClick={() => handleDelete(c.id)}
                           disabled={deletingId === c.id}
-                          className="rounded p-1.5 text-slate-400 transition hover:bg-red-900/30 hover:text-red-400 disabled:opacity-50"
+                          className="rounded p-1.5 text-[var(--brand-text-muted)] transition hover:bg-red-900/30 hover:text-red-400 disabled:opacity-50"
                           title={t('deleteConfirm')}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -280,7 +280,7 @@ export function ArticleComments({ articleId }: Props) {
                   value={editBody}
                   onChange={(e) => setEditBody(e.target.value)}
                   rows={3}
-                  className="mt-2 w-full rounded-lg border border-slate-600/40 bg-slate-900 px-3 py-2 text-sm text-[#f5f5f5] focus:border-slate-500/50 focus:outline-none"
+                  className="mt-2 w-full rounded-lg border border-slate-600/40 bg-[var(--brand-surface-alt)] px-3 py-2 text-sm text-[#f5f5f5] focus:border-slate-500/50 focus:outline-none"
                   autoFocus
                 />
               ) : (
@@ -303,14 +303,14 @@ export function ArticleComments({ articleId }: Props) {
           aria-label={t('viewProfile')}
         >
           <div
-            className="w-full max-w-sm rounded-2xl border border-slate-600/40 bg-slate-800 p-6 shadow-xl"
+            className="w-full max-w-sm rounded-2xl border border-slate-600/40 bg-[var(--brand-surface)] p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-end">
               <button
                 type="button"
                 onClick={() => setProfileView(null)}
-                className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-700/50 hover:text-white"
+                className="rounded-lg p-1.5 text-[var(--brand-text-muted)] transition hover:bg-[var(--brand-surface)]/50 hover:text-white"
                 aria-label={t('closeProfile')}
               >
                 <X className="h-5 w-5" />
@@ -327,7 +327,7 @@ export function ArticleComments({ articleId }: Props) {
                     unoptimized
                   />
                 ) : (
-                  <span className="flex h-full w-full items-center justify-center text-slate-400">
+                  <span className="flex h-full w-full items-center justify-center text-[var(--brand-text-muted)]">
                     <User className="h-10 w-10" />
                   </span>
                 )}
@@ -336,7 +336,7 @@ export function ArticleComments({ articleId }: Props) {
                 {profileView.author_name || t('anonymous')}
               </h3>
               {profileView.author_bio && (
-                <p className="mt-3 max-w-[280px] text-sm leading-relaxed text-slate-400 line-clamp-3">
+                <p className="mt-3 max-w-[280px] text-sm leading-relaxed text-[var(--brand-text-muted)] line-clamp-3">
                   {profileView.author_bio.length > 160
                     ? `${profileView.author_bio.slice(0, 160).trim()}…`
                     : profileView.author_bio}

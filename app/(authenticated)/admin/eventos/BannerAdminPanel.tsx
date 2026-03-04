@@ -172,13 +172,13 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
   }
 
   return (
-    <div className="space-y-6 rounded-2xl border border-white/5 bg-[#1e293b] p-6 shadow-xl">
+    <div className="space-y-6 rounded-2xl border border-white/5 bg-[var(--brand-surface)] p-6 shadow-xl">
       <div className="space-y-2">
         <h3 className="text-lg font-bold uppercase tracking-tight text-white flex items-center gap-2">
           <ImageIcon className="h-5 w-5" />
           {t('title')}
         </h3>
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-[var(--brand-text-muted)]">
           {t('subtitle')}
         </p>
         <div className="flex items-start gap-2 rounded-lg border border-blue-500/20 bg-blue-500/5 p-3">
@@ -192,46 +192,46 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">{t('titleOptional')}</span>
+            <span className="text-xs font-semibold uppercase text-[var(--brand-text-muted)]">{t('titleOptional')}</span>
             <input
               type="text"
               value={form.titulo}
               onChange={(event) => setForm((prev) => ({ ...prev, titulo: event.target.value }))}
-              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
+              className="w-full rounded-xl border border-white/10 bg-[var(--brand-surface)] px-4 py-3 text-sm text-white"
               placeholder="Ex: Aulão Ritmo Certo"
             />
           </label>
 
           <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">
+            <span className="text-xs font-semibold uppercase text-[var(--brand-text-muted)]">
               {t('subtitleOptional')}
             </span>
             <input
               type="text"
               value={form.subtitulo}
               onChange={(event) => setForm((prev) => ({ ...prev, subtitulo: event.target.value }))}
-              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-sm text-white"
+              className="w-full rounded-xl border border-white/10 bg-[var(--brand-surface)] px-4 py-3 text-sm text-white"
               placeholder="Ex: Garanta sua vaga ainda hoje"
             />
           </label>
 
           <div className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">
+            <span className="text-xs font-semibold uppercase text-[var(--brand-text-muted)]">
               {t('eventRelated')}
             </span>
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setForm((prev) => ({ ...prev, showEventPicker: !prev.showEventPicker }))}
-                className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-left text-sm text-white transition hover:border-white/20 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/10"
+                className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-[var(--brand-surface)] px-4 py-3 text-left text-sm text-white transition hover:border-white/20 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/10"
               >
-                <span className={form.eventId ? 'text-white' : 'text-slate-400'}>
+                <span className={form.eventId ? 'text-white' : 'text-[var(--brand-text-muted)]'}>
                   {form.eventId
                     ? events.find((e) => e.id === form.eventId)?.titulo ?? t('selectEvent')
                     : t('selectEvent')}
                 </span>
                 <svg
-                  className={`h-5 w-5 text-slate-400 transition-transform ${
+                  className={`h-5 w-5 text-[var(--brand-text-muted)] transition-transform ${
                     form.showEventPicker ? 'rotate-180' : ''
                   }`}
                   xmlns="http://www.w3.org/2000/svg"
@@ -247,13 +247,13 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
               </button>
 
               {form.showEventPicker && (
-                <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-y-auto rounded-xl border border-white/10 bg-[#1e293b] shadow-2xl">
+                <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 overflow-y-auto rounded-xl border border-white/10 bg-[var(--brand-surface)] shadow-2xl">
                   <button
                     type="button"
                     onClick={() => {
                       setForm((prev) => ({ ...prev, eventId: '', showEventPicker: false }))
                     }}
-                    className="w-full border-b border-white/5 px-4 py-3 text-left text-sm text-slate-400 transition hover:bg-white/5"
+                    className="w-full border-b border-white/5 px-4 py-3 text-left text-sm text-[var(--brand-text-muted)] transition hover:bg-white/5"
                   >
                     {t('noEvent')}
                   </button>
@@ -277,12 +277,12 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
           </div>
 
           <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-semibold uppercase text-slate-400">{t('imageLabel')}</span>
+            <span className="text-xs font-semibold uppercase text-[var(--brand-text-muted)]">{t('imageLabel')}</span>
             <input
               type="file"
               accept="image/png,image/jpeg,image/webp"
               onChange={(event) => handleFileChange(event.target.files?.[0] ?? null)}
-              className="block w-full cursor-pointer rounded-xl border border-dashed border-white/20 bg-[#1e293b] px-4 py-3 text-sm text-white file:hidden"
+              className="block w-full cursor-pointer rounded-xl border border-dashed border-white/20 bg-[var(--brand-surface)] px-4 py-3 text-sm text-white file:hidden"
             />
             {form.previewUrl && (
               // eslint-disable-next-line @next/next/no-img-element
@@ -310,7 +310,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#3b82f6] px-4 py-3.5 text-sm font-bold uppercase tracking-wide text-white shadow-lg transition hover:scale-[1.02] hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--brand-primary)] px-4 py-3.5 text-sm font-bold uppercase tracking-wide text-white shadow-lg transition hover:scale-[1.02] hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
         >
           {loading ? (
             <>
@@ -328,7 +328,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
 
       <div className="space-y-3 border-t border-white/5 pt-6">
         <div className="flex items-center justify-between">
-          <h4 className="text-sm font-bold uppercase tracking-wide text-slate-400 flex items-center gap-2">
+          <h4 className="text-sm font-bold uppercase tracking-wide text-[var(--brand-text-muted)] flex items-center gap-2">
             <ImagePlus className="h-4 w-4" />
             {t('bannersRegistered')}
           </h4>
@@ -338,8 +338,8 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
         </div>
 
         {banners.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-white/10 bg-[#1e293b] p-6 text-center">
-            <p className="text-sm text-slate-400">{t('noBanners')}</p>
+          <div className="rounded-xl border border-dashed border-white/10 bg-[var(--brand-surface)] p-6 text-center">
+            <p className="text-sm text-[var(--brand-text-muted)]">{t('noBanners')}</p>
             <p className="mt-1 text-xs text-slate-500">{t('createFirst')}</p>
           </div>
         ) : (
@@ -350,7 +350,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
                 className={`group flex flex-col gap-3 rounded-xl border p-4 shadow-lg transition md:flex-row md:items-center md:justify-between ${
                   banner.is_active
                     ? 'border-emerald-500/30 bg-emerald-500/5'
-                    : 'border-white/5 bg-[#1e293b] hover:border-white/10'
+                    : 'border-white/5 bg-[var(--brand-surface)] hover:border-white/10'
                 }`}
               >
                 <div className="flex w-full items-center gap-3">
@@ -373,7 +373,7 @@ export function BannerAdminPanel({ events, initialBanners }: BannerAdminPanelPro
                       )}
                     </div>
                     {banner.subtitulo && (
-                      <p className="mt-0.5 text-xs text-slate-400 truncate">{banner.subtitulo}</p>
+                      <p className="mt-0.5 text-xs text-[var(--brand-text-muted)] truncate">{banner.subtitulo}</p>
                     )}
                     {banner.event_id && events.find(e => e.id === banner.event_id) && (
                       <p className="mt-1 flex items-center gap-1 text-xs text-slate-500">

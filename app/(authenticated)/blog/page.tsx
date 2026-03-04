@@ -69,7 +69,7 @@ export default async function BlogPage({
               className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-wide transition ${
                 isActive
                   ? 'border border-blue-400/40 bg-blue-500/20 text-blue-200'
-                  : 'border border-slate-600/40 bg-slate-800/80 text-slate-300 hover:border-slate-500/50 hover:bg-slate-700/60 hover:text-slate-200'
+                  : 'border border-slate-600/40 bg-[var(--brand-surface)]/80 text-slate-300 hover:border-slate-500/50 hover:bg-[var(--brand-surface)]/60 hover:text-slate-200'
               }`}
             >
               {filtro.label}
@@ -85,7 +85,7 @@ export default async function BlogPage({
           <Link
             key={artigo.id}
             href={detailPath}
-            className="group overflow-hidden rounded-xl border border-slate-600/30 bg-slate-800/80 shadow-lg transition hover:border-slate-500/40 hover:shadow-xl"
+            className="group overflow-hidden rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/80 shadow-lg transition hover:border-slate-500/40 hover:shadow-xl"
           >
             <div className="flex flex-col">
               {artigo.image_url ? (
@@ -115,13 +115,13 @@ export default async function BlogPage({
                 <h3 className="font-bold text-[#f5f5f5] line-clamp-2 transition group-hover:text-white">
                   {artigo.titulo}
                 </h3>
-                <p className="mt-2 text-sm text-slate-400">
+                <p className="mt-2 text-sm text-[var(--brand-text-muted)]">
                   por {artigo.autor_handle || '@maxistalks'}
                 </p>
                 {artigo.resumo && (
                   <p className="mt-2 line-clamp-2 text-sm text-slate-500">{artigo.resumo}</p>
                 )}
-                <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#3b82f6] transition group-hover:text-blue-400">
+                <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand-primary)] transition group-hover:text-blue-400">
                   {t('readLink')}
                   <span className="inline-block transition group-hover:translate-x-0.5">→</span>
                 </span>
@@ -132,11 +132,11 @@ export default async function BlogPage({
       </div>
 
       {artigosFiltrados.length === 0 && (
-        <div className="rounded-xl border border-slate-600/30 bg-slate-800/80 p-12 text-center">
-          <p className="text-sm text-slate-400">{t('emptyContent')}</p>
+        <div className="rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/80 p-12 text-center">
+          <p className="text-sm text-[var(--brand-text-muted)]">{t('emptyContent')}</p>
           <Link
             href="/eventos"
-            className="mt-4 inline-block text-sm font-semibold text-[#3b82f6] transition hover:text-blue-400"
+            className="mt-4 inline-block text-sm font-semibold text-[var(--brand-primary)] transition hover:text-blue-400"
           >
             {t('seeEvents')}
           </Link>

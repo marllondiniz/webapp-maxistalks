@@ -35,7 +35,7 @@ export function WelcomeHeader() {
       <h2 className="text-3xl font-bold uppercase tracking-tight text-[#f5f5f5] sm:text-4xl">
         {t('welcomeBack')}{userName ? `, ${userName}` : ''}
       </h2>
-      <p className="mx-auto max-w-lg text-sm leading-relaxed text-slate-400">
+      <p className="mx-auto max-w-lg text-sm leading-relaxed text-[var(--brand-text-muted)]">
         {t('subtitle')}
       </p>
     </header>

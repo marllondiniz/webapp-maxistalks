@@ -86,7 +86,7 @@ export function MinhasInscricoes({ userId }: { userId: string }) {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-slate-600/30 bg-slate-800/60 p-4 text-center text-sm text-slate-400">
+      <div className="rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/60 p-4 text-center text-sm text-[var(--brand-text-muted)]">
         {t('loading')}
       </div>
     )
@@ -94,9 +94,9 @@ export function MinhasInscricoes({ userId }: { userId: string }) {
 
   if (inscricoes.length === 0) {
     return (
-      <div className="rounded-xl border border-slate-600/30 bg-slate-800/60 p-6 text-center">
+      <div className="rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/60 p-6 text-center">
         <Layers className="mx-auto mb-3 h-8 w-8 text-slate-600" />
-        <p className="text-sm text-slate-400">{t('empty')}</p>
+        <p className="text-sm text-[var(--brand-text-muted)]">{t('empty')}</p>
         <Link
           href="/eventos"
           className="mt-3 inline-block text-sm text-[var(--brand-primary)] hover:underline"
@@ -111,14 +111,14 @@ export function MinhasInscricoes({ userId }: { userId: string }) {
   const passados = inscricoes.filter((i) => !i.event_data_horario || i.event_data_horario <= new Date().toISOString())
 
   return (
-    <div className="rounded-xl border border-slate-600/30 bg-slate-800/60 overflow-hidden">
+    <div className="rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/60 overflow-hidden">
       <div className="flex items-center gap-3 border-b border-slate-600/30 px-4 py-3">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-500/15 text-amber-400">
           <Calendar className="h-4 w-4" />
         </div>
         <div>
           <h3 className="text-sm font-bold text-white">{t('myEvents')}</h3>
-          <p className="text-xs text-slate-400">{t('countInterest', { count: inscricoes.length })}</p>
+          <p className="text-xs text-[var(--brand-text-muted)]">{t('countInterest', { count: inscricoes.length })}</p>
         </div>
       </div>
 
@@ -154,7 +154,7 @@ function InscricaoRow({ item: i, t }: { item: Inscricao; t: ReturnType<typeof us
       />
       <div className="min-w-0 flex-1">
         <p className="font-medium text-white text-sm leading-snug">{i.event_titulo}</p>
-        <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-400">
+        <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-[var(--brand-text-muted)]">
           {i.event_data_horario && (
             <span className="flex items-center gap-1">
               <Clock className="h-3 w-3" />

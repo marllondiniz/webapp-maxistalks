@@ -12,6 +12,9 @@ const ALLOWED_FIELDS = [
   'about_button_label', 'about_button_url',
   'what_is_heading', 'what_is_image_url',
   'footer_logo_url', 'instagram_url', 'youtube_url', 'footer_copyright_name',
+  'background_color', 'surface_color', 'surface_alt_color', 'text_muted_color',
+  'heading_color', 'body_text_color', 'link_color', 'link_hover_color', 'accent_color',
+  'button_text_color',
 ] as const
 
 function getBearerToken(request: NextRequest): string | null {
@@ -67,7 +70,10 @@ export async function GET(request: NextRequest) {
         address_line1, address_line2, address_cep, local_subheading, map_embed_url, map_link_url,
         about_logo_url, about_short_text, about_long_text, about_button_label, about_button_url,
         what_is_heading, what_is_image_url,
-        footer_logo_url, instagram_url, youtube_url, footer_copyright_name`)
+        footer_logo_url, instagram_url, youtube_url, footer_copyright_name,
+        background_color, surface_color, surface_alt_color, text_muted_color,
+        heading_color, body_text_color, link_color, link_hover_color, accent_color,
+        button_text_color`)
       .eq('domain', domain)
       .maybeSingle()
 

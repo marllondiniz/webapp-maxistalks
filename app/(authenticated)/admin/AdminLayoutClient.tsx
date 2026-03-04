@@ -97,10 +97,10 @@ export function AdminLayoutClient({ children, plataformaSalesEnabled }: Props) {
 
   if (denied) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#0f172a] px-4 text-white">
+      <main className="flex min-h-screen items-center justify-center bg-[var(--brand-surface-alt)] px-4 text-white">
         <div className="max-w-md space-y-4 text-center">
           <h2 className="text-2xl font-bold">{t('restrictedTitle')}</h2>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-[var(--brand-text-muted)]">
             {t('restrictedMessage')}
           </p>
           <Link href="/" className="text-[var(--brand-primary)] underline hover:opacity-90">
@@ -113,7 +113,7 @@ export function AdminLayoutClient({ children, plataformaSalesEnabled }: Props) {
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#0f172a] px-4 text-white">
+      <main className="flex min-h-screen items-center justify-center bg-[var(--brand-surface-alt)] px-4 text-white">
         <div className="flex items-center gap-3">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--brand-primary)] border-t-transparent" />
           {t('loadingPanel')}
@@ -125,7 +125,7 @@ export function AdminLayoutClient({ children, plataformaSalesEnabled }: Props) {
   const closeSidebar = () => setSidebarOpen(false)
 
   return (
-    <div className="flex min-h-screen bg-[#0f172a] text-white">
+    <div className="flex min-h-screen bg-[var(--brand-surface-alt)] text-white">
       {/* Overlay mobile */}
       {sidebarOpen && (
         <button
@@ -138,7 +138,7 @@ export function AdminLayoutClient({ children, plataformaSalesEnabled }: Props) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-white/10 bg-[#0f172a] shadow-xl transition-transform duration-200 lg:static lg:z-auto lg:translate-x-0 lg:shadow-none ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-white/10 bg-[var(--brand-surface-alt)] shadow-xl transition-transform duration-200 lg:static lg:z-auto lg:translate-x-0 lg:shadow-none ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -146,7 +146,7 @@ export function AdminLayoutClient({ children, plataformaSalesEnabled }: Props) {
           <Link href="/" onClick={closeSidebar} className="flex-shrink-0">
             <Image src={brand.logoPath} alt={brand.name} width={100} height={40} className="h-8 w-auto" />
           </Link>
-          <button type="button" onClick={closeSidebar} className="rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white lg:hidden" aria-label={t('closeMenu')}>
+          <button type="button" onClick={closeSidebar} className="rounded-lg p-2 text-[var(--brand-text-muted)] hover:bg-white/5 hover:text-white lg:hidden" aria-label={t('closeMenu')}>
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -162,7 +162,7 @@ export function AdminLayoutClient({ children, plataformaSalesEnabled }: Props) {
                     onClick={closeSidebar}
                     className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
                       active
-                        ? 'bg-[#3b82f6] text-white'
+                        ? 'bg-[var(--brand-primary)] text-white'
                         : 'text-slate-300 hover:bg-white/5 hover:text-white'
                     }`}
                   >
@@ -186,7 +186,7 @@ export function AdminLayoutClient({ children, plataformaSalesEnabled }: Props) {
                       onClick={closeSidebar}
                       className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition ${
                         active
-                          ? 'bg-[#3b82f6] text-white'
+                          ? 'bg-[var(--brand-primary)] text-white'
                           : 'text-slate-300 hover:bg-white/5 hover:text-white'
                       }`}
                     >
@@ -217,11 +217,11 @@ export function AdminLayoutClient({ children, plataformaSalesEnabled }: Props) {
 
         {/* Main content */}
         <div className="flex flex-1 flex-col min-h-screen">
-          <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/10 bg-[#0f172a]/95 px-4 py-4 backdrop-blur lg:hidden">
+          <header className="sticky top-0 z-30 flex items-center justify-between border-b border-white/10 bg-[var(--brand-surface-alt)]/95 px-4 py-4 backdrop-blur lg:hidden">
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
-              className="rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white"
+              className="rounded-lg p-2 text-[var(--brand-text-muted)] hover:bg-white/5 hover:text-white"
               aria-label={t('openMenu')}
             >
               <Menu className="h-6 w-6" />

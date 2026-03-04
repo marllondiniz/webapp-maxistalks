@@ -40,7 +40,7 @@ export function ClubClient({ cards, proximoEventoDesc, artigosComunidade }: Club
 
   return (
     <section className="space-y-6">
-      <div className="rounded-xl border border-slate-600/30 bg-slate-800/50 p-5 text-center">
+      <div className="rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/50 p-5 text-center">
         <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-300">
           O que é a comunidade MaxisTalks?
         </h3>
@@ -68,7 +68,7 @@ export function ClubClient({ cards, proximoEventoDesc, artigosComunidade }: Club
 
       {artigosComunidade.length > 0 && (
         <div>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--brand-text-muted)]">
             Conteúdos da comunidade
           </h3>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -76,7 +76,7 @@ export function ClubClient({ cards, proximoEventoDesc, artigosComunidade }: Club
               <Link
                 key={artigo.id}
                 href={`/blog/${artigo.id}`}
-                className="group flex overflow-hidden rounded-xl border border-slate-600/30 bg-slate-800/80 transition hover:border-slate-500/40"
+                className="group flex overflow-hidden rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/80 transition hover:border-slate-500/40"
               >
                 {artigo.image_url ? (
                   <div className="relative h-24 w-28 shrink-0">
@@ -93,7 +93,7 @@ export function ClubClient({ cards, proximoEventoDesc, artigosComunidade }: Club
                 )}
                 <div className="flex flex-1 flex-col justify-center p-4">
                   <h4 className="font-semibold text-[#f5f5f5] line-clamp-2">{artigo.titulo}</h4>
-                  <p className="mt-1 text-xs text-slate-400">{artigo.autor_handle}</p>
+                  <p className="mt-1 text-xs text-[var(--brand-text-muted)]">{artigo.autor_handle}</p>
                 </div>
               </Link>
             ))}
@@ -111,7 +111,7 @@ export function ClubClient({ cards, proximoEventoDesc, artigosComunidade }: Club
         </p>
         <button
           type="button"
-          className="mx-auto mt-4 inline-flex items-center justify-center rounded-full bg-slate-900 px-6 py-3 text-xs font-semibold uppercase tracking-wider text-[#f5f5f5] transition hover:brightness-110"
+          className="mx-auto mt-4 inline-flex items-center justify-center rounded-full bg-[var(--brand-surface-alt)] px-6 py-3 text-xs font-semibold uppercase tracking-wider text-[#f5f5f5] transition hover:brightness-110"
         >
           Quero saber quando lançar
         </button>

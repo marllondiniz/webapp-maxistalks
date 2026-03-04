@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic'
 const ReactQuill = dynamic(() => import('react-quill'), { 
   ssr: false,
   loading: () => (
-    <div className="h-[450px] rounded-xl border border-white/10 bg-[#0f172a] animate-pulse flex items-center justify-center">
+    <div className="h-[450px] rounded-xl border border-white/10 bg-[var(--brand-surface-alt)] animate-pulse flex items-center justify-center">
       <p className="text-slate-500 text-sm">Carregando editor...</p>
     </div>
   )
@@ -40,7 +40,7 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
   ]
 
   return (
-    <div className="overflow-hidden rounded-xl border border-white/10 bg-[#0f172a] shadow-lg ring-1 ring-white/5">
+    <div className="overflow-hidden rounded-xl border border-white/10 bg-[var(--brand-surface-alt)] shadow-lg ring-1 ring-white/5">
       <ReactQuill
         theme="snow"
         value={value}

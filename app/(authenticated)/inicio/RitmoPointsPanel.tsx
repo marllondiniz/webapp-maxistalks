@@ -27,7 +27,7 @@ export function RitmoPointsPanel() {
     return (
       <div className="space-y-4">
         {/* Card Ritmo Points */}
-        <div className="relative overflow-hidden rounded-lg border border-slate-600/30 bg-slate-800/80 p-5 shadow-lg">
+        <div className="relative overflow-hidden rounded-lg border border-slate-600/30 bg-[var(--brand-surface)]/80 p-5 shadow-lg">
           <div className="absolute right-3 top-3 rounded-full bg-slate-700/60 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#9a9aa2]">
             Carregando...
           </div>
@@ -38,7 +38,7 @@ export function RitmoPointsPanel() {
         </div>
 
         {/* Card Desafio */}
-        <div className="relative overflow-hidden rounded-lg border border-slate-600/30 bg-slate-800/80 p-5 shadow-lg">
+        <div className="relative overflow-hidden rounded-lg border border-slate-600/30 bg-[var(--brand-surface)]/80 p-5 shadow-lg">
           <div className="absolute right-3 top-3 rounded-full bg-slate-700/60 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[#9a9aa2]">
             Em breve
           </div>
@@ -57,7 +57,7 @@ export function RitmoPointsPanel() {
   return (
     <div className="space-y-4">
       {/* Card Ritmo Points Acumulados */}
-      <div className="relative overflow-hidden rounded-lg border border-slate-600/30 bg-slate-800/80 p-5 shadow-lg md:p-6">
+      <div className="relative overflow-hidden rounded-lg border border-slate-600/30 bg-[var(--brand-surface)]/80 p-5 shadow-lg md:p-6">
         <div className="absolute right-3 top-3">
           <span className="rounded-full bg-amber-500/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-200 shadow-lg">
             Em breve
@@ -161,7 +161,7 @@ export function RitmoPointsPanel() {
       </div>
 
       {/* Card Desafio da Semana */}
-      <div className="relative overflow-hidden rounded-lg border border-slate-600/30 bg-slate-800/80 p-5 shadow-lg">
+      <div className="relative overflow-hidden rounded-lg border border-slate-600/30 bg-[var(--brand-surface)]/80 p-5 shadow-lg">
         <div className="absolute right-3 top-3">
           <span className="rounded-full bg-amber-500/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-200 shadow-lg">
             Em breve

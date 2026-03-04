@@ -51,7 +51,7 @@ export default function PerfilPage() {
   if (loading) {
     return (
       <section className="mx-auto max-w-3xl space-y-6">
-        <div className="space-y-4 rounded-lg border border-slate-600/30 bg-slate-800/80 p-6 text-center text-[#c9c9d2]">
+        <div className="space-y-4 rounded-lg border border-slate-600/30 bg-[var(--brand-surface)]/80 p-6 text-center text-[#c9c9d2]">
           {t('loadingProfile')}
         </div>
       </section>

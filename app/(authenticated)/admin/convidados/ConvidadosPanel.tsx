@@ -169,13 +169,13 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
     <div className="space-y-5">
 
       {/* Seletor de evento */}
-      <div className="rounded-2xl border border-white/10 bg-[#1e293b] p-5">
+      <div className="rounded-2xl border border-white/10 bg-[var(--brand-surface)] p-5">
         <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-slate-500">{t('eventLabel')}</label>
         <div className="relative">
           <select
             value={selectedEventId ?? ''}
             onChange={(e) => handleEventChange(e.target.value)}
-            className="w-full appearance-none rounded-xl border border-white/10 bg-[#0f172a] py-3 pl-4 pr-10 text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            className="w-full appearance-none rounded-xl border border-white/10 bg-[var(--brand-surface-alt)] py-3 pl-4 pr-10 text-white focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
           >
             {events.map((e) => (
               <option key={e.id} value={e.id}>
@@ -183,10 +183,10 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
               </option>
             ))}
           </select>
-          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand-text-muted)]" />
         </div>
         {selectedEvent && (
-          <div className="mt-3 flex flex-wrap gap-4 text-sm text-slate-400">
+          <div className="mt-3 flex flex-wrap gap-4 text-sm text-[var(--brand-text-muted)]">
             <span className="flex items-center gap-1.5">
               <Clock className="h-4 w-4" />{formatEventDate(selectedEvent.data_horario)}
             </span>
@@ -205,15 +205,15 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
       {/* Cards de estatísticas */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { label: t('statInterested'), value: stats.total, color: 'border-[#3b82f6]/20 text-[#3b82f6]', icon: <Users className="h-4 w-4" /> },
+          { label: t('statInterested'), value: stats.total, color: 'border-[var(--brand-primary)]/20 text-[var(--brand-primary)]', icon: <Users className="h-4 w-4" /> },
           { label: t('statSelected'), value: stats.selecionados, color: 'border-emerald-500/20 text-emerald-400', icon: <CheckSquare className="h-4 w-4" /> },
           { label: t('statSent'), value: stats.enviados, color: 'border-violet-500/20 text-violet-400', icon: <CheckCircle2 className="h-4 w-4" /> },
           { label: t('statNoPhone'), value: stats.semTelefone, color: 'border-amber-500/20 text-amber-400', icon: <MessageCircle className="h-4 w-4" /> },
         ].map(({ label, value, color, icon }) => (
-          <div key={label} className={`rounded-2xl border bg-[#1e293b] p-4 ${color.split(' ')[0]}`}>
+          <div key={label} className={`rounded-2xl border bg-[var(--brand-surface)] p-4 ${color.split(' ')[0]}`}>
             <div className={`mb-2 inline-flex ${color.split(' ')[1]}`}>{icon}</div>
             <p className="text-2xl font-bold text-white">{value}</p>
-            <p className="text-xs text-slate-400">{label}</p>
+            <p className="text-xs text-[var(--brand-text-muted)]">{label}</p>
           </div>
         ))}
       </div>
@@ -222,25 +222,25 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
       <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
 
         {/* Lista de interessados */}
-        <div className="rounded-2xl border border-white/10 bg-[#1e293b] overflow-hidden">
+        <div className="rounded-2xl border border-white/10 bg-[var(--brand-surface)] overflow-hidden">
           {/* Toolbar */}
           <div className="border-b border-white/10 bg-white/5 px-3 py-2">
             <div className="flex flex-wrap items-center gap-2">
               <div className="relative flex-1 min-w-0 sm:max-w-[200px]">
-                <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+                <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--brand-text-muted)]" />
                 <input
                   type="search"
                   placeholder={t('searchPlaceholder')}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-[#0f172a] py-1.5 pl-8 pr-2 text-xs text-white placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="w-full rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] py-1.5 pl-8 pr-2 text-xs text-white placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value as typeof filterStatus)}
                 aria-label={t('filterLabel')}
-                className="rounded-lg border border-white/10 bg-[#0f172a] pl-2.5 pr-7 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                className="rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] pl-2.5 pr-7 py-1.5 text-xs text-white focus:border-emerald-500 focus:outline-none"
               >
                 <option value="all">{t('filterAll', { count: interessados.length })}</option>
                 <option value="enviados">{t('filterSent', { count: stats.enviados })}</option>
@@ -250,7 +250,7 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
               <button
                 type="button"
                 onClick={allFilteredSelected ? deselectAll : selectAll}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-[#0f172a] px-2.5 py-1.5 text-xs text-slate-300 hover:bg-white/5 transition shrink-0"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] px-2.5 py-1.5 text-xs text-slate-300 hover:bg-white/5 transition shrink-0"
               >
                 {allFilteredSelected
                   ? <><Square className="h-3.5 w-3.5" /> {t('deselectAll')}</>
@@ -266,7 +266,7 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
           {filtered.length === 0 ? (
             <div className="py-16 text-center">
               <Users className="mx-auto mb-3 h-10 w-10 text-slate-600" />
-              <p className="text-slate-400">{t('noResults')}</p>
+              <p className="text-[var(--brand-text-muted)]">{t('noResults')}</p>
             </div>
           ) : (
             <div className="divide-y divide-white/5 max-h-[600px] overflow-y-auto">
@@ -318,12 +318,12 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
                           </span>
                         )}
                         {u.posicao_mercado && (
-                          <span className={`rounded-full px-2 py-0.5 text-xs ${u.posicao_mercado === 'empreendedor' ? 'bg-[#3b82f6]/10 text-[#3b82f6]' : 'bg-violet-500/10 text-violet-400'}`}>
+                          <span className={`rounded-full px-2 py-0.5 text-xs ${u.posicao_mercado === 'empreendedor' ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)]' : 'bg-violet-500/10 text-violet-400'}`}>
                             {u.posicao_mercado}
                           </span>
                         )}
                       </div>
-                      <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-400">
+                      <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-[var(--brand-text-muted)]">
                         {u.email && <span>{u.email}</span>}
                         {u.telefone
                           ? <span className="text-emerald-400">{u.telefone}</span>
@@ -354,7 +354,7 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
               type="button"
               onClick={handleSave}
               disabled={status === 'saving' || !selectedEventId}
-              className="inline-flex items-center gap-2 rounded-xl bg-[#3b82f6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2563eb] disabled:opacity-50 disabled:pointer-events-none transition"
+              className="inline-flex items-center gap-2 rounded-xl bg-[var(--brand-primary)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--brand-primary-hover)] disabled:opacity-50 disabled:pointer-events-none transition"
             >
               {status === 'saving' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
               {status === 'saving' ? t('saving') : t('saveSelection')}
@@ -383,20 +383,20 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
 
         {/* Painel de template da mensagem */}
         <div className="space-y-4">
-          <div className="rounded-2xl border border-white/10 bg-[#1e293b] overflow-hidden">
+          <div className="rounded-2xl border border-white/10 bg-[var(--brand-surface)] overflow-hidden">
             <div className="border-b border-white/10 px-4 py-3">
               <div className="flex items-center gap-2">
                 <MessageCircle className="h-5 w-5 text-emerald-400" />
                 <h3 className="font-semibold text-white">Mensagem do convite</h3>
               </div>
-              <p className="mt-0.5 text-xs text-slate-400">Use {'{nome}'}, {'{evento}'}, {'{data}'}, {'{local}'} como variáveis.</p>
+              <p className="mt-0.5 text-xs text-[var(--brand-text-muted)]">Use {'{nome}'}, {'{evento}'}, {'{data}'}, {'{local}'} como variáveis.</p>
             </div>
             <div className="p-4">
               <textarea
                 value={template}
                 onChange={(e) => setTemplate(e.target.value)}
                 rows={10}
-                className="w-full rounded-xl border border-white/10 bg-[#0f172a] p-3 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-none leading-relaxed"
+                className="w-full rounded-xl border border-white/10 bg-[var(--brand-surface-alt)] p-3 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-none leading-relaxed"
               />
               <button
                 type="button"
@@ -430,19 +430,19 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
       {/* Modal de disparo */}
       {showDispatch && selectedEvent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-[#1e293b] shadow-2xl overflow-hidden">
+          <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-[var(--brand-surface)] shadow-2xl overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
               <div>
                 <h2 className="font-bold text-white">{t('dispatchPanelTitle')}</h2>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-[var(--brand-text-muted)]">
                   {t('dispatchProgress', { sent: dispatchProgress, total: selectedWithPhone.length })}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => { setShowDispatch(false); setDispatchProgress(0) }}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-white/10 hover:text-white transition"
+                className="rounded-lg p-1.5 text-[var(--brand-text-muted)] hover:bg-white/10 hover:text-white transition"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -482,7 +482,7 @@ export function ConvidadosPanel({ events, selectedEventId, selectedEvent, intere
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-medium text-white">{u.nome || '—'}</p>
                       <div className="flex flex-wrap items-center gap-2 gap-y-0.5">
-                        <p className="text-xs text-slate-400">{u.telefone}</p>
+                        <p className="text-xs text-[var(--brand-text-muted)]">{u.telefone}</p>
                         {u.faixa_faturamento && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-xs text-emerald-400">
                             <DollarSign className="h-3 w-3" />{u.faixa_faturamento}

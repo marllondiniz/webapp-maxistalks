@@ -12,7 +12,7 @@ import type { PainWithUser } from '@/app/api/admin/ferramentas/pains/route'
 import { useTranslations } from 'next-intl'
 
 const inputClass =
-  'w-full rounded-xl border border-slate-600/40 bg-slate-900 px-4 py-3 text-sm text-[#f5f5f5] placeholder:text-[#54545b] focus:border-slate-500/60 focus:outline-none'
+  'w-full rounded-xl border border-slate-600/40 bg-[var(--brand-surface-alt)] px-4 py-3 text-sm text-[#f5f5f5] placeholder:text-[#54545b] focus:border-slate-500/60 focus:outline-none'
 
 type Tab = 'ferramentas' | 'aovivo' | 'dores'
 
@@ -232,11 +232,11 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-white">Ferramentas</h1>
-        <p className="mt-1 text-sm text-slate-400">Gerencie ferramentas, ao vivo e veja os desafios dos usuários.</p>
+        <p className="mt-1 text-sm text-[var(--brand-text-muted)]">Gerencie ferramentas, ao vivo e veja os desafios dos usuários.</p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 rounded-xl border border-slate-700/50 bg-slate-800/50 p-1">
+      <div className="flex gap-1 rounded-xl border border-slate-700/50 bg-[var(--brand-surface)]/50 p-1">
         {tabs.map((t) => (
           <button
             key={t.key}
@@ -244,8 +244,8 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
             onClick={() => setTab(t.key)}
             className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition ${
               tab === t.key
-                ? 'bg-[#3b82f6] text-white shadow'
-                : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                ? 'bg-[var(--brand-primary)] text-white shadow'
+                : 'text-[var(--brand-text-muted)] hover:bg-white/5 hover:text-white'
             }`}
           >
             {t.icon}
@@ -258,11 +258,11 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
       {tab === 'ferramentas' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-400">{tools.length} ferramenta(s) cadastrada(s)</p>
+            <p className="text-sm text-[var(--brand-text-muted)]">{tools.length} ferramenta(s) cadastrada(s)</p>
             <button
               type="button"
               onClick={() => { setShowToolForm(true); setEditingToolId(null); setFormTool(emptyTool) }}
-              className="inline-flex items-center gap-2 rounded-full bg-[#3b82f6] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2563eb]"
+              className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-primary)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--brand-primary-hover)]"
             >
               <Plus className="h-4 w-4" /> {t('newTool')}
             </button>
@@ -276,11 +276,11 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
 
           {/* Formulário */}
           {showToolForm && (
-            <div className="rounded-2xl border border-slate-600/40 bg-slate-800/80 p-5 space-y-4">
+            <div className="rounded-2xl border border-slate-600/40 bg-[var(--brand-surface)]/80 p-5 space-y-4">
               <h3 className="font-bold text-white">{editingToolId ? t('editTool') : t('newTool')}</h3>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <label className="block space-y-1">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Título *</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[var(--brand-text-muted)]">Título *</span>
                   <input
                     type="text"
                     value={formTool.titulo}
@@ -290,7 +290,7 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
                   />
                 </label>
                 <label className="block space-y-1">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Ordem</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[var(--brand-text-muted)]">Ordem</span>
                   <input
                     type="number"
                     value={formTool.ordem}
@@ -300,7 +300,7 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
                 </label>
               </div>
               <label className="block space-y-1">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Descrição</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--brand-text-muted)]">Descrição</span>
                 <textarea
                   rows={2}
                   value={formTool.descricao}
@@ -311,7 +311,7 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
               </label>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <label className="block space-y-1">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[var(--brand-text-muted)] flex items-center gap-1.5">
                     <Youtube className="h-3.5 w-3.5 text-red-400" /> URL do YouTube (aula)
                   </span>
                   <input
@@ -323,7 +323,7 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
                   />
                 </label>
                 <label className="block space-y-1">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[var(--brand-text-muted)] flex items-center gap-1.5">
                     <FileDown className="h-3.5 w-3.5 text-blue-400" /> URL do PDF
                   </span>
                   <input
@@ -336,7 +336,7 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
                 </label>
               </div>
               <label className="block space-y-1">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Nome do arquivo PDF</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--brand-text-muted)]">Nome do arquivo PDF</span>
                 <input
                   type="text"
                   value={formTool.pdf_nome}
@@ -349,7 +349,7 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
                 <div className="flex items-center gap-3">
                   <div
                     onClick={() => setFormTool((p) => ({ ...p, ativo: !p.ativo }))}
-                    className={`flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${formTool.ativo ? 'bg-[#3b82f6]' : 'bg-slate-600'}`}
+                    className={`flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${formTool.ativo ? 'bg-[var(--brand-primary)]' : 'bg-slate-600'}`}
                   >
                     <span className={`h-5 w-5 rounded-full bg-white shadow transition-transform ${formTool.ativo ? 'translate-x-5' : 'translate-x-0.5'}`} />
                   </div>
@@ -368,7 +368,7 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
                   type="button"
                   onClick={handleSaveTool}
                   disabled={isPending}
-                  className="inline-flex items-center gap-2 rounded-full bg-[#3b82f6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2563eb] disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-primary)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-primary-hover)] disabled:opacity-50"
                 >
                   <Save className="h-4 w-4" />
                   {isPending ? t('saving') : t('save')}
@@ -386,21 +386,21 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
 
           {/* Lista de ferramentas */}
           {loadingTools ? (
-            <div className="flex items-center gap-2 text-sm text-slate-400 py-8">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#3b82f6] border-t-transparent" />
+            <div className="flex items-center gap-2 text-sm text-[var(--brand-text-muted)] py-8">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--brand-primary)] border-t-transparent" />
               Carregando...
             </div>
           ) : tools.length === 0 ? (
-            <div className="rounded-2xl border border-slate-600/30 bg-slate-800/50 py-12 text-center">
+            <div className="rounded-2xl border border-slate-600/30 bg-[var(--brand-surface)]/50 py-12 text-center">
               <Wrench className="mx-auto h-10 w-10 text-slate-600" />
-              <p className="mt-3 text-sm text-slate-400">{t('noTools')}</p>
+              <p className="mt-3 text-sm text-[var(--brand-text-muted)]">{t('noTools')}</p>
             </div>
           ) : (
             <div className="space-y-3">
               {tools.map((tool, idx) => (
                 <div
                   key={tool.id}
-                  className="flex items-center gap-3 rounded-xl border border-slate-600/30 bg-slate-800/80 px-4 py-3"
+                  className="flex items-center gap-3 rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/80 px-4 py-3"
                 >
                   <div className="flex flex-col gap-0.5">
                     <button type="button" onClick={() => handleMoveOrder(tool.id, 'up')} disabled={idx === 0} className="p-0.5 text-slate-500 hover:text-white disabled:opacity-20">
@@ -414,20 +414,20 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-semibold text-white">{tool.titulo}</span>
                       {!tool.ativo && (
-                        <span className="rounded-full bg-slate-700 px-2 py-0.5 text-[10px] font-semibold text-slate-400">oculto</span>
+                        <span className="rounded-full bg-slate-700 px-2 py-0.5 text-[10px] font-semibold text-[var(--brand-text-muted)]">oculto</span>
                       )}
                       {tool.youtube_url && <Youtube className="h-3.5 w-3.5 text-red-400 shrink-0" />}
                       {tool.pdf_url && <FileDown className="h-3.5 w-3.5 text-blue-400 shrink-0" />}
                     </div>
                     {tool.descricao && (
-                      <p className="mt-0.5 text-xs text-slate-400 truncate">{tool.descricao}</p>
+                      <p className="mt-0.5 text-xs text-[var(--brand-text-muted)] truncate">{tool.descricao}</p>
                     )}
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <button type="button" onClick={() => handleEditTool(tool)} className="rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white">
+                    <button type="button" onClick={() => handleEditTool(tool)} className="rounded-lg p-2 text-[var(--brand-text-muted)] hover:bg-white/5 hover:text-white">
                       <Pencil className="h-4 w-4" />
                     </button>
-                    <button type="button" onClick={() => handleDeleteTool(tool.id)} className="rounded-lg p-2 text-slate-400 hover:bg-red-500/10 hover:text-red-400">
+                    <button type="button" onClick={() => handleDeleteTool(tool.id)} className="rounded-lg p-2 text-[var(--brand-text-muted)] hover:bg-red-500/10 hover:text-red-400">
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
@@ -442,11 +442,11 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
       {tab === 'aovivo' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-400">Gerencie a URL do evento ao vivo.</p>
+            <p className="text-sm text-[var(--brand-text-muted)]">Gerencie a URL do evento ao vivo.</p>
             <button
               type="button"
               onClick={() => { setShowLiveForm(true); setEditingLiveId(null); setLiveForm({ titulo: '', youtube_url: '', ativo: true }) }}
-              className="inline-flex items-center gap-2 rounded-full bg-[#3b82f6] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2563eb]"
+              className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-primary)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--brand-primary-hover)]"
             >
               <Plus className="h-4 w-4" /> {t('newSession')}
             </button>
@@ -459,10 +459,10 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
           )}
 
           {showLiveForm && (
-            <div className="rounded-2xl border border-slate-600/40 bg-slate-800/80 p-5 space-y-4">
+            <div className="rounded-2xl border border-slate-600/40 bg-[var(--brand-surface)]/80 p-5 space-y-4">
               <h3 className="font-bold text-white">{editingLiveId ? t('editSession') : t('newSession')}</h3>
               <label className="block space-y-1">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Título do evento</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--brand-text-muted)]">Título do evento</span>
                 <input
                   type="text"
                   value={liveForm.titulo}
@@ -472,7 +472,7 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
                 />
               </label>
               <label className="block space-y-1">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[var(--brand-text-muted)] flex items-center gap-1.5">
                   <Youtube className="h-3.5 w-3.5 text-red-400" /> URL do YouTube (live) *
                 </span>
                 <input
@@ -499,7 +499,7 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
                   type="button"
                   onClick={handleSaveLive}
                   disabled={isPending}
-                  className="inline-flex items-center gap-2 rounded-full bg-[#3b82f6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2563eb] disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-primary)] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-primary-hover)] disabled:opacity-50"
                 >
                   <Save className="h-4 w-4" />
                   {isPending ? t('saving') : t('save')}
@@ -516,43 +516,43 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
           )}
 
           {loadingLive ? (
-            <div className="flex items-center gap-2 text-sm text-slate-400 py-8">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#3b82f6] border-t-transparent" />
+            <div className="flex items-center gap-2 text-sm text-[var(--brand-text-muted)] py-8">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--brand-primary)] border-t-transparent" />
               Carregando...
             </div>
           ) : liveSessions.length === 0 ? (
-            <div className="rounded-2xl border border-slate-600/30 bg-slate-800/50 py-12 text-center">
+            <div className="rounded-2xl border border-slate-600/30 bg-[var(--brand-surface)]/50 py-12 text-center">
               <Radio className="mx-auto h-10 w-10 text-slate-600" />
-              <p className="mt-3 text-sm text-slate-400">{t('noSessions')}</p>
+              <p className="mt-3 text-sm text-[var(--brand-text-muted)]">{t('noSessions')}</p>
             </div>
           ) : (
             <div className="space-y-3">
               {liveSessions.map((ls) => (
-                <div key={ls.id} className="flex items-center gap-3 rounded-xl border border-slate-600/30 bg-slate-800/80 px-4 py-3">
+                <div key={ls.id} className="flex items-center gap-3 rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/80 px-4 py-3">
                   <div className={`flex h-3 w-3 shrink-0 rounded-full ${ls.ativo ? 'bg-red-500' : 'bg-slate-600'}`} />
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-white">{ls.titulo ?? 'Sessão ao vivo'}</p>
-                    <p className="mt-0.5 text-xs text-slate-400 truncate">{ls.youtube_url}</p>
+                    <p className="mt-0.5 text-xs text-[var(--brand-text-muted)] truncate">{ls.youtube_url}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <button
                       type="button"
                       onClick={() => handleToggleLive(ls.id, ls.ativo ?? false)}
-                      className={`rounded-full px-3 py-1 text-xs font-semibold transition ${ls.ativo ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30' : 'bg-slate-700 text-slate-400 hover:bg-slate-600'}`}
+                      className={`rounded-full px-3 py-1 text-xs font-semibold transition ${ls.ativo ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30' : 'bg-slate-700 text-[var(--brand-text-muted)] hover:bg-slate-600'}`}
                     >
                       {ls.ativo ? 'Ao vivo' : 'Ativar'}
                     </button>
                     <button
                       type="button"
                       onClick={() => { setEditingLiveId(ls.id); setLiveForm({ titulo: ls.titulo ?? '', youtube_url: ls.youtube_url, ativo: ls.ativo ?? false }); setShowLiveForm(true) }}
-                      className="rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white"
+                      className="rounded-lg p-2 text-[var(--brand-text-muted)] hover:bg-white/5 hover:text-white"
                     >
                       <Pencil className="h-4 w-4" />
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDeleteLive(ls.id)}
-                      className="rounded-lg p-2 text-slate-400 hover:bg-red-500/10 hover:text-red-400"
+                      className="rounded-lg p-2 text-[var(--brand-text-muted)] hover:bg-red-500/10 hover:text-red-400"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -567,28 +567,28 @@ export function FerramentasAdminPanel({ tenantId }: { tenantId: string | null })
       {/* ====== TAB: DORES ====== */}
       {tab === 'dores' && (
         <div className="space-y-4">
-          <p className="text-sm text-slate-400">{pains.length} registro(s) de desafios/dores dos usuários.</p>
+          <p className="text-sm text-[var(--brand-text-muted)]">{pains.length} registro(s) de desafios/dores dos usuários.</p>
           {loadingPains ? (
-            <div className="flex items-center gap-2 text-sm text-slate-400 py-8">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#3b82f6] border-t-transparent" />
+            <div className="flex items-center gap-2 text-sm text-[var(--brand-text-muted)] py-8">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--brand-primary)] border-t-transparent" />
               Carregando...
             </div>
           ) : pains.length === 0 ? (
-            <div className="rounded-2xl border border-slate-600/30 bg-slate-800/50 py-12 text-center">
+            <div className="rounded-2xl border border-slate-600/30 bg-[var(--brand-surface)]/50 py-12 text-center">
               <AlertCircle className="mx-auto h-10 w-10 text-slate-600" />
-                    <p className="mt-3 text-sm text-slate-400">{t('noPains')}</p>
+                    <p className="mt-3 text-sm text-[var(--brand-text-muted)]">{t('noPains')}</p>
             </div>
           ) : (
             <div className="space-y-3">
               {pains.map((pain) => (
-                <div key={pain.id} className="rounded-xl border border-slate-600/30 bg-slate-800/80 px-4 py-3 space-y-1">
+                <div key={pain.id} className="rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/80 px-4 py-3 space-y-1">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex flex-col gap-0.5">
                       <span className="text-sm font-semibold text-white">
                         {pain.user_nome ?? t('anonymous')}
                       </span>
                       {pain.user_email && (
-                        <span className="text-xs text-slate-400">{pain.user_email}</span>
+                        <span className="text-xs text-[var(--brand-text-muted)]">{pain.user_email}</span>
                       )}
                     </div>
                     <span className="text-xs text-slate-500 shrink-0">

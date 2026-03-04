@@ -116,7 +116,7 @@ const MAIOR_DIFICULDADE = [
 ]
 
 const inputClass =
-  'w-full rounded-xl border border-slate-600/40 bg-slate-900 px-4 py-3 text-sm text-[#f5f5f5] placeholder:text-[#54545b] focus:border-slate-500/50 focus:outline-none'
+  'w-full rounded-xl border border-slate-600/40 bg-[var(--brand-surface-alt)] px-4 py-3 text-sm text-[#f5f5f5] placeholder:text-[#54545b] focus:border-slate-500/50 focus:outline-none'
 
 const TOTAL_STEPS = 4
 
@@ -187,12 +187,12 @@ function SelectField({
     >
       <div
         style={{ maxHeight: '70vh', display: 'flex', flexDirection: 'column' }}
-        className="rounded-t-2xl bg-slate-800"
+        className="rounded-t-2xl bg-[var(--brand-surface)]"
         onPointerDown={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-slate-700 px-4 py-3">
           <span className="text-sm font-semibold text-white">{label ?? placeholder}</span>
-          <button type="button" onPointerDown={(e) => { e.stopPropagation(); setOpen(false) }} className="rounded-lg px-3 py-1 text-sm font-medium text-[#3b82f6]">
+          <button type="button" onPointerDown={(e) => { e.stopPropagation(); setOpen(false) }} className="rounded-lg px-3 py-1 text-sm font-medium text-[var(--brand-primary)]">
             {closeLabel}
           </button>
         </div>
@@ -202,7 +202,7 @@ function SelectField({
               key={opt.value}
               type="button"
               onPointerDown={(e) => { e.stopPropagation(); onChange(opt.value); setOpen(false) }}
-              className={`flex w-full items-center justify-between border-b border-slate-700/40 px-4 py-4 text-left text-sm active:bg-white/10 ${opt.value === value ? 'text-[#3b82f6]' : 'text-[#f5f5f5]'}`}
+              className={`flex w-full items-center justify-between border-b border-slate-700/40 px-4 py-4 text-left text-sm active:bg-white/10 ${opt.value === value ? 'text-[var(--brand-primary)]' : 'text-[#f5f5f5]'}`}
             >
               <span>{opt.label}</span>
               {opt.value === value && <Check className="h-4 w-4 shrink-0" />}
@@ -257,7 +257,7 @@ function SelectField({
         <span className={selected ? 'text-[#f5f5f5]' : 'text-[#54545b]'}>
           {selected ? selected.label : placeholder}
         </span>
-        <ChevronDown className="ml-2 h-4 w-4 shrink-0 text-slate-400" />
+        <ChevronDown className="ml-2 h-4 w-4 shrink-0 text-[var(--brand-text-muted)]" />
       </button>
 
       {open && createPortal(isMobile ? mobileSheet : desktopDropdown, document.body)}
@@ -340,12 +340,12 @@ function SearchableSelect({
           {triggerLabel}
         </span>
         <ChevronDown
-          className={`ml-2 h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          className={`ml-2 h-4 w-4 shrink-0 text-[var(--brand-text-muted)] transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
         />
       </button>
 
       {open && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-xl border border-slate-600/40 bg-slate-800 shadow-2xl shadow-black/50">
+        <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-xl border border-slate-600/40 bg-[var(--brand-surface)] shadow-2xl shadow-black/50">
           <div className="border-b border-slate-700/60 p-2">
             <input
               ref={inputRef}
@@ -358,7 +358,7 @@ function SearchableSelect({
           </div>
           <div className="max-h-52 overflow-y-auto overscroll-contain">
             {filtered.length === 0 ? (
-              <p className="px-4 py-5 text-center text-sm text-slate-400">{emptyText}</p>
+              <p className="px-4 py-5 text-center text-sm text-[var(--brand-text-muted)]">{emptyText}</p>
             ) : (
               filtered.map((opt) => (
                 <button
@@ -755,7 +755,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
           <button
             type="button"
             onClick={() => router.replace('/inicio')}
-            className="w-full rounded-xl bg-[#3b82f6] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2563eb]"
+            className="w-full rounded-xl bg-[var(--brand-primary)] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[var(--brand-primary-hover)]"
           >
             {t('goToHome')}
           </button>
@@ -775,14 +775,14 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
       encType="multipart/form-data"
       className="space-y-6"
     >
-      <div className="rounded-xl border border-slate-600/30 bg-slate-800/80 shadow-xl overflow-hidden">
-        <div className="border-b border-white/10 bg-slate-900/50 px-4 py-4 sm:px-6">
+      <div className="rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/80 shadow-xl overflow-hidden">
+        <div className="border-b border-white/10 bg-[var(--brand-surface-alt)]/50 px-4 py-4 sm:px-6">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-white">
               {isEditMode ? t('editProfile') : t('signupTitle')}
             </h2>
             {!isEditMode && (
-              <span className="text-sm text-slate-400">
+              <span className="text-sm text-[var(--brand-text-muted)]">
                 {t('stepOf', { step: String(step), total: String(TOTAL_STEPS) })}
               </span>
             )}
@@ -790,7 +790,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
           {!isEditMode && (
             <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-700">
               <div
-                className="h-full rounded-full bg-[#3b82f6] transition-all duration-300"
+                className="h-full rounded-full bg-[var(--brand-primary)] transition-all duration-300"
                 style={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
               />
             </div>
@@ -800,7 +800,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
         <div className="p-4 sm:p-6">
           {/* Etapa 1: Básico */}
           {(step === 1 || isEditMode) && (
-            <div className={isEditMode ? 'rounded-xl border border-slate-600/30 bg-slate-900/30 overflow-hidden' : ''}>
+            <div className={isEditMode ? 'rounded-xl border border-slate-600/30 bg-[var(--brand-surface-alt)]/30 overflow-hidden' : ''}>
               {isEditMode && (
                 <button
                   type="button"
@@ -808,7 +808,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                   className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-white hover:bg-white/5 transition"
                 >
                   {t('sectionBasic')}
-                  {expandedEditSection === 1 ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />}
+                  {expandedEditSection === 1 ? <ChevronDown className="h-4 w-4 text-[var(--brand-text-muted)]" /> : <ChevronRight className="h-4 w-4 text-[var(--brand-text-muted)]" />}
                 </button>
               )}
               {(!isEditMode || expandedEditSection === 1) && (
@@ -818,7 +818,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                 <button
                   type="button"
                   onClick={handleAvatarClick}
-                  className="group relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-slate-600/40 bg-slate-900"
+                  className="group relative flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-slate-600/40 bg-[var(--brand-surface-alt)]"
                 >
                   {avatarPreview ? (
                     <img src={avatarPreview} alt="Foto" className="h-full w-full object-cover" />
@@ -887,7 +887,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                 </div>
               </label>
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-slate-400">{t('instagramOptional')}</span>
+                <span className="text-sm font-medium text-[var(--brand-text-muted)]">{t('instagramOptional')}</span>
                 <input
                   type="text"
                   value={formData.instagram}
@@ -897,7 +897,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                 />
               </label>
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-slate-400">{t('linkedinOptional')}</span>
+                <span className="text-sm font-medium text-[var(--brand-text-muted)]">{t('linkedinOptional')}</span>
                 <input
                   type="text"
                   value={formData.linkedin}
@@ -913,7 +913,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
 
           {/* Etapa 2: Perfil (segmentação) */}
           {(step === 2 || isEditMode) && (
-            <div className={isEditMode ? 'rounded-xl border border-slate-600/30 bg-slate-900/30 overflow-hidden mt-3' : `space-y-4 ${isEditMode ? 'border-t border-slate-600/30 pt-6 mt-6' : ''}`}>
+            <div className={isEditMode ? 'rounded-xl border border-slate-600/30 bg-[var(--brand-surface-alt)]/30 overflow-hidden mt-3' : `space-y-4 ${isEditMode ? 'border-t border-slate-600/30 pt-6 mt-6' : ''}`}>
               {isEditMode && (
                 <button
                   type="button"
@@ -921,7 +921,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                   className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-white hover:bg-white/5 transition"
                 >
                   {t('sectionProfile')}
-                  {expandedEditSection === 2 ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />}
+                  {expandedEditSection === 2 ? <ChevronDown className="h-4 w-4 text-[var(--brand-text-muted)]" /> : <ChevronRight className="h-4 w-4 text-[var(--brand-text-muted)]" />}
                 </button>
               )}
               {(!isEditMode || expandedEditSection === 2) && (
@@ -935,8 +935,8 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                     onClick={() => updateField('posicao_mercado', 'empreendedor')}
                     className={`flex-1 rounded-xl border px-4 py-3 text-sm font-medium transition ${
                       isEmpreendedor
-                        ? 'border-[#3b82f6] bg-[#3b82f6]/20 text-[#3b82f6]'
-                        : 'border-slate-600/40 bg-slate-900/50 text-slate-400 hover:border-slate-500'
+                        ? 'border-[var(--brand-primary)] bg-[var(--brand-primary)]/20 text-[var(--brand-primary)]'
+                        : 'border-slate-600/40 bg-[var(--brand-surface-alt)]/50 text-[var(--brand-text-muted)] hover:border-slate-500'
                     }`}
                   >
                     {t('entrepreneur')}
@@ -946,8 +946,8 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                     onClick={() => updateField('posicao_mercado', 'lider')}
                     className={`flex-1 rounded-xl border px-4 py-3 text-sm font-medium transition ${
                       isLider
-                        ? 'border-[#3b82f6] bg-[#3b82f6]/20 text-[#3b82f6]'
-                        : 'border-slate-600/40 bg-slate-900/50 text-slate-400 hover:border-slate-500'
+                        ? 'border-[var(--brand-primary)] bg-[var(--brand-primary)]/20 text-[var(--brand-primary)]'
+                        : 'border-slate-600/40 bg-[var(--brand-surface-alt)]/50 text-[var(--brand-text-muted)] hover:border-slate-500'
                     }`}
                   >
                     {t('leader')}
@@ -968,7 +968,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                     />
                   </label>
                   <label className="block space-y-2">
-                    <span className="text-sm font-medium text-slate-400">{t('siteOptional')}</span>
+                    <span className="text-sm font-medium text-[var(--brand-text-muted)]">{t('siteOptional')}</span>
                     <input
                       type="url"
                       value={formData.site}
@@ -1087,8 +1087,8 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                         onClick={() => updateField('lidera_time', true)}
                         className={`flex-1 rounded-xl border px-4 py-3 text-sm font-medium transition ${
                           formData.lidera_time === true
-                            ? 'border-[#3b82f6] bg-[#3b82f6]/20 text-[#3b82f6]'
-                            : 'border-slate-600/40 bg-slate-900/50 text-slate-400 hover:border-slate-500'
+                            ? 'border-[var(--brand-primary)] bg-[var(--brand-primary)]/20 text-[var(--brand-primary)]'
+                            : 'border-slate-600/40 bg-[var(--brand-surface-alt)]/50 text-[var(--brand-text-muted)] hover:border-slate-500'
                         }`}
                       >
                         {t('yes')}
@@ -1098,8 +1098,8 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                         onClick={() => updateField('lidera_time', false)}
                         className={`flex-1 rounded-xl border px-4 py-3 text-sm font-medium transition ${
                           formData.lidera_time === false
-                            ? 'border-[#3b82f6] bg-[#3b82f6]/20 text-[#3b82f6]'
-                            : 'border-slate-600/40 bg-slate-900/50 text-slate-400 hover:border-slate-500'
+                            ? 'border-[var(--brand-primary)] bg-[var(--brand-primary)]/20 text-[var(--brand-primary)]'
+                            : 'border-slate-600/40 bg-[var(--brand-surface-alt)]/50 text-[var(--brand-text-muted)] hover:border-slate-500'
                         }`}
                       >
                         {t('no')}
@@ -1116,8 +1116,8 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                           onClick={() => setDesafiosDetalhados((prev) => toggleMultiSelect(prev, d, 2))}
                           className={`rounded-xl border px-4 py-2.5 text-sm font-medium transition ${
                             desafiosDetalhados.includes(d)
-                              ? 'border-[#3b82f6] bg-[#3b82f6]/20 text-[#3b82f6]'
-                              : 'border-slate-600/40 bg-slate-900/50 text-slate-400 hover:border-slate-500'
+                              ? 'border-[var(--brand-primary)] bg-[var(--brand-primary)]/20 text-[var(--brand-primary)]'
+                              : 'border-slate-600/40 bg-[var(--brand-surface-alt)]/50 text-[var(--brand-text-muted)] hover:border-slate-500'
                           }`}
                         >
                           {t(`options.desafios.${d}`)}
@@ -1135,7 +1135,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
 
           {/* Etapa 3: Intenção */}
           {(step === 3 || isEditMode) && (
-            <div className={isEditMode ? 'rounded-xl border border-slate-600/30 bg-slate-900/30 overflow-hidden mt-3' : ''}>
+            <div className={isEditMode ? 'rounded-xl border border-slate-600/30 bg-[var(--brand-surface-alt)]/30 overflow-hidden mt-3' : ''}>
               {isEditMode && (
                 <button
                   type="button"
@@ -1143,7 +1143,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                   className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-white hover:bg-white/5 transition"
                 >
                   {t('sectionIntention')}
-                  {expandedEditSection === 3 ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />}
+                  {expandedEditSection === 3 ? <ChevronDown className="h-4 w-4 text-[var(--brand-text-muted)]" /> : <ChevronRight className="h-4 w-4 text-[var(--brand-text-muted)]" />}
                 </button>
               )}
               {(!isEditMode || expandedEditSection === 3) && (
@@ -1159,8 +1159,8 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                       onClick={() => setBuscaMaxistalks((prev) => toggleMultiSelect(prev, b, 2))}
                       className={`rounded-xl border px-4 py-2.5 text-sm font-medium transition ${
                         buscaMaxistalks.includes(b)
-                          ? 'border-[#3b82f6] bg-[#3b82f6]/20 text-[#3b82f6]'
-                          : 'border-slate-600/40 bg-slate-900/50 text-slate-400 hover:border-slate-500'
+                          ? 'border-[var(--brand-primary)] bg-[var(--brand-primary)]/20 text-[var(--brand-primary)]'
+                          : 'border-slate-600/40 bg-[var(--brand-surface-alt)]/50 text-[var(--brand-text-muted)] hover:border-slate-500'
                       }`}
                     >
                       {t(`options.busca.${b}`)}
@@ -1178,8 +1178,8 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                       onClick={() => setOQueQuerAprender((prev) => toggleMultiSelect(prev, o, 3))}
                       className={`rounded-xl border px-4 py-2.5 text-sm font-medium transition ${
                         oQueQuerAprender.includes(o)
-                          ? 'border-[#3b82f6] bg-[#3b82f6]/20 text-[#3b82f6]'
-                          : 'border-slate-600/40 bg-slate-900/50 text-slate-400 hover:border-slate-500'
+                          ? 'border-[var(--brand-primary)] bg-[var(--brand-primary)]/20 text-[var(--brand-primary)]'
+                          : 'border-slate-600/40 bg-[var(--brand-surface-alt)]/50 text-[var(--brand-text-muted)] hover:border-slate-500'
                       }`}
                     >
                       {t(`options.aprender.${o}`)}
@@ -1197,8 +1197,8 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                       onClick={() => updateField('maior_dificuldade', m)}
                       className={`rounded-xl border px-4 py-2.5 text-sm font-medium transition ${
                         formData.maior_dificuldade === m
-                          ? 'border-[#3b82f6] bg-[#3b82f6]/20 text-[#3b82f6]'
-                          : 'border-slate-600/40 bg-slate-900/50 text-slate-400 hover:border-slate-500'
+                          ? 'border-[var(--brand-primary)] bg-[var(--brand-primary)]/20 text-[var(--brand-primary)]'
+                          : 'border-slate-600/40 bg-[var(--brand-surface-alt)]/50 text-[var(--brand-text-muted)] hover:border-slate-500'
                       }`}
                     >
                       {t(`options.dificuldade.${m}`)}
@@ -1213,7 +1213,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
 
           {/* Etapa 4: Finalização */}
           {(step === 4 || isEditMode) && (
-            <div className={isEditMode ? 'rounded-xl border border-slate-600/30 bg-slate-900/30 overflow-hidden mt-3' : ''}>
+            <div className={isEditMode ? 'rounded-xl border border-slate-600/30 bg-[var(--brand-surface-alt)]/30 overflow-hidden mt-3' : ''}>
               {isEditMode && (
                 <button
                   type="button"
@@ -1221,13 +1221,13 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                   className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-white hover:bg-white/5 transition"
                 >
                   {t('sectionFinal')}
-                  {expandedEditSection === 4 ? <ChevronDown className="h-4 w-4 text-slate-400" /> : <ChevronRight className="h-4 w-4 text-slate-400" />}
+                  {expandedEditSection === 4 ? <ChevronDown className="h-4 w-4 text-[var(--brand-text-muted)]" /> : <ChevronRight className="h-4 w-4 text-[var(--brand-text-muted)]" />}
                 </button>
               )}
               {(!isEditMode || expandedEditSection === 4) && (
             <div ref={!isEditMode ? step4Ref : undefined} className={`space-y-4 ${isEditMode ? 'border-t border-slate-600/30 px-4 pb-4 pt-3' : ''}`}>
               {!isEditMode && <h3 className="text-sm font-semibold text-slate-300">{t('sectionFinal')}</h3>}
-              <label className="flex items-start gap-3 rounded-xl border border-slate-600/40 bg-slate-900/50 px-4 py-3">
+              <label className="flex items-start gap-3 rounded-xl border border-slate-600/40 bg-[var(--brand-surface-alt)]/50 px-4 py-3">
                 <input
                   type="checkbox"
                   checked={formData.ciente_evento_online}
@@ -1238,7 +1238,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                   {t('eventAwareLabel')}
                 </span>
               </label>
-              <label className="flex items-start gap-3 rounded-xl border border-slate-600/40 bg-slate-900/50 px-4 py-3">
+              <label className="flex items-start gap-3 rounded-xl border border-slate-600/40 bg-[var(--brand-surface-alt)]/50 px-4 py-3">
                 <input
                   type="checkbox"
                   checked={formData.aceite_lgpd}
@@ -1246,22 +1246,22 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                   className="mt-1 h-4 w-4 rounded border-slate-600"
                 />
                 <span className="text-sm text-white">
-                  {t('consentPrefix')}<Link href="/politica-de-privacidade" className="text-[#3b82f6] underline hover:no-underline">{t('consentPrivacyLink')}</Link>{t('consentMiddle')}<Link href="/termos-de-uso" className="text-[#3b82f6] underline hover:no-underline">{t('consentTermsLink')}</Link>{t('consentSuffix')}
+                  {t('consentPrefix')}<Link href="/politica-de-privacidade" className="text-[var(--brand-primary)] underline hover:no-underline">{t('consentPrivacyLink')}</Link>{t('consentMiddle')}<Link href="/termos-de-uso" className="text-[var(--brand-primary)] underline hover:no-underline">{t('consentTermsLink')}</Link>{t('consentSuffix')}
                 </span>
               </label>
-              <label className="flex items-start gap-3 rounded-xl border border-slate-600/40 bg-slate-900/50 px-4 py-3">
+              <label className="flex items-start gap-3 rounded-xl border border-slate-600/40 bg-[var(--brand-surface-alt)]/50 px-4 py-3">
                 <input
                   type="checkbox"
                   checked={formData.recebe_beneficios}
                   onChange={(e) => updateField('recebe_beneficios', e.target.checked)}
                   className="mt-1 h-4 w-4 rounded border-slate-600"
                 />
-                <span className="text-sm text-slate-400">
+                <span className="text-sm text-[var(--brand-text-muted)]">
                   {t('receiveCommsLabel')}
                 </span>
               </label>
               <label className="block space-y-2">
-                <span className="text-sm font-medium text-slate-400">{t('bioOptional')}</span>
+                <span className="text-sm font-medium text-[var(--brand-text-muted)]">{t('bioOptional')}</span>
                 <textarea
                   value={formData.bio}
                   onChange={(e) => updateField('bio', e.target.value)}
@@ -1285,7 +1285,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                   e.preventDefault()
                   handleSubmit(e as unknown as FormEvent<HTMLFormElement>)
                 }}
-                className="w-full rounded-xl bg-[#3b82f6] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2563eb] disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-xl bg-[var(--brand-primary)] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[var(--brand-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isPending ? t('saving') : t('save')}
               </button>
@@ -1316,7 +1316,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                       (step === 2 && !canProceedStep2) ||
                       (step === 3 && !canProceedStep3)
                     }
-                    className="flex-1 rounded-xl bg-[#3b82f6] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2563eb] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex-1 rounded-xl bg-[var(--brand-primary)] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[var(--brand-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {t('next')}
                   </button>
@@ -1328,7 +1328,7 @@ export function ProfileForm({ profile, email, onProfileUpdated }: ProfileFormPro
                       e.preventDefault()
                       handleSubmit(e as unknown as FormEvent<HTMLFormElement>)
                     }}
-                    className="flex-1 rounded-xl bg-[#3b82f6] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#2563eb] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex-1 rounded-xl bg-[var(--brand-primary)] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[var(--brand-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isPending ? t('saving') : t('finishSignup')}
                   </button>

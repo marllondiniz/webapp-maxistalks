@@ -81,6 +81,16 @@ export default async function RootLayout({
   const styleVars = {
     '--brand-primary': brand.primaryColor,
     '--brand-primary-hover': brand.primaryColorHover,
+    '--brand-bg': brand.backgroundColor,
+    '--brand-surface': brand.surfaceColor,
+    '--brand-surface-alt': brand.surfaceAltColor,
+    '--brand-text-muted': brand.textMutedColor,
+    '--brand-heading': brand.headingColor,
+    '--brand-body': brand.bodyTextColor,
+    '--brand-link': brand.linkColor,
+    '--brand-link-hover': brand.linkHoverColor,
+    '--brand-accent': brand.accentColor,
+    '--brand-button-text': brand.buttonTextColor,
   } as React.CSSProperties
 
   return (

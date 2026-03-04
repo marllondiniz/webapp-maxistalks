@@ -334,7 +334,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                       )}
                       {eventBanner?.titulo && (
                         <div className="mt-1 w-full min-w-0 rounded-lg border border-slate-600/30 bg-slate-700/30 px-3 py-2">
-                          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{t('talkTheme')}</p>
+                          <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--brand-text-muted)]">{t('talkTheme')}</p>
                           <p className="mt-0.5 text-sm font-medium leading-relaxed text-[#f5f5f5]">{eventBanner.titulo}</p>
                         </div>
                       )}
@@ -397,7 +397,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                       }
                       className={`flex min-w-0 flex-1 items-center justify-center rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-wide transition ${
                         isPastEvent
-                          ? 'cursor-not-allowed border border-slate-600/40 bg-slate-800 text-[#5f5f66] opacity-60'
+                          ? 'cursor-not-allowed border border-slate-600/40 bg-[var(--brand-surface)] text-[#5f5f66] opacity-60'
                           : 'bg-[#f5f5f5] text-[#0f0f10] hover:brightness-95'
                       }`}
                     >
@@ -410,7 +410,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                       disabled={buttonDisabled}
                       className={`flex min-w-0 flex-1 items-center justify-center rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-wide transition ${
                         buttonDisabled
-                          ? 'cursor-not-allowed border border-slate-600/40 bg-slate-800 text-[#5f5f66] opacity-60'
+                          ? 'cursor-not-allowed border border-slate-600/40 bg-[var(--brand-surface)] text-[#5f5f66] opacity-60'
                           : 'bg-[#f5f5f5] text-[#0f0f10] hover:brightness-95'
                       }`}
                     >
@@ -425,7 +425,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
 
                 <Link
                   href={`/eventos/${event.id}`}
-                  className="flex w-full min-w-0 items-center justify-center rounded-full border border-slate-600/30 bg-slate-800 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-[#f5f5f5] transition hover:border-slate-500/40 hover:bg-slate-700/50"
+                  className="flex w-full min-w-0 items-center justify-center rounded-full border border-slate-600/30 bg-[var(--brand-surface)] px-4 py-3 text-sm font-semibold uppercase tracking-wide text-[#f5f5f5] transition hover:border-slate-500/40 hover:bg-[var(--brand-surface)]/50"
                 >
                   {t('learnMore')}
                 </Link>
@@ -446,7 +446,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
           {normalizedEvents.map((event) =>
             renderEventCard(
               event,
-              'flex h-full w-[300px] shrink-0 flex-col rounded-2xl border-l-4 border-l-blue-500/80 border border-slate-600/30 bg-slate-800/90 shadow-xl shadow-black/20 transition hover:border-l-blue-400 hover:border-slate-500/50 hover:shadow-2xl overflow-hidden'
+              'flex h-full w-[300px] shrink-0 flex-col rounded-2xl border-l-4 border-l-blue-500/80 border border-slate-600/30 bg-[var(--brand-surface)]/90 shadow-xl shadow-black/20 transition hover:border-l-blue-400 hover:border-slate-500/50 hover:shadow-2xl overflow-hidden'
             )
           )}
         </div>
@@ -461,7 +461,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
           {normalizedEvents.map((event) =>
             renderEventCard(
               event,
-              'flex h-full w-[340px] shrink-0 flex-col rounded-2xl border-l-4 border-l-blue-500/80 border border-slate-600/30 bg-slate-800/90 shadow-xl shadow-black/20 transition hover:border-l-blue-400 hover:border-slate-500/50 hover:shadow-2xl overflow-hidden snap-center snap-always'
+              'flex h-full w-[340px] shrink-0 flex-col rounded-2xl border-l-4 border-l-blue-500/80 border border-slate-600/30 bg-[var(--brand-surface)]/90 shadow-xl shadow-black/20 transition hover:border-l-blue-400 hover:border-slate-500/50 hover:shadow-2xl overflow-hidden snap-center snap-always'
             )
           )}
         </div>
@@ -474,13 +474,13 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
           onClick={() => setTicketModalEvent(null)}
         >
           <div
-            className="relative max-w-md w-full rounded-2xl border border-slate-600/40 bg-slate-900 p-6 shadow-2xl"
+            className="relative max-w-md w-full rounded-2xl border border-slate-600/40 bg-[var(--brand-surface-alt)] p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
               onClick={() => setTicketModalEvent(null)}
-              className="absolute right-4 top-4 rounded-lg p-2 text-slate-400 transition hover:bg-slate-700/50 hover:text-white"
+              className="absolute right-4 top-4 rounded-lg p-2 text-[var(--brand-text-muted)] transition hover:bg-[var(--brand-surface)]/50 hover:text-white"
               aria-label={t('closeAria')}
             >
               <X className="h-5 w-5" />
@@ -494,7 +494,7 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                 <h3 className="text-lg font-bold text-white">
                   {t('youAreRegistered')}
                 </h3>
-                <p className="text-sm text-slate-400">
+                <p className="text-sm text-[var(--brand-text-muted)]">
                   {ticketModalEvent.registration.ticket_url
                     ? t('ticketInfo')
                     : t('ticketSoon')}
@@ -503,14 +503,14 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
             </div>
 
             <div className="space-y-4">
-              <div className="rounded-xl border border-slate-600/40 bg-slate-800/80 p-4">
+              <div className="rounded-xl border border-slate-600/40 bg-[var(--brand-surface)]/80 p-4">
                 <h4 className="font-bold text-white">{ticketModalEvent.event.titulo}</h4>
               </div>
 
-              <div className="flex items-start gap-3 rounded-xl border border-slate-600/40 bg-slate-800/80 p-4">
-                <Calendar className="h-5 w-5 shrink-0 text-slate-400" />
+              <div className="flex items-start gap-3 rounded-xl border border-slate-600/40 bg-[var(--brand-surface)]/80 p-4">
+                <Calendar className="h-5 w-5 shrink-0 text-[var(--brand-text-muted)]" />
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[var(--brand-text-muted)]">
                     {t('dateTime')}
                   </p>
                   <p className="mt-1 text-[#f5f5f5]">
@@ -531,10 +531,10 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 rounded-xl border border-slate-600/40 bg-slate-800/80 p-4">
-                <MapPin className="h-5 w-5 shrink-0 text-slate-400" />
+              <div className="flex items-start gap-3 rounded-xl border border-slate-600/40 bg-[var(--brand-surface)]/80 p-4">
+                <MapPin className="h-5 w-5 shrink-0 text-[var(--brand-text-muted)]" />
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[var(--brand-text-muted)]">
                     {t('location')}
                   </p>
                   <p className="mt-1 text-[#f5f5f5]">{ticketModalEvent.event.local_nome}</p>
@@ -568,14 +568,14 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                   {t('openTicket')}
                 </a>
               ) : (
-                <p className="text-center text-sm text-slate-400">
+                <p className="text-center text-sm text-[var(--brand-text-muted)]">
                   {t('presentWithEmail')}
                 </p>
               )}
               <button
                 type="button"
                 onClick={() => setTicketModalEvent(null)}
-                className="inline-flex w-full items-center justify-center rounded-xl border border-slate-600/40 px-4 py-3 text-sm font-semibold text-[#f5f5f5] transition hover:bg-slate-700/50"
+                className="inline-flex w-full items-center justify-center rounded-xl border border-slate-600/40 px-4 py-3 text-sm font-semibold text-[#f5f5f5] transition hover:bg-[var(--brand-surface)]/50"
               >
                 {t('close')}
               </button>

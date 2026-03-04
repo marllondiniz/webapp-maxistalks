@@ -76,7 +76,7 @@ function normalizeCidadeEstado(value: string | null | undefined): string {
   return raw
 }
 
-function ProgressBar({ value, max, color = 'bg-[#3b82f6]' }: { value: number; max: number; color?: string }) {
+function ProgressBar({ value, max, color = 'bg-[var(--brand-primary)]' }: { value: number; max: number; color?: string }) {
   const pct = max > 0 ? Math.min(Math.round((value / max) * 100), 100) : 0
   return (
     <div className="flex items-center gap-2">
@@ -96,17 +96,17 @@ function KpiCard({ icon, label, value, sub, color }: {
   color: 'blue' | 'emerald' | 'amber' | 'cyan' | 'violet'
 }) {
   const cfg = {
-    blue:    { ring: 'border-[#3b82f6]/20',  bg: 'bg-[#3b82f6]/10',    text: 'text-[#3b82f6]' },
+    blue:    { ring: 'border-[var(--brand-primary)]/20',  bg: 'bg-[var(--brand-primary)]/10',    text: 'text-[var(--brand-primary)]' },
     emerald: { ring: 'border-emerald-500/20', bg: 'bg-emerald-500/10',  text: 'text-emerald-400' },
     amber:   { ring: 'border-amber-500/20',   bg: 'bg-amber-500/10',    text: 'text-amber-400' },
     cyan:    { ring: 'border-cyan-500/20',    bg: 'bg-cyan-500/10',     text: 'text-cyan-400' },
     violet:  { ring: 'border-violet-500/20',  bg: 'bg-violet-500/10',   text: 'text-violet-400' },
   }[color]
   return (
-    <div className={`rounded-2xl border ${cfg.ring} bg-[#1e293b] p-4 sm:p-5`}>
+    <div className={`rounded-2xl border ${cfg.ring} bg-[var(--brand-surface)] p-4 sm:p-5`}>
       <div className={`mb-3 inline-flex rounded-xl p-2 ${cfg.bg} ${cfg.text}`}>{icon}</div>
       <p className="text-2xl font-bold text-white sm:text-3xl">{value}</p>
-      <p className="mt-0.5 text-sm text-slate-400">{label}</p>
+      <p className="mt-0.5 text-sm text-[var(--brand-text-muted)]">{label}</p>
       {sub && <p className="mt-1 text-xs text-slate-500">{sub}</p>}
     </div>
   )
@@ -120,7 +120,7 @@ function SideWidget({ icon, title, color, children, action }: {
   action?: { label: string; href: string }
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#1e293b] overflow-hidden">
+    <div className="rounded-2xl border border-white/10 bg-[var(--brand-surface)] overflow-hidden">
       <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
         <div className={`flex items-center gap-2.5 ${color}`}>
           {icon}
@@ -282,7 +282,7 @@ export function AdminDashboard({
       <div className="flex flex-col gap-0.5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-white">{t('title')}</h2>
-          <p className="mt-0.5 text-sm text-slate-400">{t('subtitle')}</p>
+          <p className="mt-0.5 text-sm text-[var(--brand-text-muted)]">{t('subtitle')}</p>
         </div>
         <p className="text-xs text-slate-500 sm:text-right">
           {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}
@@ -312,13 +312,13 @@ export function AdminDashboard({
         <div className="min-w-0 space-y-5">
 
           {/* Tabela de usuários */}
-          <div className="rounded-2xl border border-white/10 bg-[#1e293b] overflow-hidden">
+          <div className="rounded-2xl border border-white/10 bg-[var(--brand-surface)] overflow-hidden">
             <button type="button" onClick={() => setExpandedUsers(!expandedUsers)}
               className="flex w-full items-center gap-3 px-5 py-4 text-left hover:bg-white/5 transition">
-              <div className="rounded-xl bg-[#3b82f6]/10 p-2 text-[#3b82f6]"><Users className="h-5 w-5" /></div>
+              <div className="rounded-xl bg-[var(--brand-primary)]/10 p-2 text-[var(--brand-primary)]"><Users className="h-5 w-5" /></div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white">{t('usersTitle')}</p>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-[var(--brand-text-muted)]">
                   {sortedUsers.length === allUsers.length ? t('usersCount', { count: allUsers.length }) : t('usersCountFiltered', { filtered: sortedUsers.length, total: allUsers.length })}
                 </p>
               </div>
@@ -326,7 +326,7 @@ export function AdminDashboard({
                 className="mr-2 hidden items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-slate-300 hover:bg-white/5 sm:flex">
                 {t('viewAll')} <ArrowUpRight className="h-3 w-3" />
               </Link>
-              {expandedUsers ? <ChevronUp className="h-5 w-5 flex-shrink-0 text-slate-400" /> : <ChevronDown className="h-5 w-5 flex-shrink-0 text-slate-400" />}
+              {expandedUsers ? <ChevronUp className="h-5 w-5 flex-shrink-0 text-[var(--brand-text-muted)]" /> : <ChevronDown className="h-5 w-5 flex-shrink-0 text-[var(--brand-text-muted)]" />}
             </button>
 
             {expandedUsers && (
@@ -334,33 +334,33 @@ export function AdminDashboard({
                 {/* Barra de filtros */}
                 <div className="flex flex-wrap items-center gap-2 border-b border-white/10 bg-white/5 px-4 py-3">
                   <div className="relative min-w-0 flex-1 sm:max-w-[220px]">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--brand-text-muted)]" />
                     <input type="search" placeholder={t('searchUserPlaceholder')} value={userSearch} onChange={(e) => setUserSearch(e.target.value)}
-                      className="w-full rounded-lg border border-white/10 bg-[#0f172a] py-2 pl-9 pr-3 text-sm text-white placeholder:text-slate-500 focus:border-[#3b82f6] focus:outline-none focus:ring-1 focus:ring-[#3b82f6]" />
+                      className="w-full rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] py-2 pl-9 pr-3 text-sm text-white placeholder:text-slate-500 focus:border-[var(--brand-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--brand-primary)]" />
                   </div>
                   <select value={userFilterPosicao} onChange={(e) => setUserFilterPosicao(e.target.value)}
-                    className="rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none">
+                    className="rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] px-3 py-2 text-sm text-white focus:outline-none">
                     <option value="all">{t('filterPositionAll')}</option>
                     <option value="empreendedor">{t('positionEntrepreneur')}</option>
                     <option value="lider">{t('positionLeader')}</option>
                   </select>
                   <select value={userFilterCidade} onChange={(e) => setUserFilterCidade(e.target.value)}
-                    className="min-w-0 max-w-[160px] rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none">
+                    className="min-w-0 max-w-[160px] rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] px-3 py-2 text-sm text-white focus:outline-none">
                     <option value="all">{t('filterCityAll')}</option>
                     {uniqueCidades.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
                   <select value={userFilterSegmento} onChange={(e) => setUserFilterSegmento(e.target.value)}
-                    className="min-w-0 max-w-[140px] rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none">
+                    className="min-w-0 max-w-[140px] rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] px-3 py-2 text-sm text-white focus:outline-none">
                     <option value="all">{t('filterSectorAll')}</option>
                     {uniqueSegmentos.map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>
                   <select value={userFilterFaturamento} onChange={(e) => setUserFilterFaturamento(e.target.value)}
-                    className="min-w-0 max-w-[160px] rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none">
+                    className="min-w-0 max-w-[160px] rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] px-3 py-2 text-sm text-white focus:outline-none">
                     <option value="all">{t('filterRevenueAll')}</option>
                     {uniqueFaturamentos.map((f) => <option key={f} value={f}>{f}</option>)}
                   </select>
                   <select value={userSortBy} onChange={(e) => setUserSortBy(e.target.value as 'name' | 'recent' | 'faturamento')}
-                    className="rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none">
+                    className="rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] px-3 py-2 text-sm text-white focus:outline-none">
                     <option value="recent">{t('sortRecent')}</option>
                     <option value="name">{t('sortName')}</option>
                     <option value="faturamento">{t('sortRevenue')}</option>
@@ -372,7 +372,7 @@ export function AdminDashboard({
                 </div>
 
                 {sortedUsers.length === 0 ? (
-                  <p className="py-10 text-center text-slate-400 text-sm">{t('noUsersFound')}</p>
+                  <p className="py-10 text-center text-[var(--brand-text-muted)] text-sm">{t('noUsersFound')}</p>
                 ) : (
                   <>
                     {/* Mobile cards */}
@@ -382,27 +382,27 @@ export function AdminDashboard({
                           <div className="flex items-start justify-between gap-2">
                             <p className="font-semibold text-white">{u.nome || '—'}</p>
                             {u.posicao_mercado && (
-                              <span className={`flex-shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${u.posicao_mercado === 'empreendedor' ? 'bg-[#3b82f6]/15 text-[#3b82f6]' : 'bg-violet-500/15 text-violet-400'}`}>
+                              <span className={`flex-shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${u.posicao_mercado === 'empreendedor' ? 'bg-[var(--brand-primary)]/15 text-[var(--brand-primary)]' : 'bg-violet-500/15 text-violet-400'}`}>
                                 {u.posicao_mercado}
                               </span>
                             )}
                           </div>
-                          {u.email && <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-400"><Mail className="h-3 w-3" />{u.email}</p>}
-                          {u.cidade_estado && <p className="mt-0.5 flex items-center gap-1.5 text-xs text-slate-400"><MapPin className="h-3 w-3" />{u.cidade_estado}</p>}
+                          {u.email && <p className="mt-1 flex items-center gap-1.5 text-xs text-[var(--brand-text-muted)]"><Mail className="h-3 w-3" />{u.email}</p>}
+                          {u.cidade_estado && <p className="mt-0.5 flex items-center gap-1.5 text-xs text-[var(--brand-text-muted)]"><MapPin className="h-3 w-3" />{u.cidade_estado}</p>}
                           {u.faixa_faturamento && (
                             <p className="mt-0.5 flex items-center gap-1.5 text-xs text-emerald-400/90">
                               <DollarSign className="h-3 w-3" />{u.faixa_faturamento}
                             </p>
                           )}
                           {(u.invited_by_user_id || (registrationsCountByUser.get(u.id) ?? 0) > 0) && (
-                            <p className="mt-1.5 flex flex-wrap gap-3 text-xs text-slate-400">
+                            <p className="mt-1.5 flex flex-wrap gap-3 text-xs text-[var(--brand-text-muted)]">
                               {u.invited_by_user_id && <span>{t('referredBy')} <strong className="text-slate-200">{referrerNameById.get(u.invited_by_user_id) ?? '—'}</strong></span>}
                               {(registrationsCountByUser.get(u.id) ?? 0) > 0 && <span className="rounded-full bg-amber-400/10 px-2 py-0.5 text-amber-300">{t('eventCount', { count: registrationsCountByUser.get(u.id) ?? 0 })}</span>}
                             </p>
                           )}
                           <div className="mt-3 flex flex-wrap gap-2">
                             {u.telefone && <a href={`https://wa.me/${normalizePhoneForWhatsApp(u.telefone)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/15 px-3 py-1.5 text-sm font-medium text-emerald-400"><MessageCircle className="h-3.5 w-3.5" /> WhatsApp</a>}
-                            {u.instagram && <a href={`https://instagram.com/${u.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="rounded-lg bg-[#3b82f6]/15 px-3 py-1.5 text-sm font-medium text-[#3b82f6]">{u.instagram}</a>}
+                            {u.instagram && <a href={`https://instagram.com/${u.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="rounded-lg bg-[var(--brand-primary)]/15 px-3 py-1.5 text-sm font-medium text-[var(--brand-primary)]">{u.instagram}</a>}
                           </div>
                         </div>
                       ))}
@@ -410,16 +410,16 @@ export function AdminDashboard({
                     {/* Desktop tabela */}
                     <div className="hidden overflow-x-auto max-h-[420px] overflow-y-auto md:block">
                       <table className="w-full min-w-[960px] text-sm">
-                        <thead className="sticky top-0 bg-[#1e293b]">
+                        <thead className="sticky top-0 bg-[var(--brand-surface)]">
                           <tr className="border-b border-white/10 text-left">
-                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colName')}</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colContact')}</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colCompany')}</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colRevenue')}</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colCity')}</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colReferredBy')}</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400 text-center">{t('colEvents')}</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colLinks')}</th>
+                            <th className="px-5 py-3 font-semibold text-[var(--brand-text-muted)]">{t('colName')}</th>
+                            <th className="px-5 py-3 font-semibold text-[var(--brand-text-muted)]">{t('colContact')}</th>
+                            <th className="px-5 py-3 font-semibold text-[var(--brand-text-muted)]">{t('colCompany')}</th>
+                            <th className="px-5 py-3 font-semibold text-[var(--brand-text-muted)]">{t('colRevenue')}</th>
+                            <th className="px-5 py-3 font-semibold text-[var(--brand-text-muted)]">{t('colCity')}</th>
+                            <th className="px-5 py-3 font-semibold text-[var(--brand-text-muted)]">{t('colReferredBy')}</th>
+                            <th className="px-5 py-3 font-semibold text-[var(--brand-text-muted)] text-center">{t('colEvents')}</th>
+                            <th className="px-5 py-3 font-semibold text-[var(--brand-text-muted)]">{t('colLinks')}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -428,14 +428,14 @@ export function AdminDashboard({
                               <td className="px-5 py-3">
                                 <p className="font-medium text-white">{u.nome || '—'}</p>
                                 {u.posicao_mercado && (
-                                  <span className={`mt-0.5 inline-block rounded-full px-1.5 py-0.5 text-xs ${u.posicao_mercado === 'empreendedor' ? 'bg-[#3b82f6]/10 text-[#3b82f6]' : 'bg-violet-500/10 text-violet-400'}`}>
+                                  <span className={`mt-0.5 inline-block rounded-full px-1.5 py-0.5 text-xs ${u.posicao_mercado === 'empreendedor' ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)]' : 'bg-violet-500/10 text-violet-400'}`}>
                                     {u.posicao_mercado}
                                   </span>
                                 )}
                               </td>
                               <td className="px-5 py-3">
                                 {u.email && <p className="flex items-center gap-1 text-xs text-slate-300"><Mail className="h-3 w-3" /><span className="max-w-[150px] truncate">{u.email}</span></p>}
-                                {u.telefone && <p className="text-xs text-slate-400">{u.telefone}</p>}
+                                {u.telefone && <p className="text-xs text-[var(--brand-text-muted)]">{u.telefone}</p>}
                               </td>
                               <td className="px-5 py-3">
                                 <p className="max-w-[120px] truncate text-slate-300 text-sm" title={u.empresa_projeto || u.empresa_atual || undefined}>{u.empresa_projeto || u.empresa_atual || '—'}</p>
@@ -451,7 +451,7 @@ export function AdminDashboard({
                                 )}
                               </td>
                               <td className="px-5 py-3 text-xs text-slate-300">{u.cidade_estado || '—'}</td>
-                              <td className="px-5 py-3 text-xs text-slate-400 max-w-[100px] truncate">{u.invited_by_user_id ? referrerNameById.get(u.invited_by_user_id) ?? '—' : '—'}</td>
+                              <td className="px-5 py-3 text-xs text-[var(--brand-text-muted)] max-w-[100px] truncate">{u.invited_by_user_id ? referrerNameById.get(u.invited_by_user_id) ?? '—' : '—'}</td>
                               <td className="px-5 py-3 text-center">
                                 {(registrationsCountByUser.get(u.id) ?? 0) > 0
                                   ? <span className="rounded-full bg-amber-400/10 px-2 py-0.5 text-xs font-semibold text-amber-300">{registrationsCountByUser.get(u.id)}</span>
@@ -460,7 +460,7 @@ export function AdminDashboard({
                               <td className="px-5 py-3">
                                 <div className="flex flex-col gap-1">
                                   {u.telefone && <a href={`https://wa.me/${normalizePhoneForWhatsApp(u.telefone)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:underline"><MessageCircle className="h-3 w-3" /> WA</a>}
-                                  {u.instagram && <a href={`https://instagram.com/${u.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-xs text-[#3b82f6] hover:underline truncate max-w-[80px]">{u.instagram}</a>}
+                                  {u.instagram && <a href={`https://instagram.com/${u.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--brand-primary)] hover:underline truncate max-w-[80px]">{u.instagram}</a>}
                                   {u.linkedin && <a href={u.linkedin.startsWith('http') ? u.linkedin : `https://${u.linkedin}`} target="_blank" rel="noopener noreferrer" className="text-xs text-[#0a66c2] hover:underline">LinkedIn</a>}
                                   {!u.telefone && !u.instagram && !u.linkedin && <span className="text-slate-600">—</span>}
                                 </div>
@@ -477,34 +477,34 @@ export function AdminDashboard({
           </div>
 
           {/* Lista de interesses */}
-          <div className="rounded-2xl border border-white/10 bg-[#1e293b] overflow-hidden">
+          <div className="rounded-2xl border border-white/10 bg-[var(--brand-surface)] overflow-hidden">
             <button type="button" onClick={() => setExpandedReg(!expandedReg)}
               className="flex w-full items-center gap-3 px-5 py-4 text-left hover:bg-white/5 transition">
               <div className="rounded-xl bg-amber-500/10 p-2 text-amber-400"><Layers className="h-5 w-5" /></div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white">{t('interestsTitle')}</p>
-                <p className="text-xs text-slate-400">{t('interestsCount', { count: registrations.length })}</p>
+                <p className="text-xs text-[var(--brand-text-muted)]">{t('interestsCount', { count: registrations.length })}</p>
               </div>
-              {expandedReg ? <ChevronUp className="h-5 w-5 flex-shrink-0 text-slate-400" /> : <ChevronDown className="h-5 w-5 flex-shrink-0 text-slate-400" />}
+              {expandedReg ? <ChevronUp className="h-5 w-5 flex-shrink-0 text-[var(--brand-text-muted)]" /> : <ChevronDown className="h-5 w-5 flex-shrink-0 text-[var(--brand-text-muted)]" />}
             </button>
 
             {expandedReg && (
               <div className="border-t border-white/10">
                 <div className="flex flex-wrap gap-2 border-b border-white/10 bg-white/5 px-4 py-3">
                   <select value={filterEvent} onChange={(e) => setFilterEvent(e.target.value)}
-                    className="flex-1 rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none sm:flex-initial">
+                    className="flex-1 rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] px-3 py-2 text-sm text-white focus:outline-none sm:flex-initial">
                     <option value="all">{t('allEvents')}</option>
                     {stats.inscricoesPorEvento.map(({ eventoId, titulo }) => <option key={eventoId} value={eventoId}>{titulo}</option>)}
                   </select>
                   <select value={sortBy} onChange={(e) => setSortBy(e.target.value as 'recent' | 'event' | 'name')}
-                    className="flex-1 rounded-lg border border-white/10 bg-[#0f172a] px-3 py-2 text-sm text-white focus:outline-none sm:flex-initial">
+                    className="flex-1 rounded-lg border border-white/10 bg-[var(--brand-surface-alt)] px-3 py-2 text-sm text-white focus:outline-none sm:flex-initial">
                     <option value="recent">{t('sortRecent')}</option>
                     <option value="event">{t('sortByEvent')}</option>
                     <option value="name">{t('sortName')}</option>
                   </select>
                 </div>
                 {sortedReg.length === 0 ? (
-                  <p className="py-10 text-center text-sm text-slate-400">{t('noInterestsFound')}</p>
+                  <p className="py-10 text-center text-sm text-[var(--brand-text-muted)]">{t('noInterestsFound')}</p>
                 ) : (
                   <>
                     {/* Mobile */}
@@ -513,10 +513,10 @@ export function AdminDashboard({
                         <div key={r.id || `${r.event_id}-${r.user_id}`} className="rounded-xl border border-white/10 bg-white/5 p-4">
                           <p className="mb-1 text-xs text-slate-500">{formatDate(r.created_at)}</p>
                           <p className="font-semibold text-white">{r.user_nome || '—'}</p>
-                          {r.user_email && <p className="mt-0.5 flex items-center gap-1 text-xs text-slate-400"><Mail className="h-3 w-3" />{r.user_email}</p>}
+                          {r.user_email && <p className="mt-0.5 flex items-center gap-1 text-xs text-[var(--brand-text-muted)]"><Mail className="h-3 w-3" />{r.user_email}</p>}
                           <div className="mt-2 rounded-lg border border-white/5 bg-white/5 px-3 py-2">
                             <p className="font-medium text-white text-sm">{r.event_titulo}</p>
-                            <p className="text-xs text-slate-400">{formatEventDate(r.event_data_horario)}</p>
+                            <p className="text-xs text-[var(--brand-text-muted)]">{formatEventDate(r.event_data_horario)}</p>
                           </div>
                           {r.user_telefone && (
                             <a href={`https://wa.me/${normalizePhoneForWhatsApp(r.user_telefone)}`} target="_blank" rel="noopener noreferrer"
@@ -530,36 +530,36 @@ export function AdminDashboard({
                     {/* Desktop */}
                     <div className="hidden overflow-x-auto max-h-[420px] overflow-y-auto md:block">
                       <table className="w-full min-w-[640px] text-sm">
-                        <thead className="sticky top-0 bg-[#1e293b]">
+                        <thead className="sticky top-0 bg-[var(--brand-surface)]">
                           <tr className="border-b border-white/10 text-left">
-                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colDate')}</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colParticipant')}</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colEvent')}</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colCompany')}</th>
-                            <th className="px-5 py-3 font-semibold text-slate-400">{t('colContact')}</th>
+                            <th className="px-5 py-3 font-semibold text-[var(--brand-text-muted)]">{t('colDate')}</th>
+                            <th className="px-5 py-3 font-semibold text-[var(--brand-text-muted)]">{t('colParticipant')}</th>
+                            <th className="px-5 py-3 font-semibold text-[var(--brand-text-muted)]">{t('colEvent')}</th>
+                            <th className="px-5 py-3 font-semibold text-[var(--brand-text-muted)]">{t('colCompany')}</th>
+                            <th className="px-5 py-3 font-semibold text-[var(--brand-text-muted)]">{t('colContact')}</th>
                           </tr>
                         </thead>
                         <tbody>
                           {sortedReg.map((r) => (
                             <tr key={r.id || `${r.event_id}-${r.user_id}`} className="border-b border-white/5 hover:bg-white/5 transition">
-                              <td className="px-5 py-3 text-xs text-slate-400 whitespace-nowrap">{formatDate(r.created_at)}</td>
+                              <td className="px-5 py-3 text-xs text-[var(--brand-text-muted)] whitespace-nowrap">{formatDate(r.created_at)}</td>
                               <td className="px-5 py-3">
                                 <p className="font-medium text-white">{r.user_nome || '—'}</p>
-                                {r.user_email && <p className="flex items-center gap-1 text-xs text-slate-400"><Mail className="h-3 w-3" />{r.user_email}</p>}
-                                {r.user_cidade && <p className="flex items-center gap-1 text-xs text-slate-400"><MapPin className="h-3 w-3" />{r.user_cidade}</p>}
+                                {r.user_email && <p className="flex items-center gap-1 text-xs text-[var(--brand-text-muted)]"><Mail className="h-3 w-3" />{r.user_email}</p>}
+                                {r.user_cidade && <p className="flex items-center gap-1 text-xs text-[var(--brand-text-muted)]"><MapPin className="h-3 w-3" />{r.user_cidade}</p>}
                               </td>
                               <td className="px-5 py-3">
                                 <p className="font-medium text-white">{r.event_titulo}</p>
-                                <p className="text-xs text-slate-400">{formatEventDate(r.event_data_horario)}</p>
+                                <p className="text-xs text-[var(--brand-text-muted)]">{formatEventDate(r.event_data_horario)}</p>
                               </td>
                               <td className="px-5 py-3">
                                 {r.user_empresa && <p className="flex items-center gap-1 text-slate-300 text-sm"><Building2 className="h-3 w-3 flex-shrink-0" />{r.user_empresa}</p>}
-                                {r.user_area && <p className="text-xs text-slate-400">{r.user_area}</p>}
+                                {r.user_area && <p className="text-xs text-[var(--brand-text-muted)]">{r.user_area}</p>}
                               </td>
                               <td className="px-5 py-3">
                                 <div className="flex flex-col gap-1">
                                   {r.user_telefone && <a href={`https://wa.me/${normalizePhoneForWhatsApp(r.user_telefone)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:underline"><MessageCircle className="h-3 w-3" /> WhatsApp</a>}
-                                  {r.user_instagram && <a href={`https://instagram.com/${r.user_instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-xs text-[#3b82f6] hover:underline">{r.user_instagram}</a>}
+                                  {r.user_instagram && <a href={`https://instagram.com/${r.user_instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--brand-primary)] hover:underline">{r.user_instagram}</a>}
                                   {!r.user_telefone && !r.user_instagram && <span className="text-slate-600">—</span>}
                                 </div>
                               </td>
@@ -582,7 +582,7 @@ export function AdminDashboard({
           <SideWidget icon={<CalendarClock className="h-4 w-4" />} title={t('sideNextEvents')} color="text-emerald-400"
             action={{ label: t('sideGuests'), href: '/admin/convidados' }}>
             {nextEvents.length === 0 ? (
-              <p className="text-xs text-slate-400">{t('noFutureEvents')}</p>
+              <p className="text-xs text-[var(--brand-text-muted)]">{t('noFutureEvents')}</p>
             ) : (
               <ul className="space-y-2.5">
                 {nextEvents.map((e) => (
@@ -670,7 +670,7 @@ export function AdminDashboard({
               </div>
             )}
             {contentStats.lastArticles.length > 0 && (
-              <ul className="space-y-1.5 text-xs text-slate-400">
+              <ul className="space-y-1.5 text-xs text-[var(--brand-text-muted)]">
                 {contentStats.lastArticles.map((a) => (
                   <li key={a.id} className="flex items-start gap-1.5">
                     <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-400" />
@@ -692,13 +692,13 @@ export function AdminDashboard({
                   <div className="space-y-2">
                     {totalEmpreendedores > 0 && (
                       <div>
-                        <div className="mb-0.5 flex justify-between text-xs"><span className="text-slate-400">{t('labelEntrepreneurs')}</span></div>
-                        <ProgressBar value={totalEmpreendedores} max={allUsers.length} color="bg-[#3b82f6]" />
+                        <div className="mb-0.5 flex justify-between text-xs"><span className="text-[var(--brand-text-muted)]">{t('labelEntrepreneurs')}</span></div>
+                        <ProgressBar value={totalEmpreendedores} max={allUsers.length} color="bg-[var(--brand-primary)]" />
                       </div>
                     )}
                     {totalLideres > 0 && (
                       <div>
-                        <div className="mb-0.5 flex justify-between text-xs"><span className="text-slate-400">{t('labelLeaders')}</span></div>
+                        <div className="mb-0.5 flex justify-between text-xs"><span className="text-[var(--brand-text-muted)]">{t('labelLeaders')}</span></div>
                         <ProgressBar value={totalLideres} max={allUsers.length} color="bg-violet-500" />
                       </div>
                     )}
@@ -709,7 +709,7 @@ export function AdminDashboard({
                   <div className="space-y-1.5">
                     {topCidades.slice(0, 5).map(([cidade, n]) => (
                       <div key={cidade}>
-                        <div className="mb-0.5 flex justify-between text-xs text-slate-400"><span className="truncate">{cidade}</span></div>
+                        <div className="mb-0.5 flex justify-between text-xs text-[var(--brand-text-muted)]"><span className="truncate">{cidade}</span></div>
                         <ProgressBar value={n} max={topCidades[0]?.[1] ?? 1} color="bg-emerald-500" />
                       </div>
                     ))}
@@ -720,7 +720,7 @@ export function AdminDashboard({
                   <div className="space-y-1.5">
                     {topAprender.slice(0, 5).map(([item, n]) => (
                       <div key={item}>
-                        <div className="mb-0.5 text-xs text-slate-400 truncate" title={item}>{item}</div>
+                        <div className="mb-0.5 text-xs text-[var(--brand-text-muted)] truncate" title={item}>{item}</div>
                         <ProgressBar value={n} max={topAprender[0]?.[1] ?? 1} color="bg-amber-400" />
                       </div>
                     ))}

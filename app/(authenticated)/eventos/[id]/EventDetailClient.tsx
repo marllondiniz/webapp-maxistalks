@@ -180,7 +180,7 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
     <article className="mx-auto max-w-2xl px-4 py-8">
       <button
         onClick={() => router.back()}
-        className="mb-6 inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-[#f5f5f5]"
+        className="mb-6 inline-flex items-center gap-2 text-sm text-[var(--brand-text-muted)] transition hover:text-[#f5f5f5]"
       >
         <ChevronLeft className="h-4 w-4" />
         {t('backToEvents')}
@@ -188,10 +188,10 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
 
       <header className="space-y-4">
         <div className="flex items-center justify-between gap-4">
-          <span className="inline-block rounded-full bg-[#3b82f6]/20 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[#3b82f6]">
+          <span className="inline-block rounded-full bg-[var(--brand-primary)]/20 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--brand-primary)]">
             Evento
           </span>
-          <span className="text-sm text-slate-400">
+          <span className="text-sm text-[var(--brand-text-muted)]">
             {formatDate(event.data_horario)} • {formatTime(event.data_horario)}
           </span>
         </div>
@@ -215,7 +215,7 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
                 @{banner.palestrante_instagram.replace(/^@/, '')}
               </a>
               {banner.palestrante_descricao && (
-                <p className="text-sm leading-relaxed text-slate-400">{banner.palestrante_descricao}</p>
+                <p className="text-sm leading-relaxed text-[var(--brand-text-muted)]">{banner.palestrante_descricao}</p>
               )}
             </div>
           )}
@@ -237,7 +237,7 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
       )}
 
       {/* Meta info */}
-      <div className="mb-8 space-y-3 rounded-xl border border-slate-600/30 bg-slate-800/50 p-4">
+      <div className="mb-8 space-y-3 rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/50 p-4">
         <div className="flex flex-wrap gap-4 text-sm text-[#c9c9d2]">
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 shrink-0 text-[#9a9aa2]" />
@@ -355,7 +355,7 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
                 <Link
                   key={ev.id}
                   href={`/eventos/${ev.id}`}
-                  className="group overflow-hidden rounded-xl border border-slate-600/30 bg-slate-800/80 transition hover:border-slate-500/40"
+                  className="group overflow-hidden rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/80 transition hover:border-slate-500/40"
                 >
                   {evBanner?.image_url ? (
                     <div className="relative aspect-[16/9]">
@@ -391,7 +391,7 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
           </div>
           <Link
             href="/eventos"
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-600/40 bg-slate-800/80 px-5 py-3 text-sm font-semibold text-[#f5f5f5] transition hover:border-slate-500/50 hover:bg-slate-700/60"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-600/40 bg-[var(--brand-surface)]/80 px-5 py-3 text-sm font-semibold text-[#f5f5f5] transition hover:border-slate-500/50 hover:bg-[var(--brand-surface)]/60"
           >
             <ChevronLeft className="h-4 w-4" />
             Ver mais eventos

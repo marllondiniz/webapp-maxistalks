@@ -12,7 +12,7 @@ export default async function AdminConteudoPage() {
         <h2 className="text-xl font-semibold uppercase tracking-wide text-white">
           Gerenciar conteúdo
         </h2>
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-[var(--brand-text-muted)]">
           Publique artigos, dicas e materiais exclusivos para a comunidade.
         </p>
       </div>

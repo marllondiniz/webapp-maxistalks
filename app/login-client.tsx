@@ -290,7 +290,7 @@ export default function LoginClient() {
   const primaryActionLabel = mode === 'signIn' ? t('signIn') : mode === 'signUp' ? t('signUp') : t('reset')
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center bg-[#060c1f] px-4 py-16">
+    <main className="relative flex min-h-screen flex-col items-center justify-center bg-[var(--brand-bg)] px-4 py-16">
       {/* Radial glow */}
       <div className="pointer-events-none absolute inset-0 hero-glow" />
       <div className="pointer-events-none fixed inset-0 z-50 noise-texture" />
@@ -313,7 +313,7 @@ src={brand.logoPath}
               {mode === 'signUp' && t('titleCreateAccount')}
               {mode === 'reset' && t('titleResetPassword')}
             </h1>
-            <p className="mt-2 text-sm leading-relaxed text-slate-400">
+            <p className="mt-2 text-sm leading-relaxed text-[var(--brand-text-muted)]">
               {mode === 'signIn' && t('subtitleSignIn')}
               {mode === 'signUp' && t('subtitleSignUp', { name: brand.name })}
               {mode === 'reset' && t('subtitleReset')}
@@ -353,7 +353,7 @@ src={brand.logoPath}
                   <button
                     type="button"
                     onClick={() => setShowPassword((s) => !s)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-white"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--brand-text-muted)] transition hover:text-white"
                     aria-label={showPassword ? t('hidePassword') : t('showPassword')}
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -378,7 +378,7 @@ src={brand.logoPath}
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword((s) => !s)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-white"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--brand-text-muted)] transition hover:text-white"
                     aria-label={showConfirmPassword ? t('hidePassword') : t('showPassword')}
                   >
                     {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}

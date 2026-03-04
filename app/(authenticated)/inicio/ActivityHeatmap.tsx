@@ -90,7 +90,7 @@ export function ActivityHeatmap() {
 
   if (loading) {
     return (
-      <div className="rounded-lg border border-slate-600/30 bg-slate-800/80 p-5 shadow-lg md:p-6">
+      <div className="rounded-lg border border-slate-600/30 bg-[var(--brand-surface)]/80 p-5 shadow-lg md:p-6">
         <div className="flex items-center justify-between">
           <div>
             <span className="text-xs uppercase tracking-[0.3em] text-[#9a9aa2]">Sua constância</span>
@@ -105,14 +105,14 @@ export function ActivityHeatmap() {
   const insight = gerarInsightSemanal(totalTreinos)
 
   return (
-    <div className="rounded-lg border border-slate-600/30 bg-slate-800/80 p-5 shadow-lg md:p-6">
+    <div className="rounded-lg border border-slate-600/30 bg-[var(--brand-surface)]/80 p-5 shadow-lg md:p-6">
       <div className="flex items-center justify-between">
         <div>
           <span className="text-xs uppercase tracking-[0.3em] text-[#9a9aa2]">Sua constância</span>
           <h3 className="mt-2 text-lg font-semibold text-[#f5f5f5]">Ritmo das últimas 4 semanas</h3>
         </div>
         <div className="flex items-center gap-2">
-          <span className="rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-[#f5f5f5]">
+          <span className="rounded-full bg-[var(--brand-surface-alt)] px-3 py-1 text-xs font-semibold text-[#f5f5f5]">
             {totalTreinos} {totalTreinos === 1 ? 'treino' : 'treinos'}
           </span>
           <span className="rounded-full bg-amber-500/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-200 shadow-lg">
@@ -137,7 +137,7 @@ export function ActivityHeatmap() {
               className={`group relative flex h-14 flex-col items-center justify-center rounded-lg border transition-all ${
                 isAtivo
                   ? `${corIntensidade} border-emerald-400/30 hover:scale-105`
-                  : 'border-slate-600/40 bg-slate-800/80 hover:border-slate-500/40'
+                  : 'border-slate-600/40 bg-[var(--brand-surface)]/80 hover:border-slate-500/40'
               }`}
               title={
                 isAtivo
@@ -158,7 +158,7 @@ export function ActivityHeatmap() {
 
               {/* Tooltip */}
               {isAtivo && (
-                <div className="pointer-events-none absolute -top-12 left-1/2 z-10 hidden -translate-x-1/2 rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-[#f5f5f5] shadow-xl group-hover:block">
+                <div className="pointer-events-none absolute -top-12 left-1/2 z-10 hidden -translate-x-1/2 rounded-lg bg-[var(--brand-surface-alt)] px-3 py-2 text-xs font-semibold text-[#f5f5f5] shadow-xl group-hover:block">
                   <div>{new Date(day.data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</div>
                   <div className="text-emerald-300">+{day.pontos} pts</div>
                 </div>

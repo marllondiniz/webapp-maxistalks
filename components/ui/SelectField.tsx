@@ -161,7 +161,7 @@ export function SelectField({
       >
         <span className="truncate">{selectedLabel}</span>
         <ChevronDown
-          className={`h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 ${
+          className={`h-5 w-5 shrink-0 text-[var(--brand-text-muted)] transition-transform duration-200 ${
             isOpen ? 'rotate-180' : ''
           }`}
         />

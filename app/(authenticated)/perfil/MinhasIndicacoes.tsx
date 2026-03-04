@@ -49,14 +49,14 @@ export function MinhasIndicacoes({ userId }: { userId: string }) {
   if (loading) return null
 
   return (
-    <div className="rounded-xl border border-slate-600/30 bg-slate-800/60 overflow-hidden">
+    <div className="rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/60 overflow-hidden">
       <div className="flex items-center gap-3 border-b border-slate-600/30 px-4 py-3">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cyan-500/15 text-cyan-400">
           <UserPlus className="h-4 w-4" />
         </div>
         <div>
           <h3 className="text-sm font-bold text-white">{t('title')}</h3>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-[var(--brand-text-muted)]">
             {indicados.length > 0
               ? t('youReferred', { count: indicados.length })
               : t('noReferrals')}

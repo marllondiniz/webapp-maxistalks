@@ -95,7 +95,7 @@ export function EventPreviewModalLanding({
     >
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" />
       <div
-        className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0f172a] shadow-2xl"
+        className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-2xl border border-white/[0.08] bg-[var(--brand-surface-alt)] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -133,7 +133,7 @@ export function EventPreviewModalLanding({
               </a>
             )}
             {event.banner?.palestrante_descricao && (
-              <p className="text-sm leading-relaxed text-slate-400">
+              <p className="text-sm leading-relaxed text-[var(--brand-text-muted)]">
                 {event.banner.palestrante_descricao}
               </p>
             )}
@@ -161,7 +161,7 @@ export function EventPreviewModalLanding({
               onClick={onClose}
               className={`flex-1 rounded-xl py-3.5 text-center text-sm font-bold uppercase tracking-wider transition ${
                 isPast
-                  ? 'cursor-default bg-white/[0.06] text-slate-400'
+                  ? 'cursor-default bg-white/[0.06] text-[var(--brand-text-muted)]'
                   : 'btn-glow bg-[#3b82f6] text-white hover:bg-[#2563eb]'
               }`}
             >

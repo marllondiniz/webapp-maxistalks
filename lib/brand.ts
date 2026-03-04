@@ -41,6 +41,17 @@ export type BrandConfig = {
   instagramUrl: string | null
   youtubeUrl: string | null
   footerCopyrightName: string | null
+  // Cores do tema (white-label)
+  backgroundColor: string
+  surfaceColor: string
+  surfaceAltColor: string
+  textMutedColor: string
+  headingColor: string
+  bodyTextColor: string
+  linkColor: string
+  linkHoverColor: string
+  accentColor: string
+  buttonTextColor: string
 }
 
 const DEFAULT_BRAND: BrandConfig = {
@@ -74,6 +85,16 @@ const DEFAULT_BRAND: BrandConfig = {
   instagramUrl: null,
   youtubeUrl: null,
   footerCopyrightName: null,
+  backgroundColor: '#060c1f',
+  surfaceColor: '#1e293b',
+  surfaceAltColor: '#0f172a',
+  textMutedColor: '#94a3b8',
+  headingColor: '#ffffff',
+  bodyTextColor: '#e2e8f0',
+  linkColor: '#3b82f6',
+  linkHoverColor: '#60a5fa',
+  accentColor: '#10b981',
+  buttonTextColor: '#ffffff',
 }
 
 /**
@@ -118,6 +139,16 @@ export function getBrandFromEnv(): BrandConfig {
     instagramUrl: null,
     youtubeUrl: null,
     footerCopyrightName: null,
+    backgroundColor: process.env.NEXT_PUBLIC_BG_COLOR ? `#${process.env.NEXT_PUBLIC_BG_COLOR.replace(/^#/, '')}` : DEFAULT_BRAND.backgroundColor,
+    surfaceColor: process.env.NEXT_PUBLIC_SURFACE_COLOR ? `#${process.env.NEXT_PUBLIC_SURFACE_COLOR.replace(/^#/, '')}` : DEFAULT_BRAND.surfaceColor,
+    surfaceAltColor: process.env.NEXT_PUBLIC_SURFACE_ALT_COLOR ? `#${process.env.NEXT_PUBLIC_SURFACE_ALT_COLOR.replace(/^#/, '')}` : DEFAULT_BRAND.surfaceAltColor,
+    textMutedColor: process.env.NEXT_PUBLIC_TEXT_MUTED_COLOR ? `#${process.env.NEXT_PUBLIC_TEXT_MUTED_COLOR.replace(/^#/, '')}` : DEFAULT_BRAND.textMutedColor,
+    headingColor: DEFAULT_BRAND.headingColor,
+    bodyTextColor: DEFAULT_BRAND.bodyTextColor,
+    linkColor: DEFAULT_BRAND.linkColor,
+    linkHoverColor: DEFAULT_BRAND.linkHoverColor,
+    accentColor: DEFAULT_BRAND.accentColor,
+    buttonTextColor: DEFAULT_BRAND.buttonTextColor,
   }
 }
 
@@ -150,7 +181,10 @@ export async function getTenantByDomain(host: string): Promise<BrandConfig | nul
         address_line1, address_line2, address_cep, local_subheading, map_embed_url, map_link_url,
         about_logo_url, about_short_text, about_long_text, about_button_label, about_button_url,
         what_is_heading, what_is_image_url,
-        footer_logo_url, instagram_url, youtube_url, footer_copyright_name`)
+        footer_logo_url, instagram_url, youtube_url, footer_copyright_name,
+        background_color, surface_color, surface_alt_color, text_muted_color,
+        heading_color, body_text_color, link_color, link_hover_color, accent_color,
+        button_text_color`)
       .eq('domain', domain)
       .maybeSingle()
 
@@ -190,6 +224,16 @@ export async function getTenantByDomain(host: string): Promise<BrandConfig | nul
       instagramUrl: data.instagram_url ?? null,
       youtubeUrl: data.youtube_url ?? null,
       footerCopyrightName: data.footer_copyright_name ?? null,
+      backgroundColor: data.background_color ? (data.background_color.startsWith('#') ? data.background_color : `#${data.background_color}`) : DEFAULT_BRAND.backgroundColor,
+      surfaceColor: data.surface_color ? (data.surface_color.startsWith('#') ? data.surface_color : `#${data.surface_color}`) : DEFAULT_BRAND.surfaceColor,
+      surfaceAltColor: data.surface_alt_color ? (data.surface_alt_color.startsWith('#') ? data.surface_alt_color : `#${data.surface_alt_color}`) : DEFAULT_BRAND.surfaceAltColor,
+      textMutedColor: data.text_muted_color ? (data.text_muted_color.startsWith('#') ? data.text_muted_color : `#${data.text_muted_color}`) : DEFAULT_BRAND.textMutedColor,
+      headingColor: data.heading_color ? (data.heading_color.startsWith('#') ? data.heading_color : `#${data.heading_color}`) : DEFAULT_BRAND.headingColor,
+      bodyTextColor: data.body_text_color ? (data.body_text_color.startsWith('#') ? data.body_text_color : `#${data.body_text_color}`) : DEFAULT_BRAND.bodyTextColor,
+      linkColor: data.link_color ? (data.link_color.startsWith('#') ? data.link_color : `#${data.link_color}`) : DEFAULT_BRAND.linkColor,
+      linkHoverColor: data.link_hover_color ? (data.link_hover_color.startsWith('#') ? data.link_hover_color : `#${data.link_hover_color}`) : DEFAULT_BRAND.linkHoverColor,
+      accentColor: data.accent_color ? (data.accent_color.startsWith('#') ? data.accent_color : `#${data.accent_color}`) : DEFAULT_BRAND.accentColor,
+      buttonTextColor: data.button_text_color ? (data.button_text_color.startsWith('#') ? data.button_text_color : `#${data.button_text_color}`) : DEFAULT_BRAND.buttonTextColor,
     }
   } catch {
     return null

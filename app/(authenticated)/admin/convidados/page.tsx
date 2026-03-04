@@ -33,7 +33,7 @@ export default async function AdminConvidadosPage({
 
   return (
     <div className="space-y-8">
-      <header className="space-y-3 rounded-2xl border border-white/10 bg-[#1e293b] p-6 shadow-xl">
+      <header className="space-y-3 rounded-2xl border border-white/10 bg-[var(--brand-surface)] p-6 shadow-xl">
         <div className="flex items-center gap-4">
           <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-500">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-6 w-6 text-white">
@@ -42,7 +42,7 @@ export default async function AdminConvidadosPage({
           </div>
           <div>
             <h1 className="text-2xl font-bold uppercase tracking-tight text-white">Convidados</h1>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-[var(--brand-text-muted)]">
               Selecione os interessados que serão convidados para cada evento e dispare os convites via WhatsApp.
             </p>
           </div>

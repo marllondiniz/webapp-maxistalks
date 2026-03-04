@@ -23,7 +23,7 @@ export function ArticleGalleryCarousel({ photos }: Props) {
   if (photos.length === 0) return null
 
   return (
-    <div className="my-8 overflow-hidden rounded-xl border border-slate-600/30 bg-slate-800/80">
+    <div className="my-8 overflow-hidden rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/80">
       <h2 className="border-b border-slate-600/30 px-6 py-4 text-lg font-bold uppercase tracking-wide text-[#f5f5f5]">
         Como foi o evento
       </h2>

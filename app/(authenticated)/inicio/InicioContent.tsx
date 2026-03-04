@@ -43,7 +43,7 @@ function EventCard({
   return (
     <Link
       href={`/eventos/${evento.id}`}
-      className={`group relative flex overflow-hidden rounded-xl border border-slate-600/20 bg-slate-800/90 shadow-lg transition-all hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-500/10 ${
+      className={`group relative flex overflow-hidden rounded-xl border border-slate-600/20 bg-[var(--brand-surface)]/90 shadow-lg transition-all hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-500/10 ${
         isDestaque
           ? 'min-h-[200px] flex-col md:flex-row md:min-h-[128px]'
           : 'flex-row min-h-[128px]'
@@ -90,7 +90,7 @@ function EventCard({
               className="text-sm font-medium text-blue-300 transition hover:text-blue-200"
             />
           ) : (
-            <p className="text-sm text-slate-400 line-clamp-1">{subtitulo}</p>
+            <p className="text-sm text-[var(--brand-text-muted)] line-clamp-1">{subtitulo}</p>
           )}
         </div>
         {isDestaque && (
@@ -111,7 +111,7 @@ function ConteudoDestaqueCard({ artigo }: { artigo: ArticleRecord }) {
   return (
     <Link
       href={`/blog/${artigo.id}`}
-      className="group relative flex items-stretch overflow-hidden rounded-xl border border-slate-600/20 bg-slate-800/90 shadow-lg transition-all hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-500/10 min-h-[128px]"
+      className="group relative flex items-stretch overflow-hidden rounded-xl border border-slate-600/20 bg-[var(--brand-surface)]/90 shadow-lg transition-all hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-500/10 min-h-[128px]"
     >
       {artigo.image_url ? (
         <div className="relative w-36 shrink-0 overflow-hidden self-stretch md:h-32 md:self-auto">
@@ -203,10 +203,10 @@ export async function InicioContent() {
           </div>
         </div>
       ) : (
-        <div className="rounded-xl border border-slate-600/30 bg-slate-800/80 p-10 text-center shadow-sm">
+        <div className="rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/80 p-10 text-center shadow-sm">
           <Calendar className="mx-auto h-14 w-14 text-slate-500" />
           <p className="mt-4 text-lg font-semibold text-[#f5f5f5]">Nenhum evento em breve</p>
-          <p className="mt-2 text-sm text-slate-400">
+          <p className="mt-2 text-sm text-[var(--brand-text-muted)]">
             Fique ligado! Novas palestras e encontros serão anunciados em breve.
           </p>
           <Link
@@ -253,7 +253,7 @@ export async function InicioContent() {
             Compartilhe seu maior desafio. Isso nos ajuda a criar conteúdos e ferramentas mais relevantes para você.
           </p>
         </div>
-        <div className="rounded-xl border border-slate-600/30 bg-slate-800/80 p-4">
+        <div className="rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/80 p-4">
           <PainForm tenantId={tenantId} />
         </div>
       </div>

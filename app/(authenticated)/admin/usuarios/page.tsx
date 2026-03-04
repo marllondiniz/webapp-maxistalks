@@ -18,9 +18,9 @@ export default async function AdminUsuariosPage() {
 
   return (
     <div className="space-y-8">
-      <header className="space-y-3 rounded-2xl border border-white/10 bg-[#1e293b] p-6 shadow-xl">
+      <header className="space-y-3 rounded-2xl border border-white/10 bg-[var(--brand-surface)] p-6 shadow-xl">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#3b82f6]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--brand-primary)]">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -40,7 +40,7 @@ export default async function AdminUsuariosPage() {
             <h1 className="text-2xl font-bold uppercase tracking-tight text-white">
               Usuários
             </h1>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-[var(--brand-text-muted)]">
               Lista de usuários com perfil completo. Busque, filtre e exporte.
             </p>
           </div>
