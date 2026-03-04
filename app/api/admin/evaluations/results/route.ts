@@ -87,12 +87,20 @@ export async function GET(request: Request) {
       if (e.tempo_evento) tempoEvento[e.tempo_evento] = (tempoEvento[e.tempo_evento] || 0) + 1
     }
 
-    const insights = evaluations
+    const insights = evaluationsWithRespondent
       .filter((e) => e.insight_util?.trim())
-      .map((e) => e.insight_util)
-    const sugestoes = evaluations
+      .map((e) => ({
+        text: e.insight_util,
+        responder_nome: e.user_id ? namesByUserId[e.user_id] ?? null : null,
+        responder_email: e.email ?? null,
+      }))
+    const sugestoes = evaluationsWithRespondent
       .filter((e) => e.sugestao_melhoria?.trim())
-      .map((e) => e.sugestao_melhoria)
+      .map((e) => ({
+        text: e.sugestao_melhoria,
+        responder_nome: e.user_id ? namesByUserId[e.user_id] ?? null : null,
+        responder_email: e.email ?? null,
+      }))
 
     return NextResponse.json({
       totalSent: totalSent ?? 0,
@@ -107,7 +115,7 @@ export async function GET(request: Request) {
       tempoEvento,
       insights,
       sugestoes,
-      evaluations,
+      evaluations: evaluationsWithRespondent,
     })
   } catch (err) {
     console.error('Erro inesperado ao buscar resultados:', err)

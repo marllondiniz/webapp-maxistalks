@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { Star, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
+import { Star, CheckCircle2, AlertCircle, Loader2, Home } from 'lucide-react'
 
 type EvalInfo = {
   evaluationId: string
@@ -190,11 +191,18 @@ export default function AvaliarPage() {
           <h1 className="mb-2 text-2xl font-bold text-white">
             {submitted ? 'Obrigado pela sua avaliação!' : 'Avaliação já enviada'}
           </h1>
-          <p className="text-sm text-slate-400">
+          <p className="mb-6 text-sm text-slate-400">
             {submitted
               ? 'Sua opinião é muito importante e nos ajuda a melhorar cada vez mais.'
               : 'Você já respondeu esta avaliação. Obrigado!'}
           </p>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-600"
+          >
+            <Home className="h-4 w-4" />
+            Ir para o início
+          </Link>
         </div>
       </div>
     )

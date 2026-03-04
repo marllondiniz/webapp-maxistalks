@@ -22,6 +22,15 @@ type EventRecord = {
   local_nome?: string
 }
 
+type InsightItem = { text: string; responder_nome: string | null; responder_email: string | null }
+type EvaluationRow = {
+  responder_nome: string | null
+  responder_email: string | null
+  submitted_at: string
+  nota_geral?: number
+  nota_recomendacao?: number
+}
+
 type ResultsData = {
   totalSent: number
   totalResponses: number
@@ -33,8 +42,9 @@ type ResultsData = {
   nivelConvidados: Record<string, number>
   conexoes: Record<string, number>
   tempoEvento: Record<string, number>
-  insights: string[]
-  sugestoes: string[]
+  insights: InsightItem[]
+  sugestoes: InsightItem[]
+  evaluations: EvaluationRow[]
 }
 
 const LABELS: Record<string, Record<string, string>> = {
@@ -397,6 +407,47 @@ export function AvaliacoesPanel({ events }: { events: EventRecord[] }) {
                 </div>
               </div>
 
+              {/* Quem avaliou */}
+              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  Quem avaliou
+                </p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead>
+                      <tr className="border-b border-white/[0.06] text-slate-500">
+                        <th className="pb-2 pr-4 font-medium">Nome</th>
+                        <th className="pb-2 pr-4 font-medium">E-mail</th>
+                        <th className="pb-2 pr-4 font-medium">Data</th>
+                        <th className="pb-2 font-medium">Nota geral</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {results.evaluations.map((e, i) => (
+                        <tr key={i} className="border-b border-white/[0.04]">
+                          <td className="py-2.5 pr-4 text-slate-200">
+                            {e.responder_nome ?? '—'}
+                          </td>
+                          <td className="py-2.5 pr-4 text-slate-400">{e.responder_email ?? '—'}</td>
+                          <td className="py-2.5 pr-4 text-slate-400">
+                            {e.submitted_at
+                              ? new Date(e.submitted_at).toLocaleDateString('pt-BR', {
+                                  day: '2-digit',
+                                  month: '2-digit',
+                                  year: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })
+                              : '—'}
+                          </td>
+                          <td className="py-2.5 text-slate-300">{e.nota_geral ?? '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
               {/* Distributions */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <BarDistribution
@@ -438,12 +489,15 @@ export function AvaliacoesPanel({ events }: { events: EventRecord[] }) {
                     Insights mais úteis
                   </p>
                   <div className="space-y-2">
-                    {results.insights.map((text, i) => (
+                    {results.insights.map((item, i) => (
                       <div
                         key={i}
                         className="rounded-lg border border-white/[0.04] bg-white/[0.02] px-4 py-3"
                       >
-                        <p className="text-sm text-slate-300">"{text}"</p>
+                        <p className="text-sm text-slate-300">"{item.text}"</p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          — {item.responder_nome || item.responder_email || 'Anônimo'}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -456,12 +510,15 @@ export function AvaliacoesPanel({ events }: { events: EventRecord[] }) {
                     Sugestões de melhoria
                   </p>
                   <div className="space-y-2">
-                    {results.sugestoes.map((text, i) => (
+                    {results.sugestoes.map((item, i) => (
                       <div
                         key={i}
                         className="rounded-lg border border-white/[0.04] bg-white/[0.02] px-4 py-3"
                       >
-                        <p className="text-sm text-slate-300">"{text}"</p>
+                        <p className="text-sm text-slate-300">"{item.text}"</p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          — {item.responder_nome || item.responder_email || 'Anônimo'}
+                        </p>
                       </div>
                     ))}
                   </div>
