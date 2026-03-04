@@ -376,7 +376,11 @@ export function EventList({ events, activeBanners = [] }: EventListProps) {
                 )}
 
                 <div className="flex w-full min-w-0 flex-col items-center gap-2 sm:flex-row sm:justify-center">
-                  {isRegistered ? (
+                  {isPastEvent ? (
+                    <span className="flex w-full min-w-0 items-center justify-center rounded-full border border-slate-600/40 bg-[var(--brand-surface)] px-4 py-3 text-sm font-semibold uppercase tracking-wide text-[#5f5f66] opacity-60">
+                      {t('eventDone')}
+                    </span>
+                  ) : isRegistered ? (
                     <span className="flex w-full min-w-0 items-center justify-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm font-semibold uppercase tracking-wide text-emerald-200">
                       <Check className="h-4 w-4 shrink-0" />
                       {t('registered')}

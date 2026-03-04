@@ -282,7 +282,11 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
           </div>
         )}
 
-        {isFreeEvent && isRegistered ? (
+        {isPastEvent ? (
+          <div className="flex w-full items-center justify-center rounded-xl border border-slate-600/40 bg-[var(--brand-surface)] px-6 py-4 text-center text-base font-bold uppercase tracking-wide text-[#5f5f66] opacity-60 md:text-lg">
+            Evento realizado
+          </div>
+        ) : isFreeEvent && isRegistered ? (
           <div className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-6 py-4">
             <Check className="h-5 w-5 text-emerald-400" />
             <span className="text-base font-bold uppercase tracking-wide text-emerald-200 md:text-lg">
@@ -291,14 +295,12 @@ export function EventDetailClient({ event, banner, outrosEventos = [], bannersAt
           </div>
         ) : (
           <button
-            onClick={() => !isPastEvent && (isFreeEvent ? handleExpressInterest() : handleBuyTicket())}
-            disabled={isPastEvent || isPending}
+            onClick={() => (isFreeEvent ? handleExpressInterest() : handleBuyTicket())}
+            disabled={isPending}
             className="w-full rounded-xl bg-[#f5f5f5] px-6 py-4 text-center text-base font-bold uppercase tracking-wide text-[#0f0f10] transition hover:bg-[#e2e2e2] disabled:cursor-not-allowed disabled:opacity-50 md:text-lg"
           >
             {isPending
               ? 'Enviando...'
-              : isPastEvent
-              ? 'Evento realizado'
               : isFreeEvent
               ? 'Tenho interesse em participar'
               : 'Comprar ingresso'}
