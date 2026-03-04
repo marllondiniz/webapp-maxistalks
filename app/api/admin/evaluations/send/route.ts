@@ -64,7 +64,7 @@ export async function POST(request: Request) {
         user_id: null,
         email: testEmail!.trim(),
         token,
-        tenant_id: tenantId || null,
+        tenant_id: tenantId ?? event?.tenant_id ?? null,
       }]
       const { error: insertError } = await supabaseAdmin
         .from('event_evaluations')
@@ -138,7 +138,7 @@ export async function POST(request: Request) {
         user_id: r.user_id,
         email: r.email,
         token: r.token,
-        tenant_id: tenantId || null,
+        tenant_id: tenantId ?? event?.tenant_id ?? null,
       }))
       const { error: insertError } = await supabaseAdmin
         .from('event_evaluations')

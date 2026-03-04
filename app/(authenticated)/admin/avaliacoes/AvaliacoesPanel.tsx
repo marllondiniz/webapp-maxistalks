@@ -21,6 +21,7 @@ import {
   ThumbsUp,
   Zap,
   ArrowUpRight,
+  RefreshCw,
 } from 'lucide-react'
 
 type EventRecord = {
@@ -503,9 +504,20 @@ export function AvaliacoesPanel({ events }: { events: EventRecord[] }) {
                       )}
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-3xl font-bold text-white">{responseRate}%</p>
-                    <p className="text-xs text-slate-500">taxa de resposta</p>
+                  <div className="flex flex-col items-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => loadResults()}
+                      disabled={loadingResults}
+                      className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-slate-400 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
+                    >
+                      <RefreshCw className={`h-3.5 w-3.5 ${loadingResults ? 'animate-spin' : ''}`} />
+                      Atualizar
+                    </button>
+                    <div className="text-right">
+                      <p className="text-3xl font-bold text-white">{responseRate}%</p>
+                      <p className="text-xs text-slate-500">taxa de resposta</p>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -23,7 +23,8 @@ export async function GET(request: Request) {
       .not('submitted_at', 'is', null)
       .order('submitted_at', { ascending: false })
 
-    if (tenantId) query = query.eq('tenant_id', tenantId)
+    // Inclui avaliações do tenant OU com tenant_id null (single-tenant/legado/teste)
+    if (tenantId) query = query.or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
 
     const { data, error } = await query
 
