@@ -40,6 +40,24 @@ export async function GET(request: Request) {
     const evaluations = data ?? []
     const totalResponses = evaluations.length
 
+    const userIds = [...new Set(evaluations.map((e) => e.user_id).filter(Boolean))] as string[]
+    let namesByUserId: Record<string, string> = {}
+    if (userIds.length > 0) {
+      const { data: profiles } = await supabaseAdmin
+        .from('profiles')
+        .select('id, nome')
+        .in('id', userIds)
+      for (const p of profiles ?? []) {
+        if (p.nome) namesByUserId[p.id] = p.nome as string
+      }
+    }
+
+    const evaluationsWithRespondent = evaluations.map((e) => ({
+      ...e,
+      responder_nome: e.user_id ? namesByUserId[e.user_id] ?? null : null,
+      responder_email: e.email ?? null,
+    }))
+
     let avgNotaGeral = 0
     let avgNotaAmbiente = 0
     let avgNotaRecomendacao = 0

@@ -79,11 +79,11 @@ export async function POST(request: Request) {
         .from('event_registrations')
         .select('user_id')
         .eq('event_id', eventId)
-        .eq('convidado_selecionado', true)
+        .not('convite_enviado_em', 'is', null)
 
       if (regsError || !regs || regs.length === 0) {
         return NextResponse.json(
-          { error: 'Nenhum convidado selecionado para este evento.' },
+          { error: 'Nenhum convidado com convite enviado para este evento.' },
           { status: 400 }
         )
       }

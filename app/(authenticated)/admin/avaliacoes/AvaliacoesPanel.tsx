@@ -261,7 +261,7 @@ export function AvaliacoesPanel({ events }: { events: EventRecord[] }) {
           <div className="mb-6 space-y-2">
             <h3 className="text-lg font-semibold text-white">Disparar avaliação por e-mail</h3>
             <p className="text-sm text-slate-400">
-              O e-mail será enviado apenas para os <strong className="text-slate-200">convidados selecionados</strong> do evento{' '}
+              O e-mail será enviado apenas para os <strong className="text-slate-200">convidados com convite enviado</strong> do evento{' '}
               <strong className="text-white">{selectedEvent?.titulo}</strong>
               {eventDate ? ` (${eventDate})` : ''}.
             </p>
