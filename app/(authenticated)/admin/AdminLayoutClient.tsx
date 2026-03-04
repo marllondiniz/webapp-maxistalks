@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { LayoutDashboard, BarChart3, Calendar, FileText, Users, UserCheck, LogOut, Menu, X, Wrench, Palette, ClipboardList } from 'lucide-react'
+import { LayoutDashboard, BarChart3, Calendar, FileText, Users, UserCheck, LogOut, Menu, X, Wrench, Palette, ClipboardList, Star } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { useBrand } from '@/app/(components)/BrandProvider'
 
@@ -19,6 +19,7 @@ const NAV_LINK_KEYS = [
   'navTools',
   'navCustomization',
   'navPlataformaLeads',
+  'navEvaluations',
 ] as const
 
 const NAV_LINKS_MAIN = [
@@ -29,6 +30,7 @@ const NAV_LINKS_MAIN = [
   { href: '/admin/eventos', labelKey: NAV_LINK_KEYS[4], icon: Calendar },
   { href: '/admin/conteudo', labelKey: NAV_LINK_KEYS[5], icon: FileText },
   { href: '/admin/ferramentas', labelKey: NAV_LINK_KEYS[6], icon: Wrench },
+  { href: '/admin/avaliacoes', labelKey: NAV_LINK_KEYS[9], icon: Star },
   { href: '/admin/customizacao', labelKey: NAV_LINK_KEYS[7], icon: Palette },
 ] as const
 
