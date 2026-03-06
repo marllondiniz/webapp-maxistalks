@@ -17,6 +17,7 @@ export type ArticleCommentItem = {
   body: string
   created_at: string
   user_id: string
+  parent_id: string | null
   author_name: string | null
   author_avatar_url: string | null
   author_bio: string | null
@@ -36,7 +37,7 @@ export async function GET(
   const supabase = getSupabaseServer()
   const { data: comments, error } = await supabase
     .from('article_comments')
-    .select('id, body, created_at, user_id')
+    .select('id, body, created_at, user_id, parent_id')
     .eq('article_id', articleId)
     .order('created_at', { ascending: true })
 
@@ -76,6 +77,7 @@ export async function GET(
       body: c.body,
       created_at: c.created_at,
       user_id: c.user_id,
+      parent_id: c.parent_id ?? null,
       author_name: profile?.name ?? null,
       author_avatar_url: profile?.avatar_url ?? null,
       author_bio: profile?.bio ?? null,
@@ -102,7 +104,7 @@ export async function POST(
   }
   const { user, supabase } = auth
 
-  let body: { body?: string }
+  let body: { body?: string; parent_id?: string | null }
   try {
     body = await request.json()
   } catch {
@@ -114,14 +116,28 @@ export async function POST(
     return NextResponse.json({ error: 'O comentário não pode estar vazio.' }, { status: 400 })
   }
 
+  const parentId = typeof body.parent_id === 'string' && body.parent_id.trim() ? body.parent_id.trim() : null
+  if (parentId) {
+    const { data: parent } = await supabase
+      .from('article_comments')
+      .select('id')
+      .eq('id', parentId)
+      .eq('article_id', articleId)
+      .maybeSingle()
+    if (!parent) {
+      return NextResponse.json({ error: 'Comentário pai não encontrado.' }, { status: 400 })
+    }
+  }
+
   const { data, error } = await supabase
     .from('article_comments')
     .insert({
       article_id: articleId,
       user_id: user.id,
       body: text,
+      ...(parentId ? { parent_id: parentId } : {}),
     })
-    .select('id, body, created_at, user_id')
+    .select('id, body, created_at, user_id, parent_id')
     .single()
 
   if (error) {
@@ -145,6 +161,7 @@ export async function POST(
     body: data.body,
     created_at: data.created_at,
     user_id: data.user_id,
+    parent_id: data.parent_id ?? null,
     author_name: authorName,
     author_avatar_url: profile?.avatar_url ?? null,
     author_bio: profile?.bio?.trim() || null,
@@ -207,7 +224,7 @@ export async function PUT(
     .eq('id', commentId)
     .eq('article_id', articleId)
     .eq('user_id', auth.user.id)
-    .select('id, body, created_at, user_id')
+    .select('id, body, created_at, user_id, parent_id')
     .maybeSingle()
 
   if (error) {
@@ -232,6 +249,7 @@ export async function PUT(
       body: data.body,
       created_at: data.created_at,
       user_id: data.user_id,
+      parent_id: data.parent_id ?? null,
       author_name: authorName,
       author_avatar_url: profile?.avatar_url ?? null,
       author_bio: profile?.bio?.trim() || null,

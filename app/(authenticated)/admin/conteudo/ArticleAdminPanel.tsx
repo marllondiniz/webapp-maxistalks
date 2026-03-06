@@ -60,6 +60,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
   const [commentsModalArticle, setCommentsModalArticle] = useState<ArticleRecord | null>(null)
   const [commentsList, setCommentsList] = useState<AdminArticleCommentItem[]>([])
   const [commentsLoading, setCommentsLoading] = useState(false)
+  const [replyingToCommentId, setReplyingToCommentId] = useState<string | null>(null)
   const [replyBody, setReplyBody] = useState('')
   const [replySubmitting, setReplySubmitting] = useState(false)
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null)
@@ -383,6 +384,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
   const openCommentsModal = async (article: ArticleRecord) => {
     setCommentsModalArticle(article)
     setCommentsList([])
+    setReplyingToCommentId(null)
     setReplyBody('')
     setCommentsLoading(true)
     try {
@@ -401,6 +403,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
   const closeCommentsModal = () => {
     setCommentsModalArticle(null)
     setCommentsList([])
+    setReplyingToCommentId(null)
     setReplyBody('')
     setDeletingCommentId(null)
   }
@@ -413,7 +416,22 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
         `/api/admin/articles/${commentsModalArticle.id}/comments?commentId=${encodeURIComponent(commentId)}`,
         { method: 'DELETE', headers: await authHeaders() }
       )
-      if (res.ok) setCommentsList((prev) => prev.filter((c) => c.id !== commentId))
+      if (res.ok) {
+        setCommentsList((prev) => {
+          const toRemove = new Set<string>([commentId])
+          let changed = true
+          while (changed) {
+            changed = false
+            prev.forEach((c) => {
+              if (c.parent_id && toRemove.has(c.parent_id) && !toRemove.has(c.id)) {
+                toRemove.add(c.id)
+                changed = true
+              }
+            })
+          }
+          return prev.filter((c) => !toRemove.has(c.id))
+        })
+      }
     } finally {
       setDeletingCommentId(null)
     }
@@ -422,25 +440,32 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
   const handleSubmitReply = async (e: FormEvent) => {
     e.preventDefault()
     if (!commentsModalArticle || !replyBody.trim() || replySubmitting) return
+    const parentId = replyingToCommentId
     setReplySubmitting(true)
     try {
       const res = await fetch(`/api/articles/${commentsModalArticle.id}/comments`, {
         method: 'POST',
         headers: await authHeaders(),
-        body: JSON.stringify({ body: replyBody.trim() }),
+        body: JSON.stringify({
+          body: replyBody.trim(),
+          ...(parentId ? { parent_id: parentId } : {}),
+        }),
       })
       const data = await res.json()
       if (res.ok && data.comment) {
-        setCommentsList((prev) => [...prev, {
+        const newComment: AdminArticleCommentItem = {
           id: data.comment.id,
           body: data.comment.body,
           created_at: data.comment.created_at,
           user_id: data.comment.user_id,
+          parent_id: data.comment.parent_id ?? parentId ?? null,
           author_name: data.comment.author_name ?? null,
           author_email: data.comment.author_email ?? null,
           author_avatar_url: data.comment.author_avatar_url ?? null,
-        }])
+        }
+        setCommentsList((prev) => [...prev, newComment])
         setReplyBody('')
+        setReplyingToCommentId(null)
       }
     } finally {
       setReplySubmitting(false)
@@ -470,6 +495,108 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
   ]
 
   const tipoLabel = (tipo: string | null) => tiposConteudo.find((x) => x.value === tipo)?.label ?? tipo ?? '—'
+
+  const commentsByParent = useMemo(() => {
+    const roots: AdminArticleCommentItem[] = []
+    const byParent = new Map<string | null, AdminArticleCommentItem[]>()
+    commentsList.forEach((c) => {
+      const key = c.parent_id ?? null
+      if (!byParent.has(key)) byParent.set(key, [])
+      byParent.get(key)!.push(c)
+    })
+    byParent.get(null)?.forEach((c) => roots.push(c))
+    roots.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+    byParent.forEach((arr) => arr.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()))
+    return { roots, byParent }
+  }, [commentsList])
+
+  const renderCommentCard = (c: AdminArticleCommentItem, isReply: boolean) => (
+    <li
+      key={c.id}
+      className={isReply ? 'ml-6 mt-2 border-l-2 border-white/10 pl-4' : undefined}
+    >
+      <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+        <div className="mb-2 flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="font-medium text-white">
+              {c.author_name || c.author_email || 'Anônimo'}
+              {isReply && <span className="ml-2 text-xs text-slate-500">(resposta)</span>}
+            </p>
+            {c.author_email && (
+              <p className="text-xs text-slate-500">{c.author_email}</p>
+            )}
+            <p className="text-[11px] text-slate-600">
+              {new Date(c.created_at).toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </p>
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => { setReplyingToCommentId(c.id); setReplyBody('') }}
+              className="rounded-lg p-2 text-slate-400 transition hover:bg-blue-500/10 hover:text-blue-400"
+              title="Responder"
+            >
+              <MessageSquare className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDeleteComment(c.id)}
+              disabled={deletingCommentId === c.id}
+              className="rounded-lg p-2 text-slate-400 transition hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
+              title="Excluir comentário"
+            >
+              {deletingCommentId === c.id ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+            </button>
+          </div>
+        </div>
+        <p className="whitespace-pre-wrap text-sm text-slate-300">{c.body}</p>
+        {replyingToCommentId === c.id && (
+          <form onSubmit={handleSubmitReply} className="mt-4 border-t border-white/10 pt-4">
+            <textarea
+              value={replyBody}
+              onChange={(e) => setReplyBody(e.target.value)}
+              placeholder="Escreva sua resposta..."
+              rows={2}
+              className="mb-2 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-blue-500/40"
+              disabled={replySubmitting}
+              autoFocus
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => { setReplyingToCommentId(null); setReplyBody('') }}
+                className="rounded-xl border border-white/20 px-4 py-2 text-sm text-slate-300 hover:bg-white/5"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={!replyBody.trim() || replySubmitting}
+                className="rounded-xl bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {replySubmitting ? <Loader2 className="inline h-4 w-4 animate-spin" /> : 'Enviar resposta'}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+      {commentsByParent.byParent.get(c.id)?.length ? (
+        <ul className="mt-2 space-y-2">
+          {commentsByParent.byParent.get(c.id)!.map((child) => renderCommentCard(child, true))}
+        </ul>
+      ) : null}
+    </li>
+  )
 
   return (
     <div className="space-y-8">
@@ -897,80 +1024,13 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
                 </div>
-              ) : commentsList.length === 0 ? (
+              ) : commentsByParent.roots.length === 0 ? (
                 <p className="py-8 text-center text-sm text-slate-500">Nenhum comentário ainda.</p>
               ) : (
                 <ul className="space-y-3">
-                  {commentsList.map((c) => (
-                    <li
-                      key={c.id}
-                      className="rounded-xl border border-white/10 bg-white/[0.02] p-4"
-                    >
-                      <div className="mb-2 flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="font-medium text-white">
-                            {c.author_name || c.author_email || 'Anônimo'}
-                          </p>
-                          {c.author_email && (
-                            <p className="text-xs text-slate-500">{c.author_email}</p>
-                          )}
-                          <p className="text-[11px] text-slate-600">
-                            {new Date(c.created_at).toLocaleDateString('pt-BR', {
-                              day: '2-digit',
-                              month: 'short',
-                              year: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteComment(c.id)}
-                          disabled={deletingCommentId === c.id}
-                          className="rounded-lg p-2 text-slate-400 transition hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50"
-                          title="Excluir comentário"
-                        >
-                          {deletingCommentId === c.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
-                        </button>
-                      </div>
-                      <p className="whitespace-pre-wrap text-sm text-slate-300">{c.body}</p>
-                    </li>
-                  ))}
+                  {commentsByParent.roots.map((c) => renderCommentCard(c, false))}
                 </ul>
               )}
-              <form onSubmit={handleSubmitReply} className="mt-6 border-t border-white/10 pt-4">
-                <label className="mb-2 block text-xs font-semibold text-slate-400">
-                  Responder como administrador
-                </label>
-                <textarea
-                  value={replyBody}
-                  onChange={(e) => setReplyBody(e.target.value)}
-                  placeholder="Escreva sua resposta..."
-                  rows={3}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-blue-500/40"
-                  disabled={replySubmitting}
-                />
-                <div className="mt-2 flex justify-end">
-                  <button
-                    type="submit"
-                    disabled={!replyBody.trim() || replySubmitting}
-                    className="rounded-xl bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {replySubmitting ? (
-                      <>
-                        <Loader2 className="inline h-4 w-4 animate-spin" /> Enviando...
-                      </>
-                    ) : (
-                      'Enviar resposta'
-                    )}
-                  </button>
-                </div>
-              </form>
             </div>
           </div>
         </div>

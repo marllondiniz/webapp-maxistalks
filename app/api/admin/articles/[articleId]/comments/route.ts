@@ -11,6 +11,7 @@ export type AdminArticleCommentItem = {
   body: string
   created_at: string
   user_id: string
+  parent_id: string | null
   author_name: string | null
   author_email: string | null
   author_avatar_url: string | null
@@ -81,7 +82,7 @@ export async function GET(
 
   const { data: comments, error } = await supabaseAdmin
     .from('article_comments')
-    .select('id, body, created_at, user_id')
+    .select('id, body, created_at, user_id, parent_id')
     .eq('article_id', articleId)
     .order('created_at', { ascending: true })
 
@@ -118,6 +119,7 @@ export async function GET(
       body: c.body,
       created_at: c.created_at,
       user_id: c.user_id,
+      parent_id: c.parent_id ?? null,
       author_name: profile?.name ?? null,
       author_email: profile?.email ?? null,
       author_avatar_url: profile?.avatar_url ?? null,
