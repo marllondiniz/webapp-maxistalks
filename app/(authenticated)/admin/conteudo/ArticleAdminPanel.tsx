@@ -386,7 +386,9 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
     setReplyBody('')
     setCommentsLoading(true)
     try {
-      const res = await fetch(`/api/admin/articles/${article.id}/comments`)
+      const res = await fetch(`/api/admin/articles/${article.id}/comments`, {
+        headers: await authHeaders(),
+      })
       const data = await res.json()
       if (res.ok) setCommentsList(data.comments ?? [])
     } catch {
@@ -409,7 +411,7 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
     try {
       const res = await fetch(
         `/api/admin/articles/${commentsModalArticle.id}/comments?commentId=${encodeURIComponent(commentId)}`,
-        { method: 'DELETE' }
+        { method: 'DELETE', headers: await authHeaders() }
       )
       if (res.ok) setCommentsList((prev) => prev.filter((c) => c.id !== commentId))
     } finally {
