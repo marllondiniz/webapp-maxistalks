@@ -164,7 +164,7 @@ export function EventAdminPanel({ initialEvents }: Props) {
   const [broadcastFeedback, setBroadcastFeedback] = useState<{ id: string; msg: string; ok: boolean } | null>(null)
   const [newsletterCooldownUntil, setNewsletterCooldownUntil] = useState<Record<string, number>>({})
   const [now, setNow] = useState(() => Date.now())
-  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [testEmail, setTestEmail] = useState('')
   const [broadcastingTestId, setBroadcastingTestId] = useState<string | null>(null)
   const supabase = useMemo(() => getSupabaseClient(), [])
 
@@ -180,7 +180,7 @@ export function EventAdminPanel({ initialEvents }: Props) {
     getSupabaseClient()
       .auth.getUser()
       .then(({ data }) => {
-        if (isMounted && data?.user?.email) setUserEmail(data.user.email)
+        if (isMounted && data?.user?.email) setTestEmail((prev) => prev || (data.user?.email ?? ''))
       })
       .catch(() => {})
     return () => {
@@ -574,8 +574,9 @@ export function EventAdminPanel({ initialEvents }: Props) {
   }
 
   const handleBroadcastTest = async (eventId: string) => {
-    if (!userEmail) {
-      setBroadcastFeedback({ id: eventId, msg: 'Faça login para enviar teste para seu e-mail.', ok: false })
+    const email = testEmail.trim()
+    if (!email) {
+      setBroadcastFeedback({ id: eventId, msg: 'Informe um e-mail para enviar o teste.', ok: false })
       return
     }
     setBroadcastingTestId(eventId)
@@ -584,7 +585,7 @@ export function EventAdminPanel({ initialEvents }: Props) {
       const res = await fetch('/api/admin/broadcast-event', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ eventId, testEmail: userEmail }),
+        body: JSON.stringify({ eventId, testEmail: email }),
       })
       const json = await res.json()
       if (!res.ok) {
@@ -592,7 +593,7 @@ export function EventAdminPanel({ initialEvents }: Props) {
       } else {
         setBroadcastFeedback({
           id: eventId,
-          msg: `E-mail de teste enviado para ${userEmail}. Confira sua caixa de entrada.`,
+          msg: json.message || `E-mail de teste enviado para ${email}.`,
           ok: true,
         })
       }
@@ -1003,6 +1004,19 @@ export function EventAdminPanel({ initialEvents }: Props) {
             {events.length}
           </span>
         </div>
+
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-white/[0.02] p-3">
+          <span className="text-xs font-medium text-[var(--brand-text-muted)]">E-mail de teste:</span>
+          <input
+            type="email"
+            value={testEmail}
+            onChange={(e) => setTestEmail(e.target.value)}
+            placeholder="seu@email.com"
+            className="min-w-[200px] rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-500 outline-none transition focus:border-blue-500/40"
+          />
+          <p className="text-[11px] text-slate-500">Use o botão &quot;Enviar teste&quot; em cada evento para visualizar o e-mail antes de enviar a newsletter.</p>
+        </div>
+
         {events.length === 0 ? (
           <div className="rounded-xl border border-dashed border-white/10 bg-[var(--brand-surface)] p-8 text-center">
             <p className="text-sm text-[var(--brand-text-muted)]">{t('noEvents')}</p>
@@ -1056,9 +1070,9 @@ export function EventAdminPanel({ initialEvents }: Props) {
                     <button
                       type="button"
                       onClick={() => handleBroadcastTest(evento.id)}
-                      disabled={broadcastingTestId === evento.id || broadcastingId === evento.id}
+                      disabled={broadcastingTestId === evento.id || broadcastingId === evento.id || !testEmail.trim()}
                       className="flex items-center gap-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-blue-300 transition hover:border-blue-500/50 hover:bg-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                      title={userEmail ? `Enviar e-mail de teste para ${userEmail}` : 'Faça login para enviar teste'}
+                      title={testEmail.trim() ? `Enviar e-mail de teste para ${testEmail.trim()}` : 'Informe o e-mail de teste acima'}
                     >
                       {broadcastingTestId === evento.id ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />

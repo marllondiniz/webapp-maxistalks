@@ -383,6 +383,7 @@ export async function POST(request: Request) {
       sent,
       total: toSendNew.length,
       alreadyReceived: alreadySentSet.size,
+      ...(isTestSend && sent > 0 ? { message: `E-mail de teste enviado para ${testEmail!.trim()}.` } : {}),
       ...(lastError && sent > 0 ? { warning: `Enviado a ${sent} de ${toSendNew.length}. ${lastError}` } : {}),
     })
   } catch (err) {
