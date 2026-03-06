@@ -51,6 +51,8 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
   const [galleryPhotos, setGalleryPhotos] = useState<ArticleGalleryRecord[]>([])
   const [galleryUploading, setGalleryUploading] = useState(false)
   const [broadcastingId, setBroadcastingId] = useState<string | null>(null)
+  const [sendingTestId, setSendingTestId] = useState<string | null>(null)
+  const [testEmail, setTestEmail] = useState('')
   const [broadcastFeedback, setBroadcastFeedback] = useState<{ id: string; msg: string; ok: boolean } | null>(null)
   const [newsletterCooldownUntil, setNewsletterCooldownUntil] = useState<Record<string, number>>({})
   const [now, setNow] = useState(() => Date.now())
@@ -334,6 +336,33 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
       setBroadcastFeedback({ id: articleId, msg: 'Erro de conexão. Tente novamente.', ok: false })
     } finally {
       setBroadcastingId(null)
+    }
+  }
+
+  const handleSendTest = async (articleId: string) => {
+    const email = testEmail.trim()
+    if (!email) {
+      setBroadcastFeedback({ id: articleId, msg: 'Informe um e-mail para enviar o teste.', ok: false })
+      return
+    }
+    setSendingTestId(articleId)
+    setBroadcastFeedback(null)
+    try {
+      const res = await fetch('/api/admin/broadcast-article', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ articleId, testEmail: email }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        setBroadcastFeedback({ id: articleId, msg: json.error || 'Erro ao enviar teste.', ok: false })
+      } else {
+        setBroadcastFeedback({ id: articleId, msg: json.message || `E-mail de teste enviado para ${email}.`, ok: true })
+      }
+    } catch {
+      setBroadcastFeedback({ id: articleId, msg: 'Erro de conexão. Tente novamente.', ok: false })
+    } finally {
+      setSendingTestId(null)
     }
   }
 
@@ -644,6 +673,18 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
           </select>
         </div>
 
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-white/[0.02] p-3">
+          <span className="text-xs font-medium text-[var(--brand-text-muted)]">E-mail de teste:</span>
+          <input
+            type="email"
+            value={testEmail}
+            onChange={(e) => setTestEmail(e.target.value)}
+            placeholder="seu@email.com"
+            className="min-w-[200px] rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-500 outline-none transition focus:border-blue-500/40"
+          />
+          <p className="text-[11px] text-slate-500">Use o botão &quot;Enviar teste&quot; em cada artigo para visualizar o e-mail antes de enviar a newsletter.</p>
+        </div>
+
         {filteredArticles.length === 0 ? (
           <p className="text-sm text-[var(--brand-text-muted)]">{t('noArticles')}</p>
         ) : (
@@ -701,6 +742,19 @@ export function ArticleAdminPanel({ initialArticles }: Props) {
                         : newsletterCooldownUntil[article.id] != null && now < newsletterCooldownUntil[article.id]
                           ? `Aguarde ${Math.ceil((newsletterCooldownUntil[article.id] - now) / 1000)}s`
                           : 'Newsletter'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSendTest(article.id)}
+                      disabled={sendingTestId === article.id || !testEmail.trim()}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-300 transition hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {sendingTestId === article.id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Send className="h-3.5 w-3.5" />
+                      )}
+                      {sendingTestId === article.id ? 'Enviando...' : 'Enviar teste'}
                     </button>
                     <button
                       type="button"

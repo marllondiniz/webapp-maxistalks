@@ -29,7 +29,8 @@ export async function POST(request: Request) {
       )
     }
 
-    const { articleId } = await request.json()
+    const body = await request.json()
+    const { articleId, testEmail } = body as { articleId?: string; testEmail?: string }
 
     if (!articleId) {
       return NextResponse.json(
@@ -37,6 +38,8 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
+
+    const isTestSend = Boolean(testEmail?.trim())
 
     const { tenantId } = await getBrandConfigFromRequest(request)
     const supabaseAdmin = getSupabaseAdmin()
@@ -202,6 +205,28 @@ export async function POST(request: Request) {
     }
 
     const resend = new Resend(process.env.RESEND_API_KEY)
+    const subject = `${icone}${article.titulo}`
+
+    if (isTestSend) {
+      const { error: sendErr } = await resend.emails.send({
+        from: fromEmail,
+        to: testEmail!.trim(),
+        subject,
+        html: buildEmailHtml(articleUrlDefault),
+      })
+      if (sendErr) {
+        console.error('Erro ao enviar e-mail de teste (artigo):', sendErr)
+        return NextResponse.json(
+          { error: sendErr.message || 'Erro ao enviar e-mail de teste.' },
+          { status: 500 }
+        )
+      }
+      return NextResponse.json({
+        success: true,
+        sent: 1,
+        message: `E-mail de teste enviado para ${testEmail!.trim()}.`,
+      })
+    }
 
     // Listar contatos do segmento
     const allContacts: { email: string; unsubscribed?: boolean }[] = []
@@ -291,8 +316,6 @@ export async function POST(request: Request) {
         linkByEmail.set(email, articleUrlDefault)
       }
     }
-
-    const subject = `${icone}${article.titulo}`
 
     // Batch API: até 100 e-mails por requisição; cada destinatário recebe HTML com seu link (login automático ou direto)
     const BATCH_SIZE = 100
