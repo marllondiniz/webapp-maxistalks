@@ -152,12 +152,17 @@ export default function MaxisTalksPage() {
       .catch(() => setEvents([]))
   }, [])
 
-  // Ordenar pelos próximos eventos primeiro (data_horario ascendente)
+  // Ordem da API: futuros primeiro, ordenados por criação (mais recente → mais antigo); manter essa ordem
   const eventsSorted = useMemo(() => {
     return [...events].sort((a, b) => {
-      const ta = new Date(a.data_horario).getTime()
-      const tb = new Date(b.data_horario).getTime()
-      return ta - tb
+      const aCreated = (a as { created_at?: string }).created_at
+      const bCreated = (b as { created_at?: string }).created_at
+      if (aCreated && bCreated) return new Date(bCreated).getTime() - new Date(aCreated).getTime()
+      const aFuture = new Date(a.data_horario) >= new Date()
+      const bFuture = new Date(b.data_horario) >= new Date()
+      if (aFuture && !bFuture) return -1
+      if (!aFuture && bFuture) return 1
+      return new Date(b.data_horario).getTime() - new Date(a.data_horario).getTime()
     })
   }, [events])
 

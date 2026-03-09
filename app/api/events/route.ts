@@ -10,32 +10,28 @@ export async function GET(request: Request) {
     const supabase = getSupabaseAdmin()
     const now = new Date().toISOString()
 
-    let bannersQuery = supabase
-      .from('event_banners')
-      .select('event_id, image_url, titulo, subtitulo, palestrante_instagram, palestrante_descricao')
-      .eq('is_active', true)
-    if (tenantId) bannersQuery = bannersQuery.or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
-
     const selectCols = 'id, titulo, descricao, data_horario, local_nome, destaque, created_at'
 
+    // Eventos futuros primeiro, ordenados por criação (mais recente → mais antigo)
     let futureQuery = supabase
       .from('events')
       .select(selectCols)
       .gte('data_horario', now)
-      .order('data_horario', { ascending: true })
+      .order('created_at', { ascending: false, nullsFirst: false })
       .limit(12)
     if (tenantId) futureQuery = futureQuery.or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
 
+    // Eventos passados (para preencher se tiver menos de 12 futuros), também por criação (mais recente primeiro)
     let pastQuery = supabase
       .from('events')
       .select(selectCols)
       .lt('data_horario', now)
-      .order('data_horario', { ascending: false })
+      .order('created_at', { ascending: false, nullsFirst: false })
       .limit(12)
     if (tenantId) pastQuery = pastQuery.or(`tenant_id.eq.${tenantId},tenant_id.is.null`)
 
-    const [{ data: futureData, error: futureError }, { data: pastData, error: pastError }, { data: bannersData, error: bannersError }] =
-      await Promise.all([futureQuery, pastQuery, bannersQuery])
+    const [{ data: futureData, error: futureError }, { data: pastData, error: pastError }] =
+      await Promise.all([futureQuery, pastQuery])
 
     let events: Record<string, unknown>[] = []
     if (futureError?.code === '42703') {
@@ -60,7 +56,18 @@ export async function GET(request: Request) {
     if (events.length === 0 && !pastError && pastData?.length) {
       events = (pastData as Record<string, unknown>[]).slice(0, 12)
     }
-    const banners = bannersData ?? []
+
+    // Buscar banners pelos IDs dos eventos retornados (garante banner correto por evento, sem depender de tenant do banner)
+    const eventIds = events.map((e) => e.id).filter(Boolean) as string[]
+    let banners: { event_id: string; image_url: string | null; titulo: string | null; subtitulo: string | null; palestrante_instagram: string | null; palestrante_descricao: string | null }[] = []
+    if (eventIds.length > 0) {
+      const { data: bannersData } = await supabase
+        .from('event_banners')
+        .select('event_id, image_url, titulo, subtitulo, palestrante_instagram, palestrante_descricao')
+        .eq('is_active', true)
+        .in('event_id', eventIds)
+      banners = bannersData ?? []
+    }
 
     const eventsWithBanners = events.map((event) => {
       const banner = banners.find((b) => b.event_id === event.id)
