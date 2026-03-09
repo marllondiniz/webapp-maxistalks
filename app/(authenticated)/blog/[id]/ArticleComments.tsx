@@ -190,18 +190,23 @@ export function ArticleComments({ articleId }: Props) {
           {comments.map((c) => (
             <li
               key={c.id}
-              className="rounded-xl border border-slate-600/30 bg-[var(--brand-surface)]/50 p-4"
+              className={`rounded-xl border p-4 ${
+                c.is_admin_reply
+                  ? 'border-[var(--brand-primary)]/40 bg-[var(--brand-primary)]/5'
+                  : 'border-slate-600/30 bg-[var(--brand-surface)]/50'
+              }`}
             >
               <div className="mb-1 flex flex-wrap items-center justify-between gap-2 text-sm">
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
-                    onClick={() => setProfileView(c)}
-                    className="flex cursor-pointer items-center gap-3 rounded-lg transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                    title="Ver perfil"
+                    onClick={() => !c.is_admin_reply && setProfileView(c)}
+                    className="flex cursor-pointer items-center gap-3 rounded-lg transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:cursor-default"
+                    title={c.is_admin_reply ? undefined : 'Ver perfil'}
+                    disabled={!!c.is_admin_reply}
                   >
-                    <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-slate-700 ring-2 ring-transparent transition hover:ring-slate-500">
-                      {getAvatarDisplayUrl(c.author_avatar_url) ? (
+                    <div className={`relative h-9 w-9 shrink-0 overflow-hidden rounded-full ring-2 ring-transparent transition hover:ring-slate-500 ${c.is_admin_reply ? 'bg-[var(--brand-primary)]/20' : 'bg-slate-700'}`}>
+                      {getAvatarDisplayUrl(c.author_avatar_url) && !c.is_admin_reply ? (
                         <Image
                           src={getAvatarDisplayUrl(c.author_avatar_url)!}
                           alt=""
@@ -217,8 +222,13 @@ export function ArticleComments({ articleId }: Props) {
                       )}
                     </div>
                     <div className="flex flex-col gap-0.5 text-left">
-                      <span className="font-medium text-[#f5f5f5]">
+                      <span className="flex items-center gap-2 font-medium text-[#f5f5f5]">
                         {c.author_name || t('anonymous')}
+                        {c.is_admin_reply && (
+                          <span className="rounded-full bg-[var(--brand-primary)]/20 px-2 py-0.5 text-xs font-semibold text-[var(--brand-primary)]">
+                            Resposta da equipe
+                          </span>
+                        )}
                       </span>
                       <span className="text-slate-500">
                         {new Date(c.created_at).toLocaleDateString('pt-BR', {

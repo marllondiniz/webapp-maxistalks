@@ -23,6 +23,8 @@ export type ArticleCommentItem = {
   author_bio: string | null
   author_linkedin: string | null
   author_instagram: string | null
+  /** true quando o comentário é uma resposta de um administrador (exibido como "Maxis Talks") */
+  is_admin_reply?: boolean
 }
 
 export async function GET(
@@ -54,7 +56,7 @@ export async function GET(
   const admin = getSupabaseAdmin()
   const { data: profiles } = await admin
     .from('profiles')
-    .select('id, nome, email, avatar_url, bio, linkedin, instagram')
+    .select('id, nome, email, avatar_url, bio, linkedin, instagram, is_admin')
     .in('id', userIds)
 
   const profileByUserId = new Map(
@@ -66,23 +68,26 @@ export async function GET(
         bio: p.bio?.trim() || null,
         linkedin: p.linkedin?.trim() || null,
         instagram: p.instagram?.trim() || null,
+        is_admin: !!p.is_admin,
       },
     ])
   )
 
   const items: ArticleCommentItem[] = (comments ?? []).map((c) => {
     const profile = profileByUserId.get(c.user_id)
+    const isAdminReply = profile?.is_admin === true
     return {
       id: c.id,
       body: c.body,
       created_at: c.created_at,
       user_id: c.user_id,
       parent_id: c.parent_id ?? null,
-      author_name: profile?.name ?? null,
+      author_name: isAdminReply ? 'Maxis Talks' : (profile?.name ?? null),
       author_avatar_url: profile?.avatar_url ?? null,
       author_bio: profile?.bio ?? null,
       author_linkedin: profile?.linkedin ?? null,
       author_instagram: profile?.instagram ?? null,
+      is_admin_reply: isAdminReply || undefined,
     }
   })
 
@@ -150,11 +155,12 @@ export async function POST(
 
   const { data: profile } = await getSupabaseAdmin()
     .from('profiles')
-    .select('nome, email, avatar_url, bio, linkedin, instagram')
+    .select('nome, email, avatar_url, bio, linkedin, instagram, is_admin')
     .eq('id', user.id)
     .maybeSingle()
 
-  const authorName = (profile?.nome && profile.nome.trim()) || profile?.email || null
+  const isAdminReply = !!profile?.is_admin
+  const authorName = isAdminReply ? 'Maxis Talks' : ((profile?.nome && profile.nome.trim()) || profile?.email || null)
 
   const item: ArticleCommentItem = {
     id: data.id,
@@ -167,6 +173,7 @@ export async function POST(
     author_bio: profile?.bio?.trim() || null,
     author_linkedin: profile?.linkedin?.trim() || null,
     author_instagram: profile?.instagram?.trim() || null,
+    is_admin_reply: isAdminReply || undefined,
   }
 
   return NextResponse.json({ comment: item })
@@ -238,10 +245,11 @@ export async function PUT(
 
   const { data: profile } = await getSupabaseAdmin()
     .from('profiles')
-    .select('nome, email, avatar_url, bio, linkedin, instagram')
+    .select('nome, email, avatar_url, bio, linkedin, instagram, is_admin')
     .eq('id', auth.user.id)
     .maybeSingle()
-  const authorName = (profile?.nome && profile.nome.trim()) || profile?.email || null
+  const isAdminReply = !!profile?.is_admin
+  const authorName = isAdminReply ? 'Maxis Talks' : ((profile?.nome && profile.nome.trim()) || profile?.email || null)
 
   return NextResponse.json({
     comment: {
@@ -255,6 +263,7 @@ export async function PUT(
       author_bio: profile?.bio?.trim() || null,
       author_linkedin: profile?.linkedin?.trim() || null,
       author_instagram: profile?.instagram?.trim() || null,
+      is_admin_reply: isAdminReply || undefined,
     } satisfies ArticleCommentItem,
   })
 }
