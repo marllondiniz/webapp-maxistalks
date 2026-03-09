@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useEffect, useState } from 'react'
+import { FormEvent, useEffect, useMemo, useState } from 'react'
 import type { ArticleCommentItem } from '@/app/api/articles/[id]/comments/route'
 import Image from 'next/image'
 import { getSupabaseClient } from '@/lib/supabaseClient'
@@ -151,6 +151,153 @@ export function ArticleComments({ articleId }: Props) {
     }
   }
 
+  const { roots, byParent } = useMemo(() => {
+    const roots: ArticleCommentItem[] = []
+    const byParent = new Map<string | null, ArticleCommentItem[]>()
+    comments.forEach((c) => {
+      const key = c.parent_id ?? null
+      if (!byParent.has(key)) byParent.set(key, [])
+      byParent.get(key)!.push(c)
+    })
+    const sorted = (arr: ArticleCommentItem[]) =>
+      [...arr].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+    byParent.get(null)?.forEach((c) => roots.push(c))
+    byParent.forEach((arr, key) => byParent.set(key, sorted(arr)))
+    return { roots: sorted(roots), byParent }
+  }, [comments])
+
+  const renderComment = (c: ArticleCommentItem, isReply: boolean) => (
+    <li
+      key={c.id}
+      className={isReply ? 'mt-3' : undefined}
+    >
+      <div
+        className={`rounded-xl border p-4 ${
+          c.is_admin_reply
+            ? 'border-[var(--brand-primary)]/40 bg-[var(--brand-primary)]/5'
+            : 'border-slate-600/30 bg-[var(--brand-surface)]/50'
+        } ${isReply ? 'rounded-l-lg border-l-2 border-l-[var(--brand-primary)]/50' : ''}`}
+      >
+        <div className="mb-1 flex flex-wrap items-center justify-between gap-2 text-sm">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => !c.is_admin_reply && setProfileView(c)}
+              className="flex cursor-pointer items-center gap-3 rounded-lg transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:cursor-default"
+              title={c.is_admin_reply ? undefined : 'Ver perfil'}
+              disabled={!!c.is_admin_reply}
+            >
+              <div className={`relative h-9 w-9 shrink-0 overflow-hidden rounded-full ring-2 ring-transparent transition hover:ring-slate-500 ${c.is_admin_reply ? 'bg-[var(--brand-primary)]/20' : 'bg-slate-700'}`}>
+                {c.is_admin_reply ? (
+                  <Image
+                    src="/maxistalks-logo.png"
+                    alt="Maxis Talks"
+                    width={36}
+                    height={36}
+                    className="object-contain p-1"
+                    unoptimized
+                  />
+                ) : getAvatarDisplayUrl(c.author_avatar_url) ? (
+                  <Image
+                    src={getAvatarDisplayUrl(c.author_avatar_url)!}
+                    alt=""
+                    width={36}
+                    height={36}
+                    className="object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <span className="flex h-full w-full items-center justify-center text-[var(--brand-text-muted)]">
+                    <User className="h-5 w-5" />
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col gap-0.5 text-left">
+                <span className="flex items-center gap-2 font-medium text-[#f5f5f5]">
+                  {c.author_name || t('anonymous')}
+                  {c.is_admin_reply && (
+                    <span className="rounded-full bg-[var(--brand-primary)]/20 px-2 py-0.5 text-xs font-semibold text-[var(--brand-primary)]">
+                      Resposta da equipe
+                    </span>
+                  )}
+                </span>
+                <span className="text-slate-500">
+                  {new Date(c.created_at).toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </span>
+              </div>
+            </button>
+          </div>
+          {currentUserId === c.user_id && (
+            <div className="flex items-center gap-1">
+              {editingId === c.id ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={saveEdit}
+                    className="rounded-lg bg-[var(--brand-primary)] px-3 py-1.5 text-xs font-medium text-white hover:bg-[var(--brand-primary-hover)]"
+                  >
+                    {t('save')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={cancelEdit}
+                    className="rounded-lg border border-slate-500/50 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-[var(--brand-surface)]/50"
+                  >
+                    {t('cancel')}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => startEdit(c)}
+                    className="rounded p-1.5 text-[var(--brand-text-muted)] transition hover:bg-[var(--brand-surface)]/50 hover:text-[#f5f5f5]"
+                    title={t('save')}
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(c.id)}
+                    disabled={deletingId === c.id}
+                    className="rounded p-1.5 text-[var(--brand-text-muted)] transition hover:bg-red-900/30 hover:text-red-400 disabled:opacity-50"
+                    title={t('deleteConfirm')}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+        {editingId === c.id ? (
+          <textarea
+            value={editBody}
+            onChange={(e) => setEditBody(e.target.value)}
+            rows={3}
+            className="mt-2 w-full rounded-lg border border-slate-600/40 bg-[var(--brand-surface-alt)] px-3 py-2 text-sm text-[#f5f5f5] focus:border-slate-500/50 focus:outline-none"
+            autoFocus
+          />
+        ) : (
+          <p className="text-[15px] leading-relaxed text-[#c9c9d2] whitespace-pre-wrap">
+            {c.body}
+          </p>
+        )}
+      </div>
+      {byParent.get(c.id)?.length ? (
+        <ul className="ml-4 mt-3 space-y-2 border-l-2 border-slate-600/20 pl-4">
+          {byParent.get(c.id)!.map((child) => renderComment(child, true))}
+        </ul>
+      ) : null}
+    </li>
+  )
+
   return (
     <div className="mt-12 border-t border-slate-600/30 pt-6">
       <h2 className="mb-4 text-lg font-semibold text-[#f5f5f5]">{t('title')}</h2>
@@ -183,123 +330,11 @@ export function ArticleComments({ articleId }: Props) {
 
       {loading ? (
         <p className="text-sm text-[var(--brand-text-muted)]">{t('loading')}</p>
-      ) : comments.length === 0 ? (
+      ) : roots.length === 0 ? (
         <p className="text-sm text-[var(--brand-text-muted)]">{t('empty')}</p>
       ) : (
         <ul className="space-y-4">
-          {comments.map((c) => (
-            <li
-              key={c.id}
-              className={`rounded-xl border p-4 ${
-                c.is_admin_reply
-                  ? 'border-[var(--brand-primary)]/40 bg-[var(--brand-primary)]/5'
-                  : 'border-slate-600/30 bg-[var(--brand-surface)]/50'
-              }`}
-            >
-              <div className="mb-1 flex flex-wrap items-center justify-between gap-2 text-sm">
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => !c.is_admin_reply && setProfileView(c)}
-                    className="flex cursor-pointer items-center gap-3 rounded-lg transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:cursor-default"
-                    title={c.is_admin_reply ? undefined : 'Ver perfil'}
-                    disabled={!!c.is_admin_reply}
-                  >
-                    <div className={`relative h-9 w-9 shrink-0 overflow-hidden rounded-full ring-2 ring-transparent transition hover:ring-slate-500 ${c.is_admin_reply ? 'bg-[var(--brand-primary)]/20' : 'bg-slate-700'}`}>
-                      {getAvatarDisplayUrl(c.author_avatar_url) && !c.is_admin_reply ? (
-                        <Image
-                          src={getAvatarDisplayUrl(c.author_avatar_url)!}
-                          alt=""
-                          width={36}
-                          height={36}
-                          className="object-cover"
-                          unoptimized
-                        />
-                      ) : (
-                        <span className="flex h-full w-full items-center justify-center text-[var(--brand-text-muted)]">
-                          <User className="h-5 w-5" />
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-col gap-0.5 text-left">
-                      <span className="flex items-center gap-2 font-medium text-[#f5f5f5]">
-                        {c.author_name || t('anonymous')}
-                        {c.is_admin_reply && (
-                          <span className="rounded-full bg-[var(--brand-primary)]/20 px-2 py-0.5 text-xs font-semibold text-[var(--brand-primary)]">
-                            Resposta da equipe
-                          </span>
-                        )}
-                      </span>
-                      <span className="text-slate-500">
-                        {new Date(c.created_at).toLocaleDateString('pt-BR', {
-                          day: '2-digit',
-                          month: 'short',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
-                    </div>
-                  </button>
-                </div>
-                {currentUserId === c.user_id && (
-                  <div className="flex items-center gap-1">
-                    {editingId === c.id ? (
-                      <>
-                        <button
-                          type="button"
-                          onClick={saveEdit}
-                          className="rounded-lg bg-[var(--brand-primary)] px-3 py-1.5 text-xs font-medium text-white hover:bg-[var(--brand-primary-hover)]"
-                        >
-                          {t('save')}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={cancelEdit}
-                          className="rounded-lg border border-slate-500/50 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-[var(--brand-surface)]/50"
-                        >
-                          {t('cancel')}
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => startEdit(c)}
-                          className="rounded p-1.5 text-[var(--brand-text-muted)] transition hover:bg-[var(--brand-surface)]/50 hover:text-[#f5f5f5]"
-                          title={t('save')}
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(c.id)}
-                          disabled={deletingId === c.id}
-                          className="rounded p-1.5 text-[var(--brand-text-muted)] transition hover:bg-red-900/30 hover:text-red-400 disabled:opacity-50"
-                          title={t('deleteConfirm')}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-              {editingId === c.id ? (
-                <textarea
-                  value={editBody}
-                  onChange={(e) => setEditBody(e.target.value)}
-                  rows={3}
-                  className="mt-2 w-full rounded-lg border border-slate-600/40 bg-[var(--brand-surface-alt)] px-3 py-2 text-sm text-[#f5f5f5] focus:border-slate-500/50 focus:outline-none"
-                  autoFocus
-                />
-              ) : (
-                <p className="text-[15px] leading-relaxed text-[#c9c9d2] whitespace-pre-wrap">
-                  {c.body}
-                </p>
-              )}
-            </li>
-          ))}
+          {roots.map((c) => renderComment(c, false))}
         </ul>
       )}
 
