@@ -257,6 +257,19 @@ export function AdminDashboard({
     return (a.user_nome ?? a.user_email ?? '').localeCompare(b.user_nome ?? b.user_email ?? '', 'pt-BR')
   })
 
+  const escapeCsvCell = (value: unknown) => `"${String(value ?? '').replace(/"/g, '""')}"`
+
+  const downloadCsv = (filename: string, headers: string[], rows: string[][]) => {
+    const csv = [headers.map(escapeCsvCell).join(','), ...rows.map((r) => r.map(escapeCsvCell).join(','))].join('\r\n')
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const handleExportUsersCsv = () => {
     const headers = ['Nome','Email','Telefone','Cidade/Estado','Posição','Empresa/Projeto','Empresa atual','Setor','Faturamento','O que quer aprender','Indicado por','Inscrições em eventos']
     const rows = sortedUsers.map((u) => [
@@ -266,12 +279,24 @@ export function AdminDashboard({
       u.invited_by_user_id ? referrerNameById.get(u.invited_by_user_id) ?? '' : '',
       String(registrationsCountByUser.get(u.id) ?? 0),
     ])
-    const csv = [headers.map((h) => `"${h.replace(/"/g, '""')}"`).join(','), ...rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(','))].join('\r\n')
-    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url; a.download = `usuarios-${new Date().toISOString().slice(0, 10)}.csv`; a.click()
-    URL.revokeObjectURL(url)
+    downloadCsv(`usuarios-${new Date().toISOString().slice(0, 10)}.csv`, headers, rows)
+  }
+
+  const handleExportInterestsCsv = () => {
+    const headers = ['Data','Participante','Email','Cidade','Evento','Data do evento','Empresa','Área','Telefone','Instagram']
+    const rows = sortedReg.map((r) => [
+      formatDate(r.created_at),
+      r.user_nome ?? '',
+      r.user_email ?? '',
+      r.user_cidade ?? '',
+      r.event_titulo ?? '',
+      formatEventDate(r.event_data_horario),
+      r.user_empresa ?? '',
+      r.user_area ?? '',
+      r.user_telefone ?? '',
+      r.user_instagram ?? '',
+    ])
+    downloadCsv(`${t('csvFilename')}-${new Date().toISOString().slice(0, 10)}.csv`, headers, rows)
   }
 
   /* ── render ─────────────────────────────────────────── */
@@ -502,6 +527,10 @@ export function AdminDashboard({
                     <option value="event">{t('sortByEvent')}</option>
                     <option value="name">{t('sortName')}</option>
                   </select>
+                  <button type="button" onClick={handleExportInterestsCsv}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/15 px-3 py-2 text-sm font-medium text-emerald-400 hover:bg-emerald-500/25 transition">
+                    <Download className="h-4 w-4" /> {t('exportCsv')}
+                  </button>
                 </div>
                 {sortedReg.length === 0 ? (
                   <p className="py-10 text-center text-sm text-[var(--brand-text-muted)]">{t('noInterestsFound')}</p>
