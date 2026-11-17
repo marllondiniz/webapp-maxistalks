@@ -12,6 +12,7 @@ import {
   BookOpenText,
   User,
   Wrench,
+  type LucideIcon,
 } from 'lucide-react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { useBrand } from '@/app/(components)/BrandProvider'
@@ -19,7 +20,7 @@ import { useBrand } from '@/app/(components)/BrandProvider'
 type NavItem = {
   href: string
   labelKey: 'navHome' | 'navEvents' | 'navContent' | 'navTools' | 'navProfile'
-  icon: React.ComponentType<{ size?: number | string; className?: string }>
+  icon: LucideIcon
   titleKey: 'navHomeTitle' | 'navEventsTitle' | 'navContentTitle' | 'navToolsTitle' | 'navProfileTitle'
   showInNav?: boolean
 }
