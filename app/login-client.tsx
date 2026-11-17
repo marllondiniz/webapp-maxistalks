@@ -134,7 +134,10 @@ export default function LoginClient() {
           // Valida no servidor se o usuário ainda existe em auth.users
           const verifyRes = await fetch('/api/auth/verify-user', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${data.session?.access_token ?? ''}`,
+            },
             body: JSON.stringify({ userId }),
           })
           const verifyData = await verifyRes.json()
