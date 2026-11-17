@@ -32,6 +32,12 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/perfil', labelKey: 'navProfile', icon: User, titleKey: 'navProfileTitle' },
 ]
 
+function isNavItemActive(pathname: string | null, href: string) {
+  if (!pathname) return false
+  if (pathname === href) return true
+  return href !== '/inicio' && pathname.startsWith(`${href}/`)
+}
+
 export default function AuthenticatedLayout({ children }: { children: ReactNode }) {
   const brand = useBrand()
   const t = useTranslations('UserNav')
@@ -108,13 +114,6 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
     }
   }, [pathname, profileStatus, router])
 
-  const activeItem = useMemo(() => {
-    if (!pathname) return navItemsToShow[0]
-    const found = navItemsToShow.find((item) => item.href === pathname)
-    if (found) return found
-    return navItemsToShow[0]
-  }, [pathname, navItemsToShow])
-
   const navItemsToDisplay = useMemo(
     () => navItemsToShow.filter((item) => item.showInNav !== false),
     [navItemsToShow]
@@ -175,43 +174,37 @@ export default function AuthenticatedLayout({ children }: { children: ReactNode 
           <div className="absolute bottom-0 left-1/2 h-px w-screen -translate-x-1/2 bg-white/10" aria-hidden />
         </header>
 
-        <main className="flex-1 overflow-y-auto px-5 pb-28 pt-6 md:px-8 md:pb-24 lg:px-12 xl:px-16">
+        <main className="flex-1 overflow-y-auto px-5 pb-32 pt-6 md:px-8 lg:px-12 xl:px-16">
           <div className="mx-auto w-full max-w-[1867.5px]">{children}</div>
         </main>
 
-        {/* Bottom nav — mobile e desktop */}
         <nav
-          className="fixed inset-x-0 bottom-0 z-30 flex justify-center border-t border-white/10 bg-[var(--brand-surface-alt)]/95 backdrop-blur"
+          className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
           aria-label="Navegação principal"
         >
-          <div className="grid h-20 w-full max-w-[480px] grid-cols-5 md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-[1867.5px]">
+          <div className="pointer-events-auto grid w-full max-w-[26.5rem] grid-cols-5 gap-1 rounded-[1.65rem] border border-white/10 bg-[var(--brand-surface)]/95 p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.45)] ring-1 ring-white/5 backdrop-blur-xl">
             {navItemsToDisplay.map((item) => {
-              const isActive =
-                activeItem.href === item.href && activeItem.label === item.label
+              const isActive = isNavItemActive(pathname, item.href)
               const Icon = item.icon
               const navDisabled = profileStatus === 'incomplete' && item.href !== '/perfil'
 
               return (
                 <Link
-                  key={item.href + item.label}
+                  key={item.href}
                   href={item.href}
+                  title={item.title}
+                  aria-current={isActive ? 'page' : undefined}
                   aria-disabled={navDisabled}
-                  className={`group relative flex flex-col items-center justify-center gap-1 text-xs font-medium ${
-                    navDisabled ? 'pointer-events-none opacity-50' : ''
+                  className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-[1.15rem] px-0.5 py-2 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] ${
+                    navDisabled ? 'pointer-events-none opacity-40' : ''
+                  } ${
+                    isActive
+                      ? 'bg-[var(--brand-primary)] text-[var(--brand-button-text,#ffffff)] shadow-[0_8px_18px_color-mix(in_srgb,var(--brand-primary)_40%,transparent)]'
+                      : 'text-[var(--brand-text-muted)] hover:bg-white/5 hover:text-white'
                   }`}
                 >
-                  <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-full transition ${
-                      isActive ? 'bg-[var(--brand-primary)] text-white' : 'bg-transparent text-white'
-                    }`}
-                  >
-                    <Icon size={20} className={isActive ? 'stroke-[2.5]' : 'opacity-80'} />
-                  </div>
-                  <span
-                    className={`text-[11px] uppercase tracking-wider ${
-                      isActive ? 'text-white' : 'text-[var(--brand-text-muted)]'
-                    }`}
-                  >
+                  <Icon size={18} strokeWidth={isActive ? 2.4 : 2} />
+                  <span className="w-full truncate text-center text-[9px] font-semibold leading-none tracking-tight min-[400px]:text-[10px]">
                     {item.label}
                   </span>
                 </Link>
